@@ -2,7 +2,7 @@
 
 PROJECT=$(git rev-parse --show-toplevel)
 GO_EXAMPLES=$PROJECT/go/examples
-GENERATED_EXAMPLES=$PROJECT/generated/go
+GENERATED_EXAMPLES=$PROJECT/generated-examples/go
 
 # Bluehawk Go examples
 echo "Bluehawking Go examples"

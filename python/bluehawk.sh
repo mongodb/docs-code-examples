@@ -2,7 +2,7 @@
 
 PROJECT=$(git rev-parse --show-toplevel)
 PYTHON_EXAMPLES=$PROJECT/python/examples
-GENERATED_EXAMPLES=$PROJECT/generated/python
+GENERATED_EXAMPLES=$PROJECT/generated-examples/python
 
 # Bluehawk asymmetric examples
 echo "Bluehawking Python examples"

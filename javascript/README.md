@@ -6,8 +6,8 @@ MongoDB documentation.
 The structure of this JavaScript project is as follows:
 
 - `/example`: This directory contains example code, marked up with Bluehawk,
-  that will be outputted to the `/generated` directory when we run the Bluehawk
-  script.
+  that will be outputted to the `/generated-examples` directory when we run the
+  Bluehawk script.
 - `/tests`: This directory contains the test infrastructure to actually run
   the tests by invoking the example code.
 
@@ -21,7 +21,7 @@ sample data, and save the connection string for use in the next step.
 
 ### Create a .env file
 
-Create a file named '.env' at the root of the '/javascript' directory within
+Create a file named `.env` at the root of the `/javascript` directory within
 this project. Add your Atlas connection string as an environment value named
 `ATLAS_CONNECTION_STRING`:
 

@@ -6,8 +6,8 @@ documentation.
 The structure of this Python project is as follows:
 
 - `/examples`: This directory contains example code, marked up with Bluehawk,
-  that will be outputted to the `/generated` directory when we run the Bluehawk
-  script.
+  that will be outputted to the `/generated-examples` directory when we run the
+  Bluehawk script.
 - `/tests_package`: This directory contains the test infrastructure to actually
   run the tests by invoking the example code. (This directory can't be named
   simply `tests` as this is a protected namespace in Python.)

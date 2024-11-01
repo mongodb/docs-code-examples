@@ -6,8 +6,8 @@ MongoDB documentation.
 The structure of this Java project is as follows:
 
 - `/src/main/java`: This directory contains example code, marked up with
-  Bluehawk, that will be outputted to the `/generated` directory when we run
-  the Bluehawk script.
+  Bluehawk, that will be outputted to the `/generated-examples` directory when
+  we run the Bluehawk script.
 - `/src/test/java`: This directory contains the test infrastructure to actually
   run the tests by invoking the example code.
 
