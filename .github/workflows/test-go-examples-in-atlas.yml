@@ -1,0 +1,30 @@
+name: Test Go Code Examples against Atlas
+
+on:
+  pull_request:
+    paths:
+      - "go/examples/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+      - name: Install dependencies
+        run: |
+          cd go/
+          go mod download
+      - name: Create environment file with connection string
+        run: |
+          cd go/
+          echo "ATLAS_CONNECTION_STRING=\"${{secrets.ATLAS_CONNECTION_STRING}}\"" >> .env
+          echo "ENV=\"Atlas\"" >> .env
+      - name: Run tests
+        run: |
+          cd go/tests/
+          go test -v -p 1 ./...

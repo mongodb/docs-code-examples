@@ -1,0 +1,12 @@
+# MacOS Build Artifacts
+*.DS_Store
+# Don't commit .env files with secret info, EVER
+*.env
+# JetBrains IDE files
+*.idea
+# Python virtual environment
+*/venv
+# Node.js dependencies
+*/node_modules
+# Java build files
+*/target

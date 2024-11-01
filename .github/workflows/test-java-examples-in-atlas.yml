@@ -1,0 +1,30 @@
+name: Test Java Code Examples against Atlas
+
+on:
+  pull_request:
+    paths:
+      - "java/src/main/java/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Test with Maven
+        run: |
+          export ATLAS_CONNECTION_STRING="${{secrets.ATLAS_CONNECTION_STRING}}"
+          export ENV="Atlas"
+          cd java/
+          mvn clean install
+      - name: Publish Test Report
+        if: success() || failure()
+        uses: scacap/action-surefire-report@v1

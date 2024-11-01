@@ -1,0 +1,31 @@
+name: Test JavaScript Code Examples against Atlas
+
+on:
+  pull_request:
+    paths:
+      - "javascript/examples/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: |
+          cd javascript/
+          npm install
+      - name: Create environment file with connection string
+        run: |
+          cd javascript/
+          touch .env
+          echo "ATLAS_CONNECTION_STRING=\"${{secrets.ATLAS_CONNECTION_STRING}}\"" >> .env
+          echo "ENV=\"Atlas\"" >> .env
+      - name: Run tests
+        run: |
+          cd javascript/
+          npm test

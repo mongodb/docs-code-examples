@@ -1,0 +1,30 @@
+name: Test Python Code Examples against Atlas
+
+on:
+  pull_request:
+    paths:
+      - "python/examples/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install pymongo python-dotenv
+      - name: Create environment file with connection string
+        run: |
+          cd python/
+          touch .env
+          echo "ATLAS_CONNECTION_STRING=\"${{secrets.ATLAS_CONNECTION_STRING}}\"" >> .env
+          echo "ENV=\"Atlas\"" >> .env
+      - name: Run tests
+        run: |
+          cd python/
+          python -m unittest discover tests_package

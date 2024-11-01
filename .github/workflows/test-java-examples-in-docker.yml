@@ -1,0 +1,44 @@
+name: Test Java Code Examples Against Local/Docker
+
+on:
+  pull_request:
+    paths:
+      - "java/src/main/java/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Atlas CLI
+        run: |
+          curl https://fastdl.mongodb.org/mongocli/mongodb-atlas-cli_1.29.0_linux_x86_64.deb --output atlas-cli.deb
+          sudo apt install ./atlas-cli.deb
+      - name: Set up a local deployment using Atlas CLI
+        run: |
+          atlas deployments setup myLocalRs1 --type local --port 27017 --force
+      - name: Install MongoDB Database Tools to load sample data
+        run: |
+          curl https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.10.0.deb --output mdb-db-tools.deb
+          sudo apt install ./mdb-db-tools.deb
+      - name: Download sample data
+        run: curl  https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive
+      - name: Add sample data to database
+        run: mongorestore --archive=sampledata.archive --port=27017
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Test with Maven
+        run: |
+          export ATLAS_CONNECTION_STRING="mongodb://localhost:27017/?directConnection=true"
+          export ENV="local"
+          cd java/
+          mvn clean install
+      - name: Publish Test Report
+        if: success() || failure()
+        uses: scacap/action-surefire-report@v1
