@@ -16,11 +16,17 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: Test with Maven
+      - name: Install dependencies with Maven
         run: |
-          echo ${{secrets.JAVA_CONNECTION_STRING}}
-          echo "${{secrets.JAVA_CONNECTION_STRING}}"
-          export ATLAS_CONNECTION_STRING="${{secrets.JAVA_CONNECTION_STRING}}"
+          cd java/
+          mvn install -DskipTests
+      - name: Test with Maven
+        env:
+          JAVA_CONNECTION_STRING: ${{ secrets.JAVA_CONNECTION_STRING }}
+        run: |
+          echo $JAVA_CONNECTION_STRING
+          echo "$JAVA_CONNECTION_STRING"
+          export ATLAS_CONNECTION_STRING="$JAVA_CONNECTION_STRING"
           export ENV="Atlas"
           cd java/
-          mvn clean install
+          mvn test
