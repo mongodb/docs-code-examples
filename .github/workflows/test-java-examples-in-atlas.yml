@@ -24,7 +24,7 @@ jobs:
         env:
           JAVA_CONNECTION_STRING: ${{ secrets.JAVA_CONNECTION_STRING }}
         run: |
-          echo "JAVA_CONNECTION_STRING is set to $JAVA_CONNECTION_STRING
+          echo "JAVA_CONNECTION_STRING is set to $JAVA_CONNECTION_STRING"
           export ENV="Atlas"
           cd java/
           mvn test
