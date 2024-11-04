@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Install Atlas CLI
@@ -42,3 +39,5 @@ jobs:
       - name: Publish Test Report
         if: success() || failure()
         uses: scacap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.POST_TO_GITHUB }}
