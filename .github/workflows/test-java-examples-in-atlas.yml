@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
       - name: Test with Maven
         run: |
-          export ATLAS_CONNECTION_STRING="${{secrets.ATLAS_CONNECTION_STRING}}"
+          export ATLAS_CONNECTION_STRING="${{secrets.JAVA_CONNECTION_STRING}}"
           export ENV="Atlas"
           cd java/
           mvn clean install
