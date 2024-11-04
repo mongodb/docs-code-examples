@@ -22,9 +22,9 @@ jobs:
           mvn install -DskipTests
       - name: Test with Maven
         env:
-          JAVA_CONNECTION_STRING: ${{ secrets.JAVA_CONNECTION_STRING }}
+          ATLAS_CONNECTION_STRING: ${{ secrets.JAVA_CONNECTION_STRING }}
         run: |
-          echo "JAVA_CONNECTION_STRING is set to $JAVA_CONNECTION_STRING"
+          echo "ATLAS_CONNECTION_STRING is set to $ATLAS_CONNECTION_STRING"
           export ENV="Atlas"
           cd java/
           mvn test
