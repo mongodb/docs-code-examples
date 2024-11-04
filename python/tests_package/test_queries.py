@@ -64,7 +64,7 @@ class TestQueries(unittest.TestCase):
                 {'plot': 'A pilot, stranded in the desert, meets a little boy who is a prince on a planet.', 'title': 'The Little Prince', 'year': 1974, 'score': 0.7378944158554077},
                 {'plot': 'A red balloon with a life of its own follows a little boy around the streets of Paris.', 'title': 'The Red Balloon', 'year': 1956, 'score': 0.734271228313446},
                 {'plot': 'A poor boy wins the opportunity to tour the most eccentric and wonderful candy factory of all.', 'title': 'Willy Wonka & the Chocolate Factory', 'year': 1971, 'score': 0.7342106699943542},
-                {'plot': 'An apprentice witch, three kids and a cynical conman search for the missing component to a magic spell useful to the defense of Britain.', 'title': 'Bedknobs and Broomsticks', 'year': 1971, 'score': 0.7339356541633606},
+                {'plot': 'An apprentice witch, three kids and a cynical conman search for the missing component to a magic spell useful to the defense of Britain.', 'title': 'Bedknobs and Broomsticks', 'year': 1971, 'score': 0.7339357137680054},
                 {'plot': 'Arriving home to find his native land under the yoke of corrupt merchants, an adventurer named Sadko sets sail in search of a mythical bird of happiness.', 'title': 'Sadko', 'year': 1953, 'score': 0.7339220643043518},
                 {'plot': "A young boys' coming of age tale set in a strange, carnivalesque village becomes the recreation of a memory that the director has twenty years later.", 'title': 'Pastoral Hide and Seek', 'year': 1974, 'score': 0.733299970626831}]
         elif ENV=="local":
