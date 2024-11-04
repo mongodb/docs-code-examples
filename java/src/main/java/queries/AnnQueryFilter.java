@@ -1,7 +1,7 @@
 //	:replace-start: {
 //	  "terms": {
 //      "ArrayList<Document>": "void",
-//	    "System.getenv(\"ATLAS_CONNECTION_STRING\")": "<connectionString>"
+//	    "System.getenv(\"ATLAS_CONNECTION_STRING\")": "\"<connectionString>\""
 //	  }
 //	}
 package queries;
