@@ -30,7 +30,7 @@ import java.util.List;
 
 public class AnnQueryFilter {
     public static ArrayList<Document> main(String[] args ) {
-        // Replace the placeholder with your Atlas connection string
+        // Replace the placeholder with your Atlas connection string.
         String uri = System.getenv("ATLAS_CONNECTION_STRING");
 
         // Connect to your Atlas cluster
