@@ -40,7 +40,7 @@ func ExampleCreateIndexBasic(t *testing.T) {
 	//const uri = "<connection-string>"
 	// :uncomment-end:
 
-	// Connect to your Atlas cluster
+	// Connect to the Atlas cluster
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
