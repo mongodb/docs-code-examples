@@ -1,7 +1,8 @@
 name: Test JavaScript Code Examples against Atlas
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     paths:
       - "javascript/examples/**"
 
@@ -10,7 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - name: Check access
+        if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' }}
+        run: |
+          echo "Event not triggered by a collaborator."
+          exit 1
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -23,7 +31,7 @@ jobs:
         run: |
           cd javascript/
           touch .env
-          echo "ATLAS_CONNECTION_STRING=\"${{secrets.ATLAS_CONNECTION_STRING}}\"" >> .env
+          echo "ATLAS_CONNECTION_STRING=\"${{secrets.JAVASCRIPT_CONNECTION_STRING}}\"" >> .env
           echo "ENV=\"Atlas\"" >> .env
       - name: Run tests
         run: |
