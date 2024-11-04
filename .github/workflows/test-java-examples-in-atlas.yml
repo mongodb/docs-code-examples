@@ -24,7 +24,7 @@ jobs:
         env:
           ATLAS_CONNECTION_STRING: ${{ secrets.JAVA_CONNECTION_STRING }}
         run: |
-          echo "ATLAS_CONNECTION_STRING is set to ${{ATLAS_CONNECTION_STRING}}"
+          echo "ATLAS_CONNECTION_STRING is set to ${{ secrets.JAVA_CONNECTION_STRING }}"
           export ENV="Atlas"
           cd java/
           mvn test
