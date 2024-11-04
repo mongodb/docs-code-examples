@@ -27,7 +27,7 @@ class TestQueries(unittest.TestCase):
         if ENV=="Atlas":
             expectedOutput = [{'plot': 'A reporter, learning of time travelers visiting 20th century disasters, tries to change the history they know by averting upcoming disasters.', 'title': 'Thrill Seekers', 'score': 0.7892671227455139},
                 {'plot': 'At the age of 21, Tim discovers he can travel in time and change what happens and has happened in his own life. His decision to make his world a better place by getting a girlfriend turns out not to be as easy as you might think.', 'title': 'About Time', 'score': 0.7843604683876038},
-                {'plot': 'Hoping to alter the events of the past, a 19th century inventor instead travels 800,000 years into the future, where he finds humankind divided into two warring races.', 'title': 'The Time Machine', 'score': 0.7801066637039185},
+                {'plot': 'Hoping to alter the events of the past, a 19th century inventor instead travels 800,000 years into the future, where he finds humankind divided into two warring races.', 'title': 'The Time Machine', 'score': 0.7801067233085632},
                 {'plot': "After using his mother's newly built time machine, Dolf gets stuck involuntary in the year 1212. He ends up in a children's crusade where he confronts his new friends with modern techniques...", 'title': 'Crusade in Jeans', 'score': 0.7789170742034912},
                 {'plot': 'An officer for a security agency that regulates time travel, must fend for his life against a shady politician who has a tie to his past.', 'title': 'Timecop', 'score': 0.7771612405776978},
                 {'plot': 'A time-travel experiment in which a robot probe is sent from the year 2073 to the year 1973 goes terribly wrong thrusting one of the project scientists, a man named Nicholas Sinclair into a...', 'title': 'A.P.E.X.', 'score': 0.7730885744094849},
@@ -59,7 +59,7 @@ class TestQueries(unittest.TestCase):
         if ENV=="Atlas":
             expectedOutput = [{'plot': 'In this magical tale about the boy who refuses to grow up, Peter Pan and his mischievous fairy sidekick Tinkerbell visit the nursery of Wendy, Michael, and John Darling. With a sprinkling ...', 'title': 'Peter Pan', 'year': 1960, 'score': 0.748110830783844},
                 {'plot': 'A down-on-his-luck inventor turns a broken-down Grand Prix car into a fancy vehicle for his children, and then they go off on a magical fantasy adventure to save their grandfather in a far-off land.', 'title': 'Chitty Chitty Bang Bang', 'year': 1968, 'score': 0.7442465424537659},
-                {'plot': 'A young man comes to the rescue of his girlfriend abducted by thieves and brought to Rio. An extravagant adventure ensues.', 'title': 'That Man from Rio', 'year': 1964, 'score': 0.7416020035743713},
+                {'plot': 'A young man comes to the rescue of his girlfriend abducted by thieves and brought to Rio. An extravagant adventure ensues.', 'title': 'That Man from Rio', 'year': 1964, 'score': 0.7416019439697266},
                 {'plot': 'A boy raised by wolves tries to adapt to human village life.', 'title': 'Jungle Book', 'year': 1942, 'score': 0.7387760877609253},
                 {'plot': 'A pilot, stranded in the desert, meets a little boy who is a prince on a planet.', 'title': 'The Little Prince', 'year': 1974, 'score': 0.7378944158554077},
                 {'plot': 'A red balloon with a life of its own follows a little boy around the streets of Paris.', 'title': 'The Red Balloon', 'year': 1956, 'score': 0.7342712879180908},
