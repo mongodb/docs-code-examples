@@ -22,8 +22,3 @@ jobs:
           export ENV="Atlas"
           cd java/
           mvn clean install
-      - name: Publish Test Report
-        if: success() || failure()
-        uses: scacap/action-surefire-report@v1
-        with:
-          github_token: ${{ secrets.POST_TO_GITHUB }}
