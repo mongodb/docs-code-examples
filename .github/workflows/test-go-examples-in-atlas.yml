@@ -1,7 +1,8 @@
 name: Test Go Code Examples against Atlas
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     paths:
       - "go/examples/**"
 
@@ -10,7 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - name: Check access
+        if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' }}
+        run: |
+          echo "Event not triggered by a collaborator."
+          exit 1
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Go 1.21.x
         uses: actions/setup-go@v5
         with:
@@ -22,7 +30,7 @@ jobs:
       - name: Create environment file with connection string
         run: |
           cd go/
-          echo "ATLAS_CONNECTION_STRING=\"${{secrets.ATLAS_CONNECTION_STRING}}\"" >> .env
+          echo "ATLAS_CONNECTION_STRING=\"${{secrets.GO_CONNECTION_STRING}}\"" >> .env
           echo "ENV=\"Atlas\"" >> .env
       - name: Run tests
         run: |
