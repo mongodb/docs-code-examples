@@ -6,20 +6,19 @@ import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Projections.metaVectorSearchScore;
 import static com.mongodb.client.model.search.SearchPath.fieldPath;
 import static com.mongodb.client.model.search.VectorSearchOptions.approximateVectorSearchOptions;
-import static java.util.Arrays.asList;
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.search.VectorSearchOptions;
-
-import java.util.ArrayList;
-import java.util.List;
 import com.mongodb.client.model.search.FieldSearchPath;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+
+import static java.util.Arrays.asList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnnQueryFilter {
     public static void main(String[] args ) {
