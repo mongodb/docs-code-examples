@@ -33,7 +33,7 @@ class TestQueries(unittest.TestCase):
                 {'plot': 'A time-travel experiment in which a robot probe is sent from the year 2073 to the year 1973 goes terribly wrong thrusting one of the project scientists, a man named Nicholas Sinclair into a...', 'title': 'A.P.E.X.', 'score': 0.7730885744094849},
                 {'plot': "Agent J travels in time to M.I.B.'s early days in 1969 to stop an alien from assassinating his friend Agent K and changing history.", 'title': 'Men in Black 3', 'score': 0.7712380290031433},
                 {'plot': 'Bound by a shared destiny, a teen bursting with scientific curiosity and a former boy-genius inventor embark on a mission to unearth the secrets of a place somewhere in time and space that exists in their collective memory.', 'title': 'Tomorrowland', 'score': 0.7669923901557922},
-                {'plot': 'With the help of his uncle, a man travels to the future to try and bring his girlfriend back to life.', 'title': 'Love Story 2050', 'score': 0.7649372816085815},
+                {'plot': 'With the help of his uncle, a man travels to the future to try and bring his girlfriend back to life.', 'title': 'Love Story 2050', 'score': 0.7649372220039368},
                 {'plot': 'A dimension-traveling wizard gets stuck in the 21st century because cell-phone radiation interferes with his magic. With his home world on the brink of war, he seeks help from a jaded ...', 'title': 'The Portal', 'score': 0.7640786170959473}]
         elif ENV=="local":
             expectedOutput = [{'plot': 'A reporter, learning of time travelers visiting 20th century disasters, tries to change the history they know by averting upcoming disasters.', 'title': 'Thrill Seekers', 'score': 0.7892671227455139},
@@ -63,7 +63,7 @@ class TestQueries(unittest.TestCase):
                 {'plot': 'A boy raised by wolves tries to adapt to human village life.', 'title': 'Jungle Book', 'year': 1942, 'score': 0.7387760281562805},
                 {'plot': 'A pilot, stranded in the desert, meets a little boy who is a prince on a planet.', 'title': 'The Little Prince', 'year': 1974, 'score': 0.7378944158554077},
                 {'plot': 'A red balloon with a life of its own follows a little boy around the streets of Paris.', 'title': 'The Red Balloon', 'year': 1956, 'score': 0.734271228313446},
-                {'plot': 'A poor boy wins the opportunity to tour the most eccentric and wonderful candy factory of all.', 'title': 'Willy Wonka & the Chocolate Factory', 'year': 1971, 'score': 0.7342107892036438},
+                {'plot': 'A poor boy wins the opportunity to tour the most eccentric and wonderful candy factory of all.', 'title': 'Willy Wonka & the Chocolate Factory', 'year': 1971, 'score': 0.7342106699943542},
                 {'plot': 'An apprentice witch, three kids and a cynical conman search for the missing component to a magic spell useful to the defense of Britain.', 'title': 'Bedknobs and Broomsticks', 'year': 1971, 'score': 0.7339356541633606},
                 {'plot': 'Arriving home to find his native land under the yoke of corrupt merchants, an adventurer named Sadko sets sail in search of a mythical bird of happiness.', 'title': 'Sadko', 'year': 1953, 'score': 0.7339220643043518},
                 {'plot': "A young boys' coming of age tale set in a strange, carnivalesque village becomes the recreation of a memory that the director has twenty years later.", 'title': 'Pastoral Hide and Seek', 'year': 1974, 'score': 0.733299970626831}]
