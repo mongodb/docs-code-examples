@@ -1,7 +1,8 @@
 name: Test Java Code Examples against Atlas
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     paths:
       - "java/src/main/java/**"
 
@@ -10,7 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - name: Check access
+        if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' }}
+        run: |
+          echo "Event not triggered by a collaborator."
+          exit 1
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
