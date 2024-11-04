@@ -1,5 +1,9 @@
-import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Aggregates.vectorSearch;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Projections.metaVectorSearchScore;
 import static com.mongodb.client.model.search.SearchPath.fieldPath;
 import static com.mongodb.client.model.search.VectorSearchOptions.approximateVectorSearchOptions;
 import static java.util.Arrays.asList;
@@ -8,7 +12,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.search.VectorSearchOptions;
 
 import java.util.ArrayList;
