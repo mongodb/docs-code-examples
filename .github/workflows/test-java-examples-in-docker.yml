@@ -30,9 +30,13 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Install dependencies with Maven
+        run: |
+          cd java/
+          mvn dependency:resolve
       - name: Test with Maven
         run: |
           export ATLAS_CONNECTION_STRING="mongodb://localhost:27017/?directConnection=true"
           export ENV="local"
           cd java/
-          mvn clean install
+          mvn test
