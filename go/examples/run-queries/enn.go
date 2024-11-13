@@ -33,7 +33,7 @@ func ExampleEnnQuery(t *testing.T) []ProjectedMovieResult {
 		log.Fatal("set your 'ATLAS_CONNECTION_STRING' environment variable.")
 	}
 	// :remove-end:
-	// Replace the placeholder with your Atlas connection string
+	// Replace the placeholder with the Atlas connection string
 	// :uncomment-start:
 	//const uri = "<connection-string>"
 	// :uncomment-end:
