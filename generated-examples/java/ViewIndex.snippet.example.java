@@ -7,7 +7,7 @@ import org.bson.void;
 public class ViewIndex {
     public static void main(String[] args) {
         // Replace the placeholder with your Atlas connection string
-        String uri = <connectionString>;
+        String uri = "<connectionString>";
 
         // Connect to your Atlas cluster
         try (MongoClient mongoClient = MongoClients.create(uri)) {
