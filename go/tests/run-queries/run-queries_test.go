@@ -129,44 +129,20 @@ func TestAnnQueryWithFilter(t *testing.T) {
 func TestEnnQuery(t *testing.T) {
 	// Test creating the index and performing a query that relies on the index
 	var expected []run_queries.ProjectedMovieResult
-	/* Note: we are maintaining different expectations for Atlas and local deployments because not all of the scores match
-	 * There are the following discrepancies between scores:
-	 * When Trumpets Fade: Atlas: 0.7498313188552856 Local: 0.7498312592506409
-	 * Saints and Soldiers: Atlas: 0.7435222864151001 Local: 0.7435222268104553
-	 * Saints and Soldiers: Atlas: 0.743497371673584 Local: 0.7434973120689392
-	 */
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Println("no .env file found")
 	}
-	if os.Getenv("ENV") == "local" {
-		expected = []run_queries.ProjectedMovieResult{
-			{"Red Dawn", "It is the dawn of World War III. In mid-western America, a group of teenagers bands together to defend their town, and their country, from invading Soviet forces.", 0.7700583338737488},
-			{"Sands of Iwo Jima", "A dramatization of the World War II Battle of Iwo Jima.", 0.7581185102462769},
-			{"White Tiger", "Great Patriotic War, early 1940s. After barely surviving a battle with a mysterious, ghostly-white Tiger tank, Red Army Sergeant Ivan Naydenov becomes obsessed with its destruction.", 0.750884473323822},
-			{"P-51 Dragon Fighter", "As World War Two rages on, the allies are about to push the Nazis out of North Africa. That's when the Nazis turn up the heat, unleashing their secret Weapon - dragons.", 0.749922513961792},
-			{"When Trumpets Fade", "A private in the latter days of WWII on the German front struggles between his will to survive and what his superiors perceive as a battlefield instinct.", 0.7498312592506409},
-			{"Battletruck", "Post World War III futuristic tale of collapsed governments & bankrupt countries heralding a new lawless age.", 0.7497193217277527},
-			{"Robot Jox", "It is post-World War III. War is outlawed. In its place, are matches between large Robots called Robot Jox. These matches take place between two large superpowers over disputed territories....", 0.7495121955871582},
-			{"The Enemy Below", "During World War II, an American destroyer meets a German U-Boat. Both captains are good ones, and the engagement lasts for a considerable time.", 0.746050238609314},
-			{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.7435222268104553},
-			{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.7434973120689392},
-		}
-	} else if os.Getenv("ENV") == "Atlas" {
-		expected = []run_queries.ProjectedMovieResult{
-			{"Red Dawn", "It is the dawn of World War III. In mid-western America, a group of teenagers bands together to defend their town, and their country, from invading Soviet forces.", 0.7700583338737488},
-			{"Sands of Iwo Jima", "A dramatization of the World War II Battle of Iwo Jima.", 0.7581185102462769},
-			{"White Tiger", "Great Patriotic War, early 1940s. After barely surviving a battle with a mysterious, ghostly-white Tiger tank, Red Army Sergeant Ivan Naydenov becomes obsessed with its destruction.", 0.750884473323822},
-			{"P-51 Dragon Fighter", "As World War Two rages on, the allies are about to push the Nazis out of North Africa. That's when the Nazis turn up the heat, unleashing their secret Weapon - dragons.", 0.749922513961792},
-			{"When Trumpets Fade", "A private in the latter days of WWII on the German front struggles between his will to survive and what his superiors perceive as a battlefield instinct.", 0.7498313188552856},
-			{"Battletruck", "Post World War III futuristic tale of collapsed governments & bankrupt countries heralding a new lawless age.", 0.7497193217277527},
-			{"Robot Jox", "It is post-World War III. War is outlawed. In its place, are matches between large Robots called Robot Jox. These matches take place between two large superpowers over disputed territories....", 0.7495121955871582},
-			{"The Enemy Below", "During World War II, an American destroyer meets a German U-Boat. Both captains are good ones, and the engagement lasts for a considerable time.", 0.746050238609314},
-			{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.7435222864151001},
-			{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.743497371673584},
-		}
-	} else {
-		fmt.Printf("There was no ENV variable set. Ensure your .env file says which environment you're running these tests against.\n")
-		t.FailNow()
+	expected = []run_queries.ProjectedMovieResult{
+		{"Red Dawn", "It is the dawn of World War III. In mid-western America, a group of teenagers bands together to defend their town, and their country, from invading Soviet forces.", 0.7700583338737488},
+		{"Sands of Iwo Jima", "A dramatization of the World War II Battle of Iwo Jima.", 0.7581185102462769},
+		{"White Tiger", "Great Patriotic War, early 1940s. After barely surviving a battle with a mysterious, ghostly-white Tiger tank, Red Army Sergeant Ivan Naydenov becomes obsessed with its destruction.", 0.750884473323822},
+		{"P-51 Dragon Fighter", "As World War Two rages on, the allies are about to push the Nazis out of North Africa. That's when the Nazis turn up the heat, unleashing their secret Weapon - dragons.", 0.749922513961792},
+		{"When Trumpets Fade", "A private in the latter days of WWII on the German front struggles between his will to survive and what his superiors perceive as a battlefield instinct.", 0.7498312592506409},
+		{"Battletruck", "Post World War III futuristic tale of collapsed governments & bankrupt countries heralding a new lawless age.", 0.7497193217277527},
+		{"Robot Jox", "It is post-World War III. War is outlawed. In its place, are matches between large Robots called Robot Jox. These matches take place between two large superpowers over disputed territories....", 0.7495121955871582},
+		{"The Enemy Below", "During World War II, an American destroyer meets a German U-Boat. Both captains are good ones, and the engagement lasts for a considerable time.", 0.746050238609314},
+		{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.7435222268104553},
+		{"Saints and Soldiers", "Four American soldiers and one Brit fighting in Europe during World War II struggle to return to Allied territory after being separated from U.S. forces during the historic Malmedy Massacre.", 0.7434973120689392},
 	}
 
 	manage_indexes.ExampleCreateIndexBasic(t)
