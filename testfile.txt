@@ -1,4 +1,0 @@
-This is the first test of the github code copy app. 
-
-
-Please ignore this file.
