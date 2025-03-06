@@ -1,0 +1,12 @@
+[
+    {
+        "source_directory" : "generated-examples/go",
+        "target_repo" : "docs-code-examples-test-target",
+        "target_directory" : "go"
+    },
+    {
+        "source_directory" : "generated-examples/java",
+        "target_repo" : "app-tester-target",
+        "target_directory" : "java"
+    }
+]
