@@ -8,7 +8,7 @@
     {
         "source_directory" : "generated-examples/go",
         "target_repo" : "docs-code-examples-test-target",
-        "target_branch" : "gotest",
-        "target_directory" : "java"
+        "target_branch" : "v2.2",
+        "target_directory" : "v2.2/go"
     }
 ]
