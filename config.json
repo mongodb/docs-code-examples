@@ -2,11 +2,13 @@
     {
         "source_directory" : "generated-examples/go",
         "target_repo" : "docs-code-examples-test-target",
+        "target_branch" : "main",
         "target_directory" : "go"
     },
     {
-        "source_directory" : "generated-examples/java",
-        "target_repo" : "app-tester-target",
+        "source_directory" : "generated-examples/go",
+        "target_repo" : "docs-code-examples-test-target",
+        "target_branch" : "gotest",
         "target_directory" : "java"
     }
 ]
