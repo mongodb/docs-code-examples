@@ -28,6 +28,7 @@ func LoadEnv() {
 // LoadSecrets loads a JSON secrets file into a Secrets struct
 // takes a file path as an argument and returns a pointer to a Secrets struct and an error
 func LoadSecrets() (*Secrets, error) {
+	LoadEnv()
 	secrets := &Secrets{
 		DBUser:       os.Getenv("DB_USER"),
 		DBPassword:   os.Getenv("DB_PASSWORD"),

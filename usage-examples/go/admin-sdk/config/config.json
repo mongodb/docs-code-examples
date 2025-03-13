@@ -1,7 +1,7 @@
 {
   "ATLAS_BASE_URL": "https://cloud.mongodb.com",
-  "GROUP_ID": "634f247c3e5f8207b4de5766",
-  "BILL_PAYING_ORG_ID": "65c13caadadd2d64cf8fcaf0",
-  "ORG_ID": "65c13caadadd2d64cf8fcaf0",
+  "GROUP_ID": "5f60207f14dfb25d23101102",
+  "BILL_PAYING_ORG_ID": "5bfda007553855125605a5cf",
+  "ORG_ID": "5bfda007553855125605a5cf",
   "CLUSTER_NAME": "Cluster0"
 }
