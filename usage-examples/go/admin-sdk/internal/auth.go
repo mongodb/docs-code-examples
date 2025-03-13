@@ -8,12 +8,12 @@ import (
 )
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client.
-func CreateAtlasClient() (*admin.APIClient, error) {
+func CreateAtlasClient() (*admin.APIClient, *Config, error) {
 
 	// Load secrets
 	secrets, err := LoadSecrets()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load secrets: %w", err)
+		return nil, nil, fmt.Errorf("failed to load secrets: %w", err)
 	} else {
 		fmt.Println("Secrets loaded successfully")
 	}
@@ -23,14 +23,14 @@ func CreateAtlasClient() (*admin.APIClient, error) {
 
 	// Check for missing credentials
 	if secrets.ClientID == "" || secrets.ClientSecret == "" {
-		return nil, fmt.Errorf("missing Atlas client credentials")
+		return nil, nil, fmt.Errorf("missing Atlas client credentials")
 	}
 	fmt.Println("Client credentials are present")
 
 	// Load configuration
 	config, err := LoadConfig("config/config.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load config file: %w", err)
+		return nil, nil, fmt.Errorf("failed to load config file: %w", err)
 	}
 
 	// Determine base URL
@@ -50,7 +50,7 @@ func CreateAtlasClient() (*admin.APIClient, error) {
 		admin.UseOAuthAuth(ctx, secrets.ClientID, secrets.ClientSecret),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error creating SDK client: %w", err)
+		return nil, nil, fmt.Errorf("error creating SDK client: %w", err)
 	}
 	fmt.Println("SDK client created successfully")
 
@@ -62,14 +62,14 @@ func CreateAtlasClient() (*admin.APIClient, error) {
 	if orgID == "" {
 		orgs, _, err := sdk.OrganizationsApi.ListOrganizations(ctx).Execute()
 		if err != nil {
-			return nil, fmt.Errorf("error listing organizations: %w", err)
+			return nil, nil, fmt.Errorf("error listing organizations: %w", err)
 		}
 		if orgs.GetTotalCount() == 0 {
-			return nil, fmt.Errorf("no organizations found")
+			return nil, nil, fmt.Errorf("no organizations found")
 		}
 		orgID = orgs.GetResults()[0].GetId()
 		fmt.Printf("Using organization %s\n", orgID)
 	}
 
-	return sdk, nil
+	return sdk, config, nil
 }
