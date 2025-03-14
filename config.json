@@ -6,7 +6,7 @@
         "target_directory" : "go"
     },
     {
-        "source_directory" : "generated-examples/go",
+        "source_directory" : "generated-examples/go/v2",
         "target_repo" : "docs-code-examples-test-target",
         "target_branch" : "v2.2",
         "target_directory" : "go"
