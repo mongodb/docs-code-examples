@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -37,6 +36,5 @@ func LoadSecrets() (*Secrets, error) {
 		ClientID:     os.Getenv("ATLAS_CLIENT_ID"),
 		ClientSecret: os.Getenv("ATLAS_CLIENT_SECRET"),
 	}
-	fmt.Printf("Loaded Secrets Debug: %+v\n", secrets) // Debug print
 	return secrets, nil
 }
