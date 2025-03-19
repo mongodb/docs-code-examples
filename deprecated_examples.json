@@ -40,5 +40,11 @@
     "repo": "docs-code-examples-test-target",
     "branch": "v2.2",
     "deleted_on": "2025-03-19T16:33:16-07:00"
+  },
+  {
+    "filename": "go/newgotestfile.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-19T16:37:04-07:00"
   }
 ]
