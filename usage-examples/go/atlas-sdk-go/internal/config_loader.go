@@ -1,3 +1,4 @@
+// :snippet-start: config-loader-function-full-example
 package internal
 
 import (
@@ -16,8 +17,7 @@ type Config struct {
 	AtlasProcessID   string `json:"ATLAS_PROCESS_ID"`
 }
 
-// LoadConfig loads a JSON configs file into a Config struct
-// takes a file path as an argument and returns a pointer to a Config struct and an error
+// LoadConfig loads a JSON config file to make it available to the application
 func LoadConfig(filePath string) (*Config, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -38,6 +38,7 @@ func LoadConfig(filePath string) (*Config, error) {
 	return &config, nil
 }
 
+// :snippet-end: [config-loader-function-full-example]
 // GetConfigFilePath returns the correct config file based on the environment
 //func (c *Config) GetConfigFilePath(appEnv string) string {
 //	return fmt.Sprintf("configs/config-%s.json", c.AppEnv)

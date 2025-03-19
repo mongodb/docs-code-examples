@@ -1,3 +1,4 @@
+// :snippet-start: get-metrics-full-script
 package main
 
 import (
@@ -11,6 +12,7 @@ import (
 	"time"
 )
 
+// Define parameters for the metrics to fetch
 const (
 	granularity   = "P1D"
 	period        = "P1D"
@@ -23,20 +25,20 @@ var (
 )
 
 type GetProcessMetricParams struct {
-	GroupID     string     `json:"groupId"` // GroupID == ProjectID
+	GroupID     string     `json:"groupId"` // Note: GroupID == ProjectID
 	ProcessID   string     `json:"processId"`
-	Granularity *string    `json:"granularity"`
-	M           *[]string  `json:"metrics"`
-	Period      *string    `json:"period"`
+	Granularity string     `json:"granularity"`
+	M           *[]string  `json:"metrics,omitempty"`
+	Period      *string    `json:"period,omitempty"`
 	Start       *time.Time `json:"start,omitempty"`
 	End         *time.Time `json:"end,omitempty"`
 }
 
 type GetDiskMetricParams struct {
-	GroupID       string     `json:"groupId"`
+	GroupID       string     `json:"groupId"` // Note: GroupID == ProjectID
 	ProcessID     string     `json:"processId"`
 	PartitionName string     `json:"partitionName"`
-	Granularity   *string    `json:"granularity"`
+	Granularity   string     `json:"granularity"`
 	M             *[]string  `json:"metrics,omitempty"`
 	Period        *string    `json:"period,omitempty"`
 	Start         *time.Time `json:"start,omitempty"`
@@ -50,7 +52,7 @@ func getProcessMetrics(ctx context.Context, client internal.HTTPClient, hostPara
 	params := &admin.GetHostMeasurementsApiParams{
 		GroupId:     hostParams.GroupID,
 		ProcessId:   hostParams.ProcessID,
-		Granularity: hostParams.Granularity,
+		Granularity: &hostParams.Granularity,
 		M:           hostParams.M,
 		Period:      hostParams.Period,
 		Start:       hostParams.Start,
@@ -85,7 +87,7 @@ func getDiskMetrics(ctx context.Context, client internal.HTTPClient, diskParams 
 		GroupId:       diskParams.GroupID,
 		ProcessId:     diskParams.ProcessID,
 		PartitionName: diskParams.PartitionName,
-		Granularity:   diskParams.Granularity,
+		Granularity:   &diskParams.Granularity,
 		M:             diskParams.M,
 		Period:        diskParams.Period,
 		Start:         diskParams.Start,
@@ -99,7 +101,6 @@ func getDiskMetrics(ctx context.Context, client internal.HTTPClient, diskParams 
 		}
 		return fmt.Errorf("failed to get measurements: %w", err)
 	}
-
 	if resp == nil || resp.HasMeasurements() == false {
 		return fmt.Errorf("no measurements found for partition %s in project %s", params.PartitionName, params.GroupId)
 	}
@@ -110,10 +111,10 @@ func getDiskMetrics(ctx context.Context, client internal.HTTPClient, diskParams 
 	}
 
 	fmt.Println(string(jsonData))
-
 	return nil
 }
 
+// :snippet-start: get-metrics-main
 func main() {
 	ctx := context.Background()
 	client, _, config, err := auth.CreateAtlasClient()
@@ -125,20 +126,24 @@ func main() {
 		GroupID:     config.AtlasProjectID,
 		ProcessID:   config.AtlasProcessID,
 		M:           &processMetrics,
-		Granularity: admin.PtrString(granularity),
+		Granularity: granularity,
 		Period:      admin.PtrString(period),
 	}
-	err = getProcessMetrics(ctx, *client, getProcessMetricParams)
-	utils.HandleError(err, "Error fetching host process metrics")
+	utils.HandleError(getProcessMetrics(ctx, *client, getProcessMetricParams),
+		"Error fetching host process metrics")
 
 	getDiskMetricParams := &GetDiskMetricParams{
 		GroupID:       config.AtlasProjectID,
 		ProcessID:     config.AtlasProcessID,
 		PartitionName: partitionName,
 		M:             &diskMetrics,
-		Granularity:   admin.PtrString(granularity),
+		Granularity:   granularity,
 		Period:        admin.PtrString(period),
 	}
-	err = getDiskMetrics(ctx, *client, getDiskMetricParams)
-	utils.HandleError(err, "Error fetching partition disk metrics")
+
+	utils.HandleError(getDiskMetrics(ctx, *client, getDiskMetricParams),
+		"Error fetching partition disk metrics")
 }
+
+// :snippet-end: [get-metrics-main]
+// :snippet-end: [get-metrics-full-script]

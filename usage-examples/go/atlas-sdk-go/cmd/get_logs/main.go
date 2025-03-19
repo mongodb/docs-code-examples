@@ -1,3 +1,4 @@
+// :snippet-start: get-logs-full-script
 package main
 
 import (
@@ -13,20 +14,20 @@ import (
 )
 
 const (
-	LogName = "mongodb" // valid values: "mongodb" or "mongos"
+	LogName = "mongodb"
 )
 
 type GetHostLogsParams struct {
-	GroupID   string `json:"groupId"` // GroupID == ProjectID
+	GroupID   string `json:"groupId"` // Note: GroupID == ProjectID
 	HostName  string `json:"hostName"`
-	LogName   string `json:"logName"`
+	LogName   string `json:"logName"` // valid values: "mongodb" or "mongos"
 	EndDate   *int64 `json:"endDate,omitempty"`
 	StartDate *int64 `json:"startDate,omitempty"`
 }
 
 // Download a compressed log.gz file that contains the MongoDB logs for the specified host in your project.
 func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *GetHostLogsParams) error {
-	fmt.Printf("Fetching logs for project %s, host %s, log %s...\n", hostParams.GroupID, hostParams.HostName, hostParams.LogName)
+	fmt.Printf("Fetching %s log for host %s in project %s \n", hostParams.LogName, hostParams.HostName, hostParams.GroupID)
 
 	// Create request params
 	params := &admin.GetHostLogsApiParams{
@@ -63,7 +64,7 @@ func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *Ge
 		}
 	}(logFile)
 
-	// Write logs to file
+	// Write compressed logs to file
 	if _, err = io.Copy(logFile, resp); err != nil {
 		return fmt.Errorf("failed to write logs to file %s: %w", logFileName, err)
 	}
@@ -71,17 +72,23 @@ func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *Ge
 	return nil
 }
 
+// :snippet-start: get-logs-main
 func main() {
 	ctx := context.Background()
 
+	// Create an Atlas client authenticated using OAuth2 with service account credentials
 	client, _, config, err := auth.CreateAtlasClient()
 	utils.HandleError(err, "Failed to create Atlas client")
 
 	params := &GetHostLogsParams{
 		GroupID:  config.AtlasProjectID,
-		HostName: config.AtlasHostName,
-		LogName:  LogName,
+		HostName: config.AtlasHostName, // The host to get logs for
+		LogName:  LogName,              // The type of log to get ("mongodb" or "mongos")
 	}
 
+	// Downloads the specified host's MongoDB logs as a .gz file
 	utils.HandleError(getHostLogs(ctx, *client, params), "Error fetching host logs")
 }
+
+// :snippet-end: [get-logs-main]
+// :snippet-end: [get-logs-full-script]

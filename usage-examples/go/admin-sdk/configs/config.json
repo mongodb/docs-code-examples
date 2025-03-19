@@ -1,9 +1,0 @@
-{
-"ATLAS_BASE_URL": "https://cloud.mongodb.com",
-"ATLAS_ORG_ID": "5bfda007553855125605a5cf",
-"ATLAS_PROJECT_ID": "5f60207f14dfb25d23101102",
-"ATLAS_CLUSTER_NAME": "Cluster0",
-"ATLAS_HOST_NAME": "cluster0-shard-00-00.nr3ko.mongodb.net",
-"ATLAS_PORT": "27017",
-"ATLAS_PROCESS_ID": "cluster0-shard-00-00.nr3ko.mongodb.net:27017"
-}

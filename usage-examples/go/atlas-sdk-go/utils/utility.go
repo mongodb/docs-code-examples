@@ -1,3 +1,4 @@
+// :snippet-start: utility-functions-full-example
 package utils
 
 import (
@@ -75,3 +76,5 @@ func Retry(attempts int, sleep time.Duration, fn func() error) error {
 	}
 	return fmt.Errorf("reached maximum retry attempts")
 }
+
+// :snippet-end: [utility-functions-full-example]

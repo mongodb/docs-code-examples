@@ -1,3 +1,4 @@
+// :snippet-start: api-client-function-full-example
 package internal
 
 import (
@@ -48,3 +49,5 @@ func (c *HTTPClient) GetDiskMetrics(ctx context.Context, params *admin.GetDiskMe
 	}
 	return resp, nil, nil
 }
+
+// :snippet-end: [api-client-function-full-example]
