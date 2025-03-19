@@ -58,5 +58,23 @@
     "repo": "docs-code-examples-test-target",
     "branch": "v2.2",
     "deleted_on": "2025-03-19T16:37:06-07:00"
+  },
+  {
+    "filename": "go/ohhai_detete_me",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-19T16:43:04-07:00"
+  },
+  {
+    "filename": "go/v22testfile2.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-19T16:43:04-07:00"
+  },
+  {
+    "filename": "go/newgotestfile.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-19T16:43:04-07:00"
   }
 ]
