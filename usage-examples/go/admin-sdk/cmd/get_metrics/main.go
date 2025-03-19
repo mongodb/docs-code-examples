@@ -12,11 +12,14 @@ import (
 )
 
 const (
-	granularity    = "P1D"
-	period         = "P1D"
-	partitionName  = "data"
-	processMetrics = "DB_DATA_SIZE_TOTAL,MAX_SYSTEM_MEMORY_AVAILABLE"
-	diskMetrics    = "DISK_PARTITION_SPACE_FREE, DISK_PARTITION_SPACE_USED"
+	granularity   = "P1D"
+	period        = "P1D"
+	partitionName = "data"
+)
+
+var (
+	processMetrics = []string{"DB_DATA_SIZE_TOTAL", "MAX_SYSTEM_MEMORY_AVAILABLE"}
+	diskMetrics    = []string{"DISK_PARTITION_SPACE_FREE", "DISK_PARTITION_SPACE_USED"}
 )
 
 type GetProcessMetricParams struct {
@@ -121,7 +124,7 @@ func main() {
 	getProcessMetricParams := &GetProcessMetricParams{
 		GroupID:     config.AtlasProjectID,
 		ProcessID:   config.AtlasProcessID,
-		M:           &[]string{processMetrics},
+		M:           &processMetrics,
 		Granularity: admin.PtrString(granularity),
 		Period:      admin.PtrString(period),
 	}
@@ -132,7 +135,7 @@ func main() {
 		GroupID:       config.AtlasProjectID,
 		ProcessID:     config.AtlasProcessID,
 		PartitionName: partitionName,
-		M:             &[]string{diskMetrics},
+		M:             &diskMetrics,
 		Granularity:   admin.PtrString(granularity),
 		Period:        admin.PtrString(period),
 	}

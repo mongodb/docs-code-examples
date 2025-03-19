@@ -4,27 +4,42 @@ import (
 	"context"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"io"
+	"net/http"
 	"strings"
 )
 
-// Abstract the Atlas API client into an interface to allow for mocking.
+// NOTE: We're using mocked tests because Monitoring and Logging functionality requires a dedicated cluster (M10+)
 
-// LogsService is a minimal interface for fetching logs.
-type LogsService interface {
-	GetHostLogs(ctx context.Context, params *admin.GetHostLogsApiParams) (io.ReadCloser, error)
-}
-
-// MockLogsClient is a fake implementation of LogsService for testing.
-type MockLogsClient struct {
-	FakeResponse string
-	FakeError    error
+// MockAtlasClient is a fake implementation of AtlasClient for testing.
+type MockAtlasClient struct {
+	FakeHostLogsResponse       string
+	FakeHostLogsError          error
+	FakeProcessMetricsResponse *admin.ApiMeasurementsGeneralViewAtlas
+	FakeProcessMetricsError    error
+	FakeDiskMetricsResponse    *admin.ApiMeasurementsGeneralViewAtlas
+	FakeDiskMetricsError       error
 }
 
 // GetHostLogs returns a fake log response or an error.
-func (m *MockLogsClient) GetHostLogs(ctx context.Context, params *admin.GetHostLogsApiParams) (io.ReadCloser, error) {
-	if m.FakeError != nil {
-		return nil, m.FakeError
+func (m *MockAtlasClient) GetHostLogs(context.Context, *admin.GetHostLogsApiParams) (io.ReadCloser, error) {
+	if m.FakeHostLogsError != nil {
+		return nil, m.FakeHostLogsError
 	}
-	// Simulate a log file as a string
-	return io.NopCloser(strings.NewReader(m.FakeResponse)), nil
+	return io.NopCloser(strings.NewReader(m.FakeHostLogsResponse)), nil
+}
+
+// GetProcessMetrics returns fake process metrics or an error.
+func (m *MockAtlasClient) GetProcessMetrics(context.Context, *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
+	if m.FakeProcessMetricsError != nil {
+		return nil, nil, m.FakeProcessMetricsError
+	}
+	return m.FakeProcessMetricsResponse, nil, nil
+}
+
+// GetDiskMetrics returns fake disk metrics or an error.
+func (m *MockAtlasClient) GetDiskMetrics(context.Context, *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
+	if m.FakeDiskMetricsError != nil {
+		return nil, nil, m.FakeDiskMetricsError
+	}
+	return m.FakeDiskMetricsResponse, nil, nil
 }

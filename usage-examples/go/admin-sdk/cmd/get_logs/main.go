@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	// LogName is the name of the log file to download
 	LogName = "mongodb" // valid values: "mongodb" or "mongos"
 )
 

@@ -7,17 +7,22 @@ import (
 	"net/http"
 )
 
-// HTTPClient is a thin wrapper around admin.APIClient for logs.
+type AtlasClient interface {
+	GetHostLogs(ctx context.Context, params *admin.GetHostLogsApiParams) (io.ReadCloser, error)
+	GetProcessMetrics(ctx context.Context, params *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error)
+	GetDiskMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error)
+}
+
 type HTTPClient struct {
 	sdk *admin.APIClient
 }
 
-// NewAtlasClient initializes a new LogsService using admin.APIClient.
+// NewAtlasClient creates a new Atlas API client using the provided SDK client
 func NewAtlasClient(sdk *admin.APIClient) *HTTPClient {
 	return &HTTPClient{sdk: sdk}
 }
 
-// GetHostLogs fetches logs from MongoDB Atlas.
+// GetHostLogs fetches MongoDB logs for the specified host in your project
 func (c *HTTPClient) GetHostLogs(ctx context.Context, params *admin.GetHostLogsApiParams) (io.ReadCloser, error) {
 	resp, _, err := c.sdk.MonitoringAndLogsApi.GetHostLogsWithParams(ctx, params).Execute()
 	if err != nil {
@@ -26,6 +31,7 @@ func (c *HTTPClient) GetHostLogs(ctx context.Context, params *admin.GetHostLogsA
 	return resp, nil
 }
 
+// GetProcessMetrics fetches metrics for a specified host process in a project
 func (c *HTTPClient) GetProcessMetrics(ctx context.Context, params *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
 	resp, r, err := c.sdk.MonitoringAndLogsApi.GetHostMeasurementsWithParams(ctx, params).Execute()
 	if err != nil {
@@ -34,6 +40,7 @@ func (c *HTTPClient) GetProcessMetrics(ctx context.Context, params *admin.GetHos
 	return resp, nil, nil
 }
 
+// GetDiskMetrics fetches disk metrics for a specified disk partition in a project
 func (c *HTTPClient) GetDiskMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
 	resp, r, err := c.sdk.MonitoringAndLogsApi.GetDiskMeasurementsWithParams(ctx, params).Execute()
 	if err != nil {
@@ -41,51 +48,3 @@ func (c *HTTPClient) GetDiskMetrics(ctx context.Context, params *admin.GetDiskMe
 	}
 	return resp, nil, nil
 }
-
-//
-//// OrganizationService provides organization-related methods
-//type OrganizationService interface {
-//	ListOrganizations(ctx context.Context) (*admin.PaginatedOrganization, error)
-//}
-//
-//// ProjectService provides project-related methods
-//type ProjectService interface {
-//	ListProjects(ctx context.Context) (*admin.PaginatedAtlasGroup, error)
-//
-//	GetProcesses(ctx context.Context, params *admin.ListAtlasProcessesApiParams) (*admin.PaginatedHostViewAtlas, error)
-//}
-//
-//// ClusterService provides cluster-related methods
-//type ClusterService interface {
-//	ListClusters(ctx context.Context) (*admin.PaginatedOrgGroup, error)
-//}
-//
-//// LogsService provides log retrieval methods
-//type LogsService interface {
-//	GetHostLogs(ctx context.Context, params *admin.GetHostLogsApiParams) (io.ReadCloser, error)
-//
-//}
-//
-//type MetricsService interface {
-//	GetProcessMetrics(ctx context.Context, params *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *admin.APIResponse, error)
-//
-//	GetDiskMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.MeasurementDiskPartition, *admin.APIResponse, error)
-//
-//
-//// AtlasClient combines all services into a single interface
-//type AtlasClient interface {
-//	OrganizationService
-//	ProjectService
-//	ClusterService
-//	LogsService
-//	MetricsService
-//}
-//
-//// HTTPAtlasClient is the concrete implementation of AtlasClient.
-//type HTTPAtlasClient struct {
-//	sdk *admin.APIClient
-//}
-//
-//func NewAtlasClient(sdk *admin.APIClient) *HTTPAtlasClient {
-//	return &HTTPAtlasClient{sdk: sdk}
-//}
