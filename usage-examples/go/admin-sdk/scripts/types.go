@@ -43,3 +43,13 @@ type Z_ClusterMetricParams struct {
 	Start         *time.Time `json:"start,omitempty"`
 	End           *time.Time `json:"end,omitempty"`
 }
+
+type Measurement struct {
+	Name string                 `json:"name"`
+	Data []MetricDataPointAtlas `json:"data"`
+}
+
+type MetricDataPointAtlas struct {
+	Timestamp string  `json:"timestamp"`
+	Value     float64 `json:"value"`
+}

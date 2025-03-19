@@ -1,6 +1,7 @@
-package internal
+package auth
 
 import (
+	"admin-sdk/internal"
 	"context"
 	"fmt"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -9,10 +10,10 @@ import (
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client
 // using OAuth2 with service account credentials.
-func CreateAtlasClient() (*HTTPClient, *Secrets, *Config, error) {
+func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Config, error) {
 
 	// Load secrets
-	secrets, err := LoadSecrets()
+	secrets, err := internal.LoadSecrets()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to load secrets: %w", err)
 	}
@@ -23,15 +24,9 @@ func CreateAtlasClient() (*HTTPClient, *Secrets, *Config, error) {
 	}
 
 	// Load configuration
-	config, err := LoadConfig("config/config.json")
+	config, err := internal.LoadConfig("configs/config-dev.json")
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to load config file: %w", err)
-	}
-
-	// Determine base URL
-	baseURL := config.AtlasBaseURL
-	if baseURL == "" {
-		baseURL = "https://cloud.mongodb.com"
 	}
 
 	// Check if ProcessID or Hostname:Port are set
@@ -42,14 +37,14 @@ func CreateAtlasClient() (*HTTPClient, *Secrets, *Config, error) {
 	// Initialize API client using OAuth 2.0 with service account Client Credentials
 	ctx := context.Background()
 	sdk, err := admin.NewClient(
-		admin.UseBaseURL(baseURL),
+		admin.UseBaseURL(config.AtlasBaseURL),
 		admin.UseOAuthAuth(ctx, secrets.ServiceAccountID, secrets.ServiceAccountSecret),
 	)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error creating SDK client: %w", err)
 	}
 
-	client := NewAtlasClient(sdk)
+	client := internal.NewAtlasClient(sdk)
 
 	return client, secrets, config, nil
 }

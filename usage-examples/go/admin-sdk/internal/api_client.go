@@ -34,7 +34,7 @@ func (c *HTTPClient) GetProcessMetrics(ctx context.Context, params *admin.GetHos
 	return resp, nil, nil
 }
 
-func (c *HTTPClient) GetClusterMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
+func (c *HTTPClient) GetDiskMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *http.Response, error) {
 	resp, r, err := c.sdk.MonitoringAndLogsApi.GetDiskMeasurementsWithParams(ctx, params).Execute()
 	if err != nil {
 		return resp, r, err
@@ -69,7 +69,7 @@ func (c *HTTPClient) GetClusterMetrics(ctx context.Context, params *admin.GetDis
 //type MetricsService interface {
 //	GetProcessMetrics(ctx context.Context, params *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, *admin.APIResponse, error)
 //
-//	GetClusterMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.MeasurementDiskPartition, *admin.APIResponse, error)
+//	GetDiskMetrics(ctx context.Context, params *admin.GetDiskMeasurementsApiParams) (*admin.MeasurementDiskPartition, *admin.APIResponse, error)
 //
 //
 //// AtlasClient combines all services into a single interface

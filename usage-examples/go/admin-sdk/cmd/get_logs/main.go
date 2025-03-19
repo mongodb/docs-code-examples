@@ -2,6 +2,8 @@ package main
 
 import (
 	"admin-sdk/internal"
+	"admin-sdk/internal/auth"
+	"admin-sdk/utils"
 	"context"
 	"fmt"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -10,26 +12,10 @@ import (
 	"os"
 )
 
-// Download a compressed log.gz file that contains the MongoDB logs for the specified host in your project.
-
-func main() {
-	ctx := context.Background()
-
-	client, _, config, err := internal.CreateAtlasClient()
-	if err != nil {
-		log.Fatalf("Failed to create Atlas client: %v", err)
-	}
-
-	params := &GetHostLogsParams{
-		GroupID:  config.AtlasProjectID,
-		HostName: config.AtlasHostName,
-		LogName:  "mongodb", // valid values: "mongodb" or "mongos"
-	}
-
-	if err := getHostLogs(ctx, *client, params); err != nil {
-		log.Fatalf("Error fetching host logs: %v", err)
-	}
-}
+const (
+	// LogName is the name of the log file to download
+	LogName = "mongodb" // valid values: "mongodb" or "mongos"
+)
 
 type GetHostLogsParams struct {
 	GroupID   string `json:"groupId"` // GroupID == ProjectID
@@ -39,6 +25,7 @@ type GetHostLogsParams struct {
 	StartDate *int64 `json:"startDate,omitempty"`
 }
 
+// Download a compressed log.gz file that contains the MongoDB logs for the specified host in your project.
 func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *GetHostLogsParams) error {
 	fmt.Printf("Fetching logs for project %s, host %s, log %s...\n", hostParams.GroupID, hostParams.HostName, hostParams.LogName)
 
@@ -51,7 +38,6 @@ func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *Ge
 		EndDate:   hostParams.EndDate,
 	}
 
-	// Call the new GetHostLogs method
 	resp, err := client.GetHostLogs(ctx, params)
 	if err != nil {
 		return fmt.Errorf("failed to fetch logs for host %s in project %s: %w", hostParams.HostName, hostParams.GroupID, err)
@@ -84,4 +70,19 @@ func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *Ge
 	}
 	fmt.Printf("Logs saved to %s\n", logFileName)
 	return nil
+}
+
+func main() {
+	ctx := context.Background()
+
+	client, _, config, err := auth.CreateAtlasClient()
+	utils.HandleError(err, "Failed to create Atlas client")
+
+	params := &GetHostLogsParams{
+		GroupID:  config.AtlasProjectID,
+		HostName: config.AtlasHostName,
+		LogName:  LogName,
+	}
+
+	utils.HandleError(getHostLogs(ctx, *client, params), "Error fetching host logs")
 }
