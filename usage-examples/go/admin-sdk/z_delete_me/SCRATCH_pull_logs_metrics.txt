@@ -1,0 +1,91 @@
+package main
+//
+//import (
+//	"admin-sdk/internal"
+//	"context"
+//	"io"
+//	"log"
+//	"os"
+//
+//	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+//)
+//
+//most enterprises are going to exclusively use the Admin API for both logs and metrics.
+//We need a simple script code example that shows how to
+//1. pull logs and metrics from our Admin API
+//2. that the user could then use to funnel into whatever system they want
+//
+//This is likely to be a process that needs to be done on a cadence repeatedly, which is why they need a script
+
+// Retrieves the first project associated with the account
+func get
+
+
+
+//
+//// Retrieves the first project associated with the account
+//// takes a context and an Atlas API client as arguments and returns a string
+//
+//func getFirstProject(ctx context.Context, sdk *admin.APIClient) string {
+//	projects, _, _ := sdk.ProjectsApi.ListProjectsWithParams(ctx,
+//		&admin.ListProjectsApiParams{
+//			ItemsPerPage: admin.PtrInt(1),
+//			IncludeCount: admin.PtrBool(true),
+//			PageNum:      admin.PtrInt(1),
+//		}).Execute()
+//	//examples.HandleErr(err, response)
+//
+//	if projects.GetTotalCount() == 0 {
+//		log.Fatal("Account should have at least one project")
+//	}
+//
+//	return projects.GetResults()[0].GetId()
+//}
+//
+//// The hosts resource defines the mongod and mongos processes in your deployment.
+//// Each process is identified by a unique hostname and port combination.
+//// Retrieves the first available host in the project
+//// takes a context, an Atlas API client, and a project ID as arguments and returns a string
+//func getAllHosts(ctx context.Context, sdk *admin.APIClient, projectId string) string {
+//	//hosts, _, _ := sdk.MonitoringAndLogsApi.ListAtlasProcesses(ctx, projectId).Execute()
+//	//		examples.HandleErr(err, response)
+//
+//	if len(hosts.GetResults()) == 0 {
+//		log.Fatal("Your cluster should have at least one host. Are you running Atlas M0?")
+//	}
+//
+//	host := hosts.GetResults()[0].GetHostname()
+//	return host
+//}
+//
+//// Fetches and prints logs from a given host
+//func downloadLogsForHost(ctx context.Context, sdk *admin.APIClient, projectId, host string) {
+//	params := &admin.GetHostLogsApiParams{
+//		GroupId:  projectId,
+//		HostName: host,
+//		LogName:  "mongos",
+//	}
+//
+//	logs, _, err := sdk.MonitoringAndLogsApi.GetHostLogsWithParams(ctx, params).Execute()
+//	//examples.HandleErr(err, response)
+//	defer logs.Close()
+//
+//	_, err = io.Copy(os.Stdout, logs)
+//	//examples.HandleErr(err, nil)
+//}
+//
+//func fetchMetricsForHost(ctx context.Context, sdk *admin.APIClient, projectId, host string) {
+//
+//}
+//
+//func main() {
+//	// Initialize SDK Client
+//	sdk, ctx := internal.CreateAtlasClient()
+//
+//	// Fetch project, host, and logs
+//	projectId := getFirstProject(ctx, sdk)
+//	host := getFirstHost(ctx, sdk, projectId)
+//	fetchAndPrintLogs(ctx, sdk, projectId, host)
+//}
+//
+//// https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{hostName}/logs/{logName}.gz

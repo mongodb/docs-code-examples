@@ -8,33 +8,27 @@ import (
 
 // Secrets structure
 type Secrets struct {
-	DBUser       string `json:"DB_USER"`
-	DBPassword   string `json:"DB_PASSWORD"`
-	APIKey       string `json:"PUBLIC_API_KEY"`
-	PrivateKey   string `json:"PRIVATE_API_KEY"`
-	ClientID     string `json:"ATLAS_CLIENT_ID"`
-	ClientSecret string `json:"ATLAS_CLIENT_SECRET"`
+	MongoDBUser          string `json:"MONGODB_USER_NAME"`
+	MongoDBPassword      string `json:"MONGODB_PASSWORD"`
+	AtlasAPIKey          string `json:"MONGODB_ATLAS_PUBLIC_API_KEY"`
+	AtlasAPISecret       string `json:"MONGODB_ATLAS_PRIVATE_KEY"`
+	ServiceAccountID     string `json:"MONGODB_ATLAS_SERVICE_ACCOUNT_ID"`
+	ServiceAccountSecret string `json:"MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"`
 }
 
-// LoadEnv loads environment variables from a .env file
-func LoadEnv() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-}
-
-// LoadSecrets loads a JSON secrets file into a Secrets struct
-// takes a file path as an argument and returns a pointer to a Secrets struct and an error
+// LoadSecrets loads environment variables from a .env file into a Secrets struct
+// and returns a pointer
 func LoadSecrets() (*Secrets, error) {
-	LoadEnv()
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("No .env file found")
+	}
 	secrets := &Secrets{
-		DBUser:       os.Getenv("DB_USER"),
-		DBPassword:   os.Getenv("DB_PASSWORD"),
-		APIKey:       os.Getenv("PUBLIC_API_KEY"),
-		PrivateKey:   os.Getenv("PRIVATE_API_KEY"),
-		ClientID:     os.Getenv("ATLAS_CLIENT_ID"),
-		ClientSecret: os.Getenv("ATLAS_CLIENT_SECRET"),
+		MongoDBUser:          os.Getenv("MONGODB_USER_NAME"),
+		MongoDBPassword:      os.Getenv("MONGODB_PASSWORD"),
+		AtlasAPIKey:          os.Getenv("MONGODB_ATLAS_PUBLIC_KEY"),
+		AtlasAPISecret:       os.Getenv("MONGODB_ATLAS_PRIVATE_KEY"),
+		ServiceAccountID:     os.Getenv("MONGODB_ATLAS_SERVICE_ACCOUNT_ID"),
+		ServiceAccountSecret: os.Getenv("MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"),
 	}
 	return secrets, nil
 }

@@ -11,10 +11,13 @@ used in projects with multiple configs for different environments
 */
 
 type Config struct {
-	BaseURL         string `json:"ATLAS_BASE_URL"`
-	GroupID         string `json:"GROUP_ID"`
-	BillPayingOrgID string `json:"BILL_PAYING_ORG_ID"`
-	OrgID           string `json:"ORG_ID"`
+	AtlasBaseURL     string `json:"ATLAS_BASE_URL"`
+	AtlasOrgID       string `json:"ATLAS_ORG_ID"`
+	AtlasProjectID   string `json:"ATLAS_PROJECT_ID"`
+	AtlasClusterName string `json:"ATLAS_CLUSTER_NAME"`
+	AtlasHostName    string `json:"ATLAS_HOST_NAME"`
+	AtlasPort        string `json:"ATLAS_PORT"`
+	AtlasProcessID   string `json:"ATLAS_PROCESS_ID"`
 }
 
 //func GetConfigFilePath() string {
@@ -32,7 +35,12 @@ func LoadConfig(filePath string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error opening config file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println("Error closing file")
+		}
+	}(file)
 
 	var config Config
 	decoder := json.NewDecoder(file)

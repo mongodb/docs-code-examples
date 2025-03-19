@@ -1,3 +1,4 @@
+// :snippet-start: script-structs
 package main
 
 import "time"
@@ -9,7 +10,7 @@ type ListAtlasProcessesParams struct {
 	PageNum      *int   `json:"pageNum,omitempty"`
 }
 
-type GetHostLogsParams struct {
+type Z_GetHostLogsParams struct {
 	GroupID   string `json:"groupId"`
 	HostName  string `json:"hostName"`
 	LogName   string `json:"logName"`
@@ -24,7 +25,7 @@ type ListProjectsParams struct {
 	PageNum      *int   `json:"pageNum,omitempty"`
 }
 
-type HostMetricParams struct {
+type Z_HostMetricParams struct {
 	GroupID     string     `json:"groupId"`
 	ProcessID   string     `json:"processId"`
 	Granularity *string    `json:"granularity"`
@@ -33,7 +34,7 @@ type HostMetricParams struct {
 	Start       *time.Time `json:"start,omitempty"`
 	End         *time.Time `json:"end,omitempty"`
 }
-type ClusterMetricParams struct {
+type Z_ClusterMetricParams struct {
 	GroupID       string     `json:"groupId"`
 	ProcessID     string     `json:"processId"`
 	PartitionName string     `json:"partitionName"`

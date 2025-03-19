@@ -4,28 +4,23 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-	"os"
+	"log"
 )
 
-// CreateAtlasClient initializes and returns an authenticated Atlas API client.
-func CreateAtlasClient() (*admin.APIClient, *Secrets, *Config, error) {
+// CreateAtlasClient initializes and returns an authenticated Atlas API client
+// using OAuth2 with service account credentials.
+func CreateAtlasClient() (*HTTPClient, *Secrets, *Config, error) {
 
 	// Load secrets
 	secrets, err := LoadSecrets()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to load secrets: %w", err)
-	} else {
-		fmt.Println("Secrets loaded successfully")
 	}
-
-	// Print loaded secrets for debugging
-	fmt.Printf("Loaded Secrets: %+v\n", secrets)
 
 	// Check for missing credentials
-	if secrets.ClientID == "" || secrets.ClientSecret == "" {
+	if secrets.ServiceAccountID == "" || secrets.ServiceAccountSecret == "" {
 		return nil, nil, nil, fmt.Errorf("missing Atlas client credentials")
 	}
-	fmt.Println("Client credentials are present")
 
 	// Load configuration
 	config, err := LoadConfig("config/config.json")
@@ -34,42 +29,27 @@ func CreateAtlasClient() (*admin.APIClient, *Secrets, *Config, error) {
 	}
 
 	// Determine base URL
-	host := config.BaseURL
-	if host == "" {
-		host = os.Getenv("ATLAS_BASE_URL")
+	baseURL := config.AtlasBaseURL
+	if baseURL == "" {
+		baseURL = "https://cloud.mongodb.com"
 	}
-	if host == "" {
-		host = "https://cloud.mongodb.com"
-	}
-	fmt.Println("Using Atlas Base URL:", host)
 
-	// Initialize API client
+	// Check if ProcessID or Hostname:Port are set
+	if config.AtlasProcessID == "" || config.AtlasHostName == "" && config.AtlasPort == "" {
+		log.Fatal("Either ATLAS_PROCESS_ID or ATLAS_HOST_NAME/PORT must be set")
+	}
+
+	// Initialize API client using OAuth 2.0 with service account Client Credentials
 	ctx := context.Background()
 	sdk, err := admin.NewClient(
-		admin.UseBaseURL(host),
-		admin.UseOAuthAuth(ctx, secrets.ClientID, secrets.ClientSecret),
+		admin.UseBaseURL(baseURL),
+		admin.UseOAuthAuth(ctx, secrets.ServiceAccountID, secrets.ServiceAccountSecret),
 	)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error creating SDK client: %w", err)
 	}
-	fmt.Println("SDK client created successfully")
 
-	// Determine org ID
-	orgID := config.OrgID
-	if orgID == "" {
-		orgID = os.Getenv("ATLAS_ORG_ID")
-	}
-	if orgID == "" {
-		orgs, _, err := sdk.OrganizationsApi.ListOrganizations(ctx).Execute()
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("error listing organizations: %w", err)
-		}
-		if orgs.GetTotalCount() == 0 {
-			return nil, nil, nil, fmt.Errorf("no organizations found")
-		}
-		orgID = orgs.GetResults()[0].GetId()
-		fmt.Printf("Using organization %s\n", orgID)
-	}
+	client := NewAtlasClient(sdk)
 
-	return sdk, secrets, config, nil
+	return client, secrets, config, nil
 }
