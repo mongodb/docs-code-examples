@@ -22,7 +22,7 @@
     },
     {
         "notes":"Copies all go examples to the go sdk repo v2 branch",
-        "source_directory" : "generated-examples/go",
+        "source_directory" : "generated-examples/go/v2",
         "target_repo" : "atlas-architecture-go-sdk",
         "target_branch" : "v2.0",
         "target_directory":"go"
