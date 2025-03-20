@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "filename": "go/version2testfile.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-20T11:32:27-07:00"
+  }
+]
