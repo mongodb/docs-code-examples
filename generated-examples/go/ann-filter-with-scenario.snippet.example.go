@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
+ 
 func main() {
 	ctx := context.Background()
 	// Replace the placeholder with your Atlas connection string
