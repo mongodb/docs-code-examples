@@ -100,5 +100,11 @@
     "repo": "atlas-architecture-go-sdk",
     "branch": "v2.0",
     "deleted_on": "2025-03-20T15:06:51-07:00"
+  },
+  {
+    "filename": "go/version2testfile.go",
+    "repo": "atlas-architecture-go-sdk",
+    "branch": "v2.0",
+    "deleted_on": "2025-03-20T15:08:38-07:00"
   }
 ]
