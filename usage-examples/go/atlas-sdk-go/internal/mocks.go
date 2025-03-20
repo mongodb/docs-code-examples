@@ -20,7 +20,6 @@ type MockAtlasClient struct {
 	FakeDiskMetricsError       error
 }
 
-// GetHostLogs returns a fake log response or an error.
 func (m *MockAtlasClient) GetHostLogs(context.Context, *admin.GetHostLogsApiParams) (io.ReadCloser, error) {
 	if m.FakeHostLogsError != nil {
 		return nil, m.FakeHostLogsError

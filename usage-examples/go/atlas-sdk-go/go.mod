@@ -1,4 +1,4 @@
-module admin-sdk
+module atlas-sdk-go
 
 go 1.24
 

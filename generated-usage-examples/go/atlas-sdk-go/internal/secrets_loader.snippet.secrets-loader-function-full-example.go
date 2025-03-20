@@ -1,4 +1,3 @@
-// :snippet-start: secrets-loader-function-full-example
 
 package internal
 
@@ -10,10 +9,6 @@ import (
 )
 
 type Secrets struct {
-	MongoDBUser          string `json:"MONGODB_USER_NAME"`            // :remove:
-	MongoDBPassword      string `json:"MONGODB_PASSWORD"`             // :remove:
-	AtlasAPIKey          string `json:"MONGODB_ATLAS_PUBLIC_API_KEY"` // :remove:
-	AtlasAPISecret       string `json:"MONGODB_ATLAS_PRIVATE_KEY"`    // :remove:
 	ServiceAccountID     string `json:"MONGODB_ATLAS_SERVICE_ACCOUNT_ID"`
 	ServiceAccountSecret string `json:"MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"`
 }
@@ -24,10 +19,6 @@ func LoadSecrets() (*Secrets, error) {
 		log.Println("No .env file found")
 	}
 	secrets := &Secrets{
-		MongoDBUser:          os.Getenv("MONGODB_USER_NAME"),         // :remove:
-		MongoDBPassword:      os.Getenv("MONGODB_PASSWORD"),          // :remove:
-		AtlasAPIKey:          os.Getenv("MONGODB_ATLAS_PUBLIC_KEY"),  // :remove:
-		AtlasAPISecret:       os.Getenv("MONGODB_ATLAS_PRIVATE_KEY"), // :remove:
 		ServiceAccountID:     os.Getenv("MONGODB_ATLAS_SERVICE_ACCOUNT_ID"),
 		ServiceAccountSecret: os.Getenv("MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"),
 	}
@@ -42,4 +33,3 @@ func (s *Secrets) CheckRequiredEnv() error {
 	return nil
 }
 
-// :snippet-end: [secrets-loader-function-full-example]

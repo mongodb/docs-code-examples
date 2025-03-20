@@ -1,4 +1,3 @@
-// :snippet-start: config-loader-function-full-example
 package internal
 
 import (
@@ -66,8 +65,3 @@ func (c *Config) CheckRequiredFields() error {
 	return nil
 }
 
-// :snippet-end: [config-loader-function-full-example]
-// GetConfigFilePath returns the correct config file based on the environment
-//func (c *Config) GetConfigFilePath(appEnv string) string {
-//	return fmt.Sprintf("configs/config-%s.json", c.AppEnv)
-//}

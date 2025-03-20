@@ -1,7 +1,7 @@
 package test
 
 import (
-	"admin-sdk/internal"
+	"atlas-sdk-go/internal"
 	"bytes"
 	"compress/gzip"
 	"context"

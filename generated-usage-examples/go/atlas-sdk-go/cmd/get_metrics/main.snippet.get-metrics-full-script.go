@@ -1,4 +1,3 @@
-// :snippet-start: get-metrics-full-script
 package main
 
 import (
@@ -101,8 +100,6 @@ func getDiskMetrics(ctx context.Context, client internal.HTTPClient, diskParams 
 	return nil
 }
 
-// :snippet-start: get-metrics-main-dev
-// :snippet-start: get-metrics-main-prod
 func main() {
 	ctx := context.Background()
 
@@ -111,51 +108,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create Atlas client: %v", err)
 	}
-	// :state-start: prod
-	// Fetch process metrics using the following parameters
-	processMetricGranularity := admin.PtrString("PT1H")
-	processMetricPeriod := admin.PtrString("P7D")
-	processMetrics := []string{
-		"OPCOUNTER_INSERT", "OPCOUNTER_QUERY", "OPCOUNTER_UPDATE", "TICKETS_AVAILABLE_READS",
-		"TICKETS_AVAILABLE_WRITE", "CONNECTIONS", "QUERY_TARGETING_SCANNED_OBJECTS_PER_RETURNED",
-		"QUERY_TARGETING_SCANNED_PER_RETURNED", "SYSTEM_CPU_GUEST", "SYSTEM_CPU_IOWAIT",
-		"SYSTEM_CPU_IRQ", "SYSTEM_CPU_KERNEL", "SYSTEM_CPU_NICE", "SYSTEM_CPU_SOFTIRQ",
-		"SYSTEM_CPU_STEAL", "SYSTEM_CPU_USER",
-	}
-	getProcessMetricParams := &GetProcessMetricParams{
-		GroupID:     config.AtlasProjectID,
-		ProcessID:   config.AtlasProcessID,
-		M:           &processMetrics,
-		Granularity: processMetricGranularity,
-		Period:      processMetricPeriod,
-	}
-	if err := getProcessMetrics(ctx, *client, getProcessMetricParams); err != nil {
-		fmt.Printf("Error fetching host process metrics: %v", err)
-	}
-	// :state-end: [prod]
-	// :state-start: dev
-	// Fetch disk metrics using the following parameters
-	partitionName := "data"
-	diskMetricsGranularity := admin.PtrString("P1D")
-	diskMetricsPeriod := admin.PtrString("P1D")
-	diskMetrics := []string{
-		"DISK_PARTITION_SPACE_FREE", "DISK_PARTITION_SPACE_USED",
-	}
-
-	getDiskMetricParams := &GetDiskMetricParams{
-		GroupID:       config.AtlasProjectID,
-		ProcessID:     config.AtlasProcessID,
-		PartitionName: partitionName,
-		M:             &diskMetrics,
-		Granularity:   diskMetricsGranularity,
-		Period:        diskMetricsPeriod,
-	}
-	if err := getDiskMetrics(ctx, *client, getDiskMetricParams); err != nil {
-		fmt.Printf("Error fetching disk metrics: %v", err)
-	}
-	// :state-end: [dev]
 }
 
-// :snippet-end: [get-metrics-main-dev]
-// :snippet-end: [get-metrics-main-prod]
-// :snippet-end: [get-metrics-full-script]

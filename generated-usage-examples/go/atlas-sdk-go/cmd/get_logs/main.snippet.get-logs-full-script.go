@@ -1,10 +1,8 @@
-// :snippet-start: get-logs-full-script
 package main
 
 import (
 	"atlas-sdk-go/internal"
 	"atlas-sdk-go/internal/auth"
-	test "atlas-sdk-go/tests" // :remove:
 	"context"
 	"fmt"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -74,7 +72,6 @@ func getHostLogs(ctx context.Context, client internal.HTTPClient, hostParams *Ge
 	return nil
 }
 
-// :snippet-start: get-logs-main
 func main() {
 	ctx := context.Background()
 
@@ -94,13 +91,5 @@ func main() {
 	if err := getHostLogs(ctx, *client, params); err != nil {
 		fmt.Printf("Error fetching host logs: %v", err)
 	}
-	// :remove-start:
-	// Cleanup downloaded files
-	if err := test.CleanupGzFiles(); err != nil {
-		log.Printf("Cleanup error: %v", err)
-	}
-	// :remove-end:
 }
 
-// :snippet-end: [get-logs-main]
-// :snippet-end: [get-logs-full-script]

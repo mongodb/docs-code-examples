@@ -1,4 +1,3 @@
-// :snippet-start: auth-function-full-example
 package auth
 
 import (
@@ -48,4 +47,3 @@ func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Con
 	return client, secrets, config, nil
 }
 
-// :snippet-end: [auth-function-full-example]
