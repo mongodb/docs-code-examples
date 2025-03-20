@@ -95,7 +95,7 @@ func main() {
 		fmt.Printf("Error fetching host logs: %v", err)
 	}
 	// :remove-start:
-	// Cleanup downloaded files
+	// NOTE Internal function to clean up any downloaded files
 	if err := test.CleanupGzFiles(); err != nil {
 		log.Printf("Cleanup error: %v", err)
 	}

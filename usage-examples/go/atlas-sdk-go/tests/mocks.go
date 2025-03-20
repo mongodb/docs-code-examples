@@ -1,4 +1,4 @@
-package internal
+package test
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// NOTE: We're using mocked tests because Monitoring and Logging functionality requires a dedicated cluster (M10+)
+// NOTE: Mocking client because most monitoring, logging, and auditing functionality requires a dedicated cluster (M10+)
 
 // MockAtlasClient is a fake implementation of AtlasClient for testing.
 type MockAtlasClient struct {

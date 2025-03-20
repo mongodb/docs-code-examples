@@ -3,24 +3,29 @@
 ## Project Structure
 ```text
 atlas-sdk-go/
-│── cmd/                        # Self-contained, runnable scripts
+│── cmd/                  # Self-contained, runnable scripts
 │   ├── get_logs/  
-│       ├── main.go             # Get Host logs
+│       ├── main.go             
 │   ├── get_metrics/            
-│       ├── main.go             # Get Process and Disk metrics
-│── config/                    
-│   ├── config.json             # Atlas configuration settings
-│── internal/                   
-│   ├── config_loader.go        # Loads JSON configs
-│   ├── secrets_loader.go       # Loads .env securely
-│── .env                        # Secrets file with API keys, database credentials
+│       ├── main.go             
+│── config/                # Atlas configuration settings
+│   ├── config.json             
+│── internal/              # Shared internal logic
+    │── auth/              
+        ├── auth.go                   
+│   ├── api_client.go  
+│   ├── config_loader.go        
+│   ├── secrets_loader.go       
+│── .env                   # Secrets file (excluded from Git)
 │── go.mod                     
 │── go.sum                           
 │── README.md                       
 ```
 
 ## Runnable Scripts
-Run a specific script using `run_cmd.sh`. For example, to run `get_logs/main.go`:
+You can run individual scripts using `run_cmd.sh` and specifying the script's action (i.e. the parent directory for the `main.go` you want to run). 
+
+For example, to run `get_logs/main.go`:
 ```shell
 ./run_cmd.sh get_logs
 ```

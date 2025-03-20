@@ -1,7 +1,6 @@
 package test
 
 import (
-	"atlas-sdk-go/internal"
 	"bytes"
 	"compress/gzip"
 	"context"
@@ -31,12 +30,15 @@ func TestMockAtlasClient_GetHostLogs_Download(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Initialize mock client with compressed log data stored in buffer
-	mockClient := &internal.MockAtlasClient{
+	mockClient := &MockAtlasClient{
 		FakeHostLogsResponse: buf.String(),
 	}
 
+	ctx := context.Background()
+	params := &admin.GetHostLogsApiParams{}
+	
 	// Call GetHostLogs to download the log.gz file
-	resp, err := mockClient.GetHostLogs(context.Background(), &admin.GetHostLogsApiParams{})
+	resp, err := mockClient.GetHostLogs(ctx, params)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -58,7 +60,7 @@ func TestMockAtlasClient_GetHostLogs_Download(t *testing.T) {
 }
 
 func TestMockAtlasClient_GetHostLogs_Read(t *testing.T) {
-	mockClient := &internal.MockAtlasClient{
+	mockClient := &MockAtlasClient{
 		FakeHostLogsResponse: testLogResponse,
 		FakeHostLogsError:    nil,
 	}
@@ -90,7 +92,7 @@ func TestMockAtlasClient_GetProcessMetrics(t *testing.T) {
 	parsedTime, _ := admin.StringToTime(testTimeStamp)
 	parsedTimeValue := float32(100)
 
-	mockClient := &internal.MockAtlasClient{
+	mockClient := &MockAtlasClient{
 		FakeProcessMetricsResponse: &admin.ApiMeasurementsGeneralViewAtlas{
 			Measurements: &[]admin.MetricsMeasurementAtlas{
 				{
@@ -132,7 +134,7 @@ func TestMockAtlasClient_GetDiskMetrics(t *testing.T) {
 	parsedTime, _ := admin.StringToTime(testTimeStamp)
 	parsedTimeValue := float32(500)
 
-	mockClient := &internal.MockAtlasClient{
+	mockClient := &MockAtlasClient{
 		FakeDiskMetricsResponse: &admin.ApiMeasurementsGeneralViewAtlas{
 			Measurements: &[]admin.MetricsMeasurementAtlas{
 				{

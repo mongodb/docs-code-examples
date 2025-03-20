@@ -1,7 +1,6 @@
 #! /bin/bash
 
 PROJECT=$(git rev-parse --show-toplevel)
-# This project requires Bluehawking multiple directories so the generated code can be copied to the user-facing `atlas-architecture-center-go-sdk` repo
 GO_SDK_EXAMPLES=$PROJECT/usage-examples/go/atlas-sdk-go/cmd
 GENERATED_EXAMPLES=$PROJECT/generated-usage-examples/go/sdk
 

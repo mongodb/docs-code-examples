@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	filePath = "./configs/config-prod.json"
+	filePath = "./configs/config.json"
 )
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client
@@ -33,7 +33,6 @@ func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Con
 		return nil, nil, nil, fmt.Errorf("invalid config: %w", err)
 	}
 
-	// Initialize API client using OAuth 2.0 with service account Client Credentials
 	ctx := context.Background()
 	sdk, err := admin.NewClient(
 		admin.UseBaseURL(config.AtlasBaseURL),
