@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "filename": "go/gcloud24march.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "main",
+    "deleted_on": "2025-03-24T18:16:30Z"
+  },
+  {
+    "filename": "go/gcloud24march_v2.go",
+    "repo": "docs-code-examples-test-target",
+    "branch": "v2.2",
+    "deleted_on": "2025-03-24T18:16:30Z"
+  }
+]
