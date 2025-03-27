@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
-const (
-	filePath = "./configs/config.json"
-)
+const filePath = "./configs/ignoreme.json"
+
+// TODO: Update this path ./configs/config.json
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client
 // using OAuth2 with service account credentials.
-func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Config, error) {
+func CreateAtlasClient() (*admin.APIClient, *internal.Secrets, *internal.Config, error) {
 
-	secrets, err := internal.LoadSecrets()
+	var secrets, err = internal.LoadSecrets()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to load secrets: %w", err)
 	}
@@ -34,7 +34,7 @@ func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Con
 	}
 
 	ctx := context.Background()
-	sdk, err := admin.NewClient(
+	atlasClient, err := admin.NewClient(
 		admin.UseBaseURL(config.AtlasBaseURL),
 		admin.UseOAuthAuth(ctx, secrets.ServiceAccountID, secrets.ServiceAccountSecret),
 	)
@@ -42,9 +42,7 @@ func CreateAtlasClient() (*internal.HTTPClient, *internal.Secrets, *internal.Con
 		return nil, nil, nil, fmt.Errorf("error creating SDK client: %w", err)
 	}
 
-	client := internal.NewAtlasClient(sdk)
-
-	return client, secrets, config, nil
+	return atlasClient, secrets, config, nil
 }
 
 // :snippet-end: [auth-function-full-example]
