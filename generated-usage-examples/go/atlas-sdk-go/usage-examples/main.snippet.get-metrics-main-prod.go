@@ -2,11 +2,12 @@ func main() {
 	ctx := context.Background()
 
 	// Create an Atlas client authenticated using OAuth2 with service account credentials
-	client, _, config, err := auth.CreateAtlasClient()
+	atlasClient, _, config, err := auth.CreateAtlasClient()
 	if err != nil {
 		log.Fatalf("Failed to create Atlas client: %v", err)
 	}
-	// Fetch process metrics using the following parameters
+
+	// Fetch process metrics using the following parameters:
 	processMetricGranularity := admin.PtrString("PT1H")
 	processMetricPeriod := admin.PtrString("P7D")
 	processMetrics := []string{
@@ -16,14 +17,15 @@ func main() {
 		"SYSTEM_CPU_IRQ", "SYSTEM_CPU_KERNEL", "SYSTEM_CPU_NICE", "SYSTEM_CPU_SOFTIRQ",
 		"SYSTEM_CPU_STEAL", "SYSTEM_CPU_USER",
 	}
-	getProcessMetricParams := &GetProcessMetricParams{
-		GroupID:     config.AtlasProjectID,
-		ProcessID:   config.AtlasProcessID,
+	hostMeasurementsParams := &admin.GetHostMeasurementsApiParams{
+		GroupId:     config.ProjectID,
+		ProcessId:   config.ProcessID,
 		M:           &processMetrics,
 		Granularity: processMetricGranularity,
 		Period:      processMetricPeriod,
 	}
-	if err := getProcessMetrics(ctx, *client, getProcessMetricParams); err != nil {
+	_, err = getProcessMetrics(ctx, *atlasClient, hostMeasurementsParams)
+	if err != nil {
 		fmt.Printf("Error fetching host process metrics: %v", err)
 	}
 }

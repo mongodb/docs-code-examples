@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-// deleteFile deletes a specified file
+// deleteFile deletes a specified file during cleanup after tests.
 func deleteFile(fileName string) error {
 	err := os.Remove(fileName)
 	log.Printf("Deleting file %s", fileName)
@@ -17,8 +17,8 @@ func deleteFile(fileName string) error {
 	return nil
 }
 
-// CleanupGzFiles deletes all .gz files in the project root directory
-func CleanupGzFiles() error {
+// CleanupFiles deletes generated *.gz and *.log files from the project root directory
+func CleanupFiles() error {
 	projectRoot := "./"
 	var filesToDelete []string
 

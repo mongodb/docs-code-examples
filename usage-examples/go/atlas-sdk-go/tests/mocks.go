@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// NOTE: Mocking client because most monitoring, logging, and auditing functionality requires a dedicated cluster (M10+)
+// TODO Refactor to use generated mock client
 
 // MockAtlasClient is a fake implementation of AtlasClient for testing.
 type MockAtlasClient struct {

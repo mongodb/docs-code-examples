@@ -1,11 +1,7 @@
-// :snippet-start: get-logs
-// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :snippet-start: get-logs-full-example
 package main
 
 import (
 	"atlas-sdk-go/internal/auth"
-	test "atlas-sdk-go/tests" // :remove:
 	"compress/gzip"
 	"context"
 	"fmt"
@@ -85,7 +81,6 @@ func unzipGzFile(srcPath, destPath string) error {
 	return nil
 }
 
-// :snippet-start: get-logs-main
 func main() {
 	ctx := context.Background()
 
@@ -111,14 +106,5 @@ func main() {
 		log.Fatalf("Failed to unzip log file: %v", err)
 	}
 
-	// :remove-start:
-	// NOTE Internal function to clean up any downloaded files
-	if err := test.CleanupFiles(); err != nil {
-		log.Printf("Cleanup error: %v", err)
-	}
-	// :remove-end:
 }
 
-// :snippet-end: [get-logs-main]
-// :snippet-end: [get-logs-full-example]
-// :snippet-end: [get-logs]

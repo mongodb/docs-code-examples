@@ -1,5 +1,12 @@
 [
     {
+        "notes": "Copy Go project files to Arch Center artifact repo",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/full-example",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : ""
+    },
+    {
         "notes": "This is a test config. It can be safely deleted.",
         "source_directory" : "generated-examples/go",
         "target_repo" : "docs-code-examples-test-target",
