@@ -1,6 +1,7 @@
 // :snippet-start: get-logs
+// :state-remove-start: copy
 // See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :snippet-start: get-logs-full-example
+// :state-remove-end: [copy]
 package main
 
 import (
@@ -16,14 +17,6 @@ import (
 	"strings"
 )
 
-func SafeClose(c io.Closer) {
-	if c != nil {
-		if err := c.Close(); err != nil {
-			log.Printf("Warning: failed to close resource: %v", err)
-		}
-	}
-}
-
 // getHostLogs downloads a compressed .gz file that contains the MongoDB logs for
 // the specified host in your project.
 func getHostLogs(ctx context.Context, atlasClient admin.APIClient, params *admin.GetHostLogsApiParams) (string, error) {
@@ -36,6 +29,14 @@ func getHostLogs(ctx context.Context, atlasClient admin.APIClient, params *admin
 
 	fmt.Printf("Logs saved to %s\n", logFileName)
 	return logFileName, nil
+}
+
+func SafeClose(c io.Closer) {
+	if c != nil {
+		if err := c.Close(); err != nil {
+			log.Printf("Warning: failed to close resource: %v", err)
+		}
+	}
 }
 
 func downloadLogs(ctx context.Context, atlasClient admin.APIClient, params *admin.GetHostLogsApiParams, filePath string) error {
@@ -97,8 +98,8 @@ func main() {
 
 	params := &admin.GetHostLogsApiParams{
 		GroupId:  config.ProjectID,
-		HostName: config.HostName, // The host to get logs for
-		LogName:  "mongodb",       // The type of log to get ("mongodb" or "mongos")
+		HostName: config.HostName,
+		LogName:  "mongodb", // Type of log ("mongodb" or "mongos")
 	}
 
 	logFileName, err := getHostLogs(ctx, *client, params)
@@ -120,5 +121,4 @@ func main() {
 }
 
 // :snippet-end: [get-logs-main]
-// :snippet-end: [get-logs-full-example]
 // :snippet-end: [get-logs]

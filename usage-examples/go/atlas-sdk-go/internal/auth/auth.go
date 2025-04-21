@@ -1,4 +1,3 @@
-// :snippet-start: auth-function-full-example
 package auth
 
 import (
@@ -8,14 +7,7 @@ import (
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
-//	:replace-start: {
-//	   "terms": {
-//	      "zz-": ""
-//	   }
-//	}
-const filePath = "./configs/zz-config.json"
-
-// :replace-end:
+const filePath = "./configs/config.json"
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client
 // using OAuth2 with service account credentials.
@@ -49,5 +41,3 @@ func CreateAtlasClient() (*admin.APIClient, *internal.Secrets, *internal.Config,
 
 	return atlasClient, secrets, config, nil
 }
-
-// :snippet-end: [auth-function-full-example]

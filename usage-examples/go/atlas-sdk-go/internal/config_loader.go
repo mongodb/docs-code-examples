@@ -1,4 +1,3 @@
-// :snippet-start: config-loader-function-full-example
 package internal
 
 import (
@@ -55,5 +54,3 @@ func (c *Config) CheckRequiredFields() error {
 	}
 	return nil
 }
-
-// :snippet-end: [config-loader-function-full-example]

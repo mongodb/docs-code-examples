@@ -1,6 +1,7 @@
 // :snippet-start: get-metrics-prod
+// :state-remove-start: copy
 // See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :snippet-start: get-metrics-prod-full-example
+// :state-remove-end: [copy]
 package main
 
 import (
@@ -69,5 +70,4 @@ func main() {
 }
 
 // :snippet-end: [get-metrics-main-prod]
-// :snippet-end: [get-metrics-prod-full-example]
 // :snippet-end: [get-metrics-prod]

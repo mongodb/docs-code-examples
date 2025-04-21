@@ -1,7 +1,0 @@
-{
-  "MONGODB_ATLAS_BASE_URL": "https://cloud.mongodb.com",
-  "ATLAS_ORG_ID": "<your-organization-id>",
-  "ATLAS_PROJECT_ID": "<your-project-id>",
-  "ATLAS_CLUSTER_NAME": "Cluster0",
-  "ATLAS_PROCESS_ID": "cluster0-shard-00-00.ab1cd.mongodb.net:27017"
-}

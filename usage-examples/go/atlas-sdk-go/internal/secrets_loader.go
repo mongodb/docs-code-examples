@@ -1,5 +1,3 @@
-// :snippet-start: secrets-loader-function-full-example
-
 package internal
 
 import (
@@ -18,7 +16,7 @@ type Secrets struct {
 	ServiceAccountSecret string `json:"MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"`
 }
 
-// LoadSecrets loads environment variables from a .env file to use in the application
+// LoadSecrets loads .env file variables to use in the application
 func LoadSecrets() (*Secrets, error) {
 	if err := godotenv.Load("./.env"); err != nil {
 		log.Println("No .env file found")
@@ -34,12 +32,10 @@ func LoadSecrets() (*Secrets, error) {
 	return secrets, nil
 }
 
-// CheckRequiredEnv verifies that required environment variables are set in .env
+// CheckRequiredEnv verifies that required environment variables are set
 func (s *Secrets) CheckRequiredEnv() error {
 	if s.ServiceAccountID == "" || s.ServiceAccountSecret == "" {
 		return fmt.Errorf("service account client credentials must be set")
 	}
 	return nil
 }
-
-// :snippet-end: [secrets-loader-function-full-example]
