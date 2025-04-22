@@ -1,17 +1,10 @@
 [
     {
-        "notes" : "TEST 1 Copies atlas-sdk-go project files to arch center artifact repo root",
-        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/test-project-copy",
-        "target_repo" : "atlas-architecture-go-sdk",
-        "target_branch" : "copy-test",
-        "target_directory" : "."
-    },
-    {
-        "notes" : "TEST 2 Copies atlas-sdk-go project files to arch center artifact repo root",
-        "source_directory" : "generated-examples/test-project-copy",
+        "notes": "Test copy to artifact repo",
+        "source_directory" : "generated-examples/go/test-project-copy",
         "target_repo" : "atlas-architecture-go-sdk",
         "target_branch" : "copy-test-2",
-        "target_directory" : "/"
+        "target_directory" : "test"
     },
     {
         "notes": "This is a test config. It can be safely deleted.",
