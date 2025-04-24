@@ -1,9 +1,16 @@
 [
     {
         "notes": "Copy atlas-sdk-go project files to user-facing Atlas Architecture Center artifact repo root",
-        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/project-copy",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/project-copy/",
         "target_repo" : "atlas-architecture-go-sdk",
         "target_branch" : "copy-test",
+        "target_directory" : "."
+    },
+    {
+        "notes": "Copy atlas-sdk-go project files to user-facing Atlas Architecture Center artifact repo root",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/project-copy/**",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "copy-test-2",
         "target_directory" : "."
     },
     {
