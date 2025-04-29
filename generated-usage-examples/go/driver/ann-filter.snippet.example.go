@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
+ 
 type ProjectedMovieResultWithFilter struct {
 	Title string  `bson:"title"`
 	Plot  string  `bson:"plot"`

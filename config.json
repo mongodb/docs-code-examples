@@ -1,23 +1,79 @@
 [
     {
-        "notes": "Copy Go project files to Arch Center artifact repo",
-        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/full-example",
+        "notes": "Copy atlas-sdk-go project files to user-facing Atlas Architecture Center artifact repo root",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/",
         "target_repo" : "atlas-architecture-go-sdk",
         "target_branch" : "main",
-        "target_directory" : ""
+        "target_directory" : "."
     },
     {
-        "notes": "This is a test config. It can be safely deleted.",
-        "source_directory" : "generated-examples/go",
-        "target_repo" : "docs-code-examples-test-target",
+        "notes": "atlas-sdk-go/copied-project/cmd subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/cmd",
+        "target_repo" : "atlas-architecture-go-sdk",
         "target_branch" : "main",
-        "target_directory" : "go"
+        "target_directory" : "cmd"
     },
     {
-        "notes":"This is a test config that copies fake v2 code examples to the v2.2 driver branch.",
-        "source_directory" : "generated-examples/go/v2",
-        "target_repo" : "docs-code-examples-test-target",
+        "notes": "atlas-sdk-go/copied-project/cmd/get_logs subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/cmd/get_logs",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "cmd/get_logs"
+    },
+    {
+        "notes": "atlas-sdk-go/copied-project/cmd/get_metrics_process subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/cmd/get_metrics_process",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "cmd/get_metrics_process"
+    },
+    {
+        "notes": "atlas-sdk-go/copied-project/cmd/get_metrics_disk subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/cmd/get_metrics_disk",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "cmd/get_metrics_disk"
+    },
+    {
+        "notes": "atlas-sdk-go/copied-project/configs",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/configs",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "configs"
+    },
+    {
+        "notes": "atlas-sdk-go/copied-project/internal subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/internal",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "internal"
+    },
+    {
+        "notes": "atlas-sdk-go/copied-project/internal/auth subdirectory",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/internal/auth",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "main",
+        "target_directory" : "internal/auth"
+    },
+    {
+        "notes": "Copy atlas-sdk-go project files to user-facing Atlas Architecture Center artifact repo root",
+        "source_directory" : "generated-usage-examples/go/atlas-sdk-go/copied-project/",
+        "target_repo" : "atlas-architecture-go-sdk",
+        "target_branch" : "copy-test-2",
+        "target_directory" : "."
+    },
+    {
+        "notes": "Example config for copying files from a directory to another repo",
+        "source_directory" : "generated-examples",
+        "target_repo" : "my-target-repo-name",
+        "target_branch" : "main",
+        "target_directory" : "examples"
+    },
+    {
+        "notes":"Example config for copying a subset of files to another repo and branch",
+        "source_directory" : "generated-examples/v2",
+        "target_repo" : "my-target-repo-name",
         "target_branch" : "v2.2",
-        "target_directory" : "go"
+        "target_directory" : "v2-examples"
     }
 ]
