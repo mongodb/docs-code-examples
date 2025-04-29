@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
-const filePath = "./configs/config.json"
+const filePath = "./configs/.config.json"
 
 // CreateAtlasClient initializes and returns an authenticated Atlas API client
 // using OAuth2 with service account credentials.
