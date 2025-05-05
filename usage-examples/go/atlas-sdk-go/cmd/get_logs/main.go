@@ -5,120 +5,66 @@
 package main
 
 import (
+	"atlas-sdk-go/internal"
 	"atlas-sdk-go/internal/auth"
-	test "atlas-sdk-go/tests" // :remove:
-	"compress/gzip"
+	"atlas-sdk-go/internal/config"
+	"atlas-sdk-go/internal/logs"
 	"context"
 	"fmt"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-	"io"
 	"log"
 	"os"
-	"strings"
+	"path/filepath"
+	"time"
 )
 
-// getHostLogs downloads a compressed .gz file that contains the MongoDB logs for
-// the specified host in your project.
-func getHostLogs(ctx context.Context, atlasClient admin.APIClient, params *admin.GetHostLogsApiParams) (string, error) {
-	logFileName := fmt.Sprintf("logs_%s_%s.gz", params.GroupId, params.HostName)
-	fmt.Printf("Fetching %s log for host %s in project %s\n", params.LogName, params.HostName, params.GroupId)
-
-	if err := downloadLogs(ctx, atlasClient, params, logFileName); err != nil {
-		return "", err
-	}
-
-	fmt.Printf("Logs saved to %s\n", logFileName)
-	return logFileName, nil
-}
-
-func SafeClose(c io.Closer) {
-	if c != nil {
-		if err := c.Close(); err != nil {
-			log.Printf("Warning: failed to close resource: %v", err)
-		}
-	}
-}
-
-func downloadLogs(ctx context.Context, atlasClient admin.APIClient, params *admin.GetHostLogsApiParams, filePath string) error {
-	resp, _, err := atlasClient.MonitoringAndLogsApi.GetHostLogsWithParams(ctx, params).Execute()
-	if err != nil {
-		return fmt.Errorf("fetch logs: %w", err)
-	}
-	defer SafeClose(resp)
-
-	file, err := os.Create(filePath)
-	if err != nil {
-		return fmt.Errorf("create %q: %w", filePath, err)
-	}
-	defer SafeClose(file)
-
-	if _, err := io.Copy(file, resp); err != nil {
-		return fmt.Errorf("write to %q: %w", filePath, err)
-	}
-
-	return nil
-}
-
-func unzipGzFile(srcPath, destPath string) error {
-	srcFile, err := os.Open(srcPath)
-	if err != nil {
-		return fmt.Errorf("open gz file: %w", err)
-	}
-	defer SafeClose(srcFile)
-
-	gzReader, err := gzip.NewReader(srcFile)
-	if err != nil {
-		return fmt.Errorf("create gzip reader: %w", err)
-	}
-	defer SafeClose(gzReader)
-
-	destFile, err := os.Create(destPath)
-	if err != nil {
-		return fmt.Errorf("create destination file: %w", err)
-	}
-	defer SafeClose(destFile)
-
-	if _, err := io.Copy(destFile, gzReader); err != nil {
-		return fmt.Errorf("unzip copy error: %w", err)
-	}
-
-	fmt.Printf("Unzipped logs to %s\n", destPath)
-	return nil
-}
-
-// :snippet-start: get-logs-main
 func main() {
+	_ = godotenv.Load()
+	secrets, cfg, err := config.LoadAll("configs/.config.json")
+	if err != nil {
+		log.Fatalf("config load: %v", err)
+	}
+
+	sdk, err := auth.NewClient(cfg, secrets)
+	if err != nil {
+		log.Fatalf("client init: %v", err)
+	}
+
 	ctx := context.Background()
+	p := &admin.GetHostLogsApiParams{
+		GroupId:  cfg.ProjectID,
+		HostName: cfg.HostName,
+		LogName:  "mongodb",
+	}
+	ts := time.Now().Format("20060102_150405")
+	base := fmt.Sprintf("%s_%s_%s", p.HostName, p.LogName, ts)
+	outDir := "logs"
+	os.MkdirAll(outDir, 0o755)
+	gzPath := filepath.Join(outDir, base+".gz")
+	txtPath := filepath.Join(outDir, base+".txt")
 
-	// Create an Atlas client authenticated using OAuth2 with service account credentials
-	client, _, config, err := auth.CreateAtlasClient()
+	rc, err := logs.FetchHostLogs(ctx, sdk.MonitoringAndLogsApi, p)
 	if err != nil {
-		log.Fatalf("Failed to create Atlas client: %v", err)
+		log.Fatalf("download logs: %v", err)
 	}
+	defer internal.SafeClose(rc)
 
-	params := &admin.GetHostLogsApiParams{
-		GroupId:  config.ProjectID,
-		HostName: config.HostName,
-		LogName:  "mongodb", // Type of log ("mongodb" or "mongos")
+	if err := logs.WriteToFile(rc, gzPath); err != nil {
+		log.Fatalf("save gz: %v", err)
 	}
+	fmt.Println("Saved compressed log to", gzPath)
 
-	logFileName, err := getHostLogs(ctx, *client, params)
-	if err != nil {
-		log.Fatalf("Failed to download logs: %v", err)
+	if err := logs.DecompressGzip(gzPath, txtPath); err != nil {
+		log.Fatalf("decompress: %v", err)
 	}
-
-	plainTextLog := strings.TrimSuffix(logFileName, ".gz") + ".log"
-	if err := unzipGzFile(logFileName, plainTextLog); err != nil {
-		log.Fatalf("Failed to unzip log file: %v", err)
-	}
+	fmt.Println("Uncompressed log to", txtPath)
 
 	// :remove-start:
 	// NOTE Internal function to clean up any downloaded files
-	if err := test.CleanupFiles(); err != nil {
+	if err := internal.SafeDelete(outDir); err != nil {
 		log.Printf("Cleanup error: %v", err)
 	}
+	fmt.Println("Deleted generated files from", outDir)
 	// :remove-end:
 }
-
-// :snippet-end: [get-logs-main]
-// :snippet-end: [get-logs]

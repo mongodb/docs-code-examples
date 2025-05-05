@@ -5,11 +5,11 @@ PROJECT=$(git rev-parse --show-toplevel)
 GO_SDK_EXAMPLES="$PROJECT/usage-examples/go/atlas-sdk-go/"
 GENERATED_EXAMPLES="$PROJECT/generated-usage-examples/go/atlas-sdk-go/usage-examples/"
 
-# ——— helper: run bluehawk and only show the key lines ———
+# ——— helper: run .bluehawk and only show the key lines ———
 run_snip() {
   local extra_flags="$1"
   local label="$2"
-  local dst="$GENERATED_EXAMPLES"
+  local dest="$GENERATED_EXAMPLES"
 
   echo "→ $label"
   npx bluehawk snip "$GO_SDK_EXAMPLES" -o "$GENERATED_EXAMPLES"
@@ -18,9 +18,9 @@ run_snip() {
 run_snip "" "Global snippets"
 
 # ——— 2) state‑specific snippets ———
-read -p "Do you have any state tags to enter? [y/N]: " resp
+read -r -p "Do you have any state tags to enter? [y/N]: " resp
 if [[ $resp =~ ^[Yy]$ ]]; then
-  read -a STATES -p "Enter one or more state tags (space‑separated): "
+  read -r -a STATES -p "Enter one or more state tags (space‑separated): "
   for s in "${STATES[@]}"; do
     run_snip "--state $s" "State: $s"
   done
