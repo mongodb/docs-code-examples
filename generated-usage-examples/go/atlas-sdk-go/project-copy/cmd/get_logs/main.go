@@ -1,7 +1,3 @@
-// :snippet-start: get-logs
-// :state-remove-start: copy
-// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :state-remove-end: [copy]
 package main
 
 import (
@@ -60,13 +56,5 @@ func main() {
 	}
 	fmt.Println("Uncompressed log to", txtPath)
 
-	// :remove-start:
-	// NOTE Internal function to clean up any downloaded files
-	if err := internal.SafeDelete(outDir); err != nil {
-		log.Printf("Cleanup error: %v", err)
-	}
-	fmt.Println("Deleted generated files from", outDir)
-	// :remove-end:
 }
 
-// :snippet-end: [get-logs]

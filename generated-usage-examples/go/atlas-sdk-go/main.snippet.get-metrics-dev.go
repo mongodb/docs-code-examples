@@ -1,7 +1,4 @@
-// :snippet-start: get-metrics-dev
-// :state-remove-start: copy
 // See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :state-remove-end: [copy]
 package main
 
 import (
@@ -47,4 +44,3 @@ func main() {
 	fmt.Println(string(out))
 }
 
-// :snippet-end: [get-metrics-dev]

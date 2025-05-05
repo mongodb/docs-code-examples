@@ -5,8 +5,6 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") <command> [flags]
 
-If you run with **no arguments**, you’ll be prompted interactively.
-
 Commands:
   snip   Extract code examples from Bluehawk snippets
   copy   Copy sanitized project files
@@ -28,7 +26,6 @@ IGNORE_PATTERNS=(
   "scripts/"
   "tests/"
   ".*"
-  "logs/"
   "*.gz"
   "*.log"
 )
@@ -45,26 +42,30 @@ if [[ $# -eq 0 ]]; then
     echo "enter 'snip' or 'copy'"
   done
 
-STATE=$([[ "$CMD" == "snip" ]] && echo "" || echo "copy")
-OUTPUT_DIR=$([[ "$CMD" == "snip" ]] && echo "$OUTPUT_DIR" || echo "$OUTPUT_DIR/project-copy")
+  STATE=$([[ "$CMD" == "snip" ]] && echo "" || echo "copy")
+  OUTPUT_DIR=$([[ "$CMD" == "snip" ]] && echo "$OUTPUT_DIR" || echo "$OUTPUT_DIR/project-copy")
 
+  IGNORE_ARGS=()
+  for pattern in "${IGNORE_PATTERNS[@]}"; do
+    IGNORE_ARGS+=(--ignore="$pattern")
+  done
 
-IGNORE_ARGS=()
-for pattern in "${IGNORE_PATTERNS[@]}"; do
-  IGNORE_ARGS+=(--ignore="$pattern")
-done
-
-RENAME_ARGS=()
+ RENAME_ARGS=()
 if [[ "$CMD" != "snip" ]]; then
   for rule in "${RENAME_PATTERNS[@]}"; do
     RENAME_ARGS+=(--rename="$rule")
   done
+else
+  RENAME_ARGS=()
 fi
 
-# call .bluehawk with all the args
-.bluehawk "$CMD" \
-  --state="$STATE" \
-  -o "$OUTPUT_DIR" \
-  "${IGNORE_ARGS[@]}" \
-  "${RENAME_ARGS[@]}" \
-  "$INPUT_DIR"
+  # call bluehawk with all the args
+  bluehawk "$CMD" \
+    --state="$STATE" \
+    -o "$OUTPUT_DIR" \
+    "${IGNORE_ARGS[@]}" \
+    "${RENAME_ARGS[@]}" \
+    "$INPUT_DIR"
+else
+  usage
+fi
