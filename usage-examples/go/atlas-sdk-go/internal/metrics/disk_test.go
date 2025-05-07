@@ -2,11 +2,12 @@ package metrics
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/atlas-sdk/v20250219001/mockadmin"
-	"testing"
 )
 
 // -----------------------------------------------------------------------------

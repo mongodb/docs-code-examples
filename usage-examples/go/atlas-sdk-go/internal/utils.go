@@ -3,7 +3,7 @@ package internal
 import (
 	"io"
 	"log"
-	"os" // :remove:
+	"os"            // :remove:
 	"path/filepath" // :remove:
 )
 

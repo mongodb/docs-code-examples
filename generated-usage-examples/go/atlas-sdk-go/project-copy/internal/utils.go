@@ -3,8 +3,6 @@ package internal
 import (
 	"io"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 // SafeClose closes c and logs a warning on error.

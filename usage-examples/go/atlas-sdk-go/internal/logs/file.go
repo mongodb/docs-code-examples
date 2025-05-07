@@ -1,14 +1,15 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal"
 	"fmt"
 	"io"
 	"os"
+
+	"atlas-sdk-go/internal"
 )
 
 // WriteToFile copies everything from r into a new file at path.
-// It will create (or truncate) that file.
+// It will create or truncate that file.
 func WriteToFile(r io.Reader, path string) error {
 	f, err := os.Create(path)
 	if err != nil {

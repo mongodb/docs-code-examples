@@ -22,14 +22,14 @@ INPUT_DIR="$PROJECT/usage-examples/go/atlas-sdk-go"
 OUTPUT_DIR="$PROJECT/generated-usage-examples/go/atlas-sdk-go/"
 STATE=""
 IGNORE_PATTERNS=(
-  "README.md"
+  "internal_*.*"
   "scripts/"
-  "tests/"
-  ".*"
+  "*_test.go"
+  ".env"
   "*.gz"
   "*.log"
+  "./logs"
 )
-RENAME_PATTERNS=('{"REPO_README.md":"README.md"}')
 
 # ─── Interactive mode ────────────────────────────────────────────────────────
 if [[ $# -eq 0 ]]; then
@@ -50,21 +50,20 @@ if [[ $# -eq 0 ]]; then
     IGNORE_ARGS+=(--ignore="$pattern")
   done
 
- RENAME_ARGS=()
-if [[ "$CMD" != "snip" ]]; then
-  for rule in "${RENAME_PATTERNS[@]}"; do
-    RENAME_ARGS+=(--rename="$rule")
-  done
-else
-  RENAME_ARGS=()
-fi
+# RENAME_ARGS=()
+#if [[ "$CMD" != "snip" ]]; then
+#  for rule in "${RENAME_PATTERNS[@]}"; do
+#    RENAME_ARGS+=(--rename="$rule")
+#  done
+#else
+#  RENAME_ARGS=()
+#fi
 
   # call bluehawk with all the args
   bluehawk "$CMD" \
     --state="$STATE" \
     -o "$OUTPUT_DIR" \
     "${IGNORE_ARGS[@]}" \
-    "${RENAME_ARGS[@]}" \
     "$INPUT_DIR"
 else
   usage

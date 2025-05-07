@@ -1,10 +1,11 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal"
 	"compress/gzip"
 	"fmt"
 	"os"
+
+	"atlas-sdk-go/internal"
 )
 
 // DecompressGzip opens a .gz file and unpacks to specified destination.

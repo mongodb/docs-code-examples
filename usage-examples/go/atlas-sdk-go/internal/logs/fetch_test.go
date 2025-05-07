@@ -1,12 +1,13 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal"
 	"context"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
+
+	"atlas-sdk-go/internal"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

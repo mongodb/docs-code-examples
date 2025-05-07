@@ -1,11 +1,12 @@
 package config
 
 import (
-	"atlas-sdk-go/internal"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	"atlas-sdk-go/internal"
 )
 
 type Config struct {
@@ -29,7 +30,6 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("decode %s: %w", path, err)
 	}
 
-	// defaults
 	if c.BaseURL == "" {
 		c.BaseURL = "https://cloud.mongodb.com"
 	}
@@ -40,7 +40,6 @@ func LoadConfig(path string) (*Config, error) {
 		}
 	}
 
-	// required
 	if c.OrgID == "" || c.ProjectID == "" {
 		return nil, fmt.Errorf("ATLAS_ORG_ID and ATLAS_PROJECT_ID are required")
 	}

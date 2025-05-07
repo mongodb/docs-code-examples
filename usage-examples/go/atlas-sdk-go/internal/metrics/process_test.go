@@ -2,12 +2,13 @@ package metrics
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/atlas-sdk/v20250219001/mockadmin"
-	"testing"
-	"time"
 )
 
 // fixed timestamp for tests

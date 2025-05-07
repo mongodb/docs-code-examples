@@ -2,18 +2,20 @@
 package main
 
 import (
-	"atlas-sdk-go/internal"
-	"atlas-sdk-go/internal/auth"
-	"atlas-sdk-go/internal/config"
-	"atlas-sdk-go/internal/logs"
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+
+	"atlas-sdk-go/internal"
+	"atlas-sdk-go/internal/auth"
+	"atlas-sdk-go/internal/config"
+	"atlas-sdk-go/internal/logs"
 )
 
 func main() {
@@ -56,6 +58,5 @@ func main() {
 		log.Fatalf("decompress: %v", err)
 	}
 	fmt.Println("Uncompressed log to", txtPath)
-
 }
 

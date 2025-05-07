@@ -8,12 +8,7 @@ import (
 )
 
 // FetchProcessMetrics returns measurements for a specified host process
-func FetchProcessMetrics(
-	ctx context.Context,
-	sdk admin.MonitoringAndLogsApi,
-	p *admin.GetHostMeasurementsApiParams,
-) (*admin.ApiMeasurementsGeneralViewAtlas, error) {
-
+func FetchProcessMetrics(ctx context.Context, sdk admin.MonitoringAndLogsApi, p *admin.GetHostMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, error) {
 	req := sdk.GetHostMeasurements(ctx, p.GroupId, p.ProcessId)
 	req = req.Granularity(*p.Granularity).Period(*p.Period).M(*p.M)
 

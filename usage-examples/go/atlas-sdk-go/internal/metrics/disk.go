@@ -8,12 +8,7 @@ import (
 )
 
 // FetchDiskMetrics returns measurements for a specified disk partition
-func FetchDiskMetrics(
-	ctx context.Context,
-	sdk admin.MonitoringAndLogsApi,
-	p *admin.GetDiskMeasurementsApiParams,
-) (*admin.ApiMeasurementsGeneralViewAtlas, error) {
-
+func FetchDiskMetrics(ctx context.Context, sdk admin.MonitoringAndLogsApi, p *admin.GetDiskMeasurementsApiParams) (*admin.ApiMeasurementsGeneralViewAtlas, error) {
 	req := sdk.GetDiskMeasurements(ctx, p.GroupId, p.PartitionName, p.ProcessId)
 	req = req.Granularity(*p.Granularity).Period(*p.Period).M(*p.M)
 

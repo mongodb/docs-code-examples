@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"atlas-sdk-go/internal/config"
 	"context"
 	"fmt"
+
+	"atlas-sdk-go/internal/config"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
