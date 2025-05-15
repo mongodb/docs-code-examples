@@ -1,0 +1,6 @@
+# Secrets
+.env
+
+# Logs
+*.log
+*.gz
