@@ -1,10 +1,14 @@
 # Atlas SDK for Go
 
+> NOTE: This is an internal-only file and refers to the internal project details.  
+> The external project details are documented in the README.md file.
+
 This project demonstrates how to script specific functionality using the Atlas
 SDK for Go. Code examples are used in the Atlas Architecture Center docs, and
 the project is made available in a user-facing repo.
 
 ## Project Structure
+# TODO update
 ```text
 atlas-sdk-go/
 │── cmd/                  # Self-contained, runnable scripts
@@ -41,27 +45,26 @@ go run cmd/get_logs/main.go
 
 ### Prerequisites
 
-- A [service account](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/#std-label-service-accounts-overview) with access to your Atlas project
+Contact the Developer Docs team with any setup questions or issues.
+
+- A [service account](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/#std-label-service-accounts-overview) with access to your Atlas project. 
 
 > **NOTE:** Some scripts require an M10+ cluster
 
 ### Set environment variables and config file
 
 1. Set the following variable values, either as a `.env` file in the root directory or through your IDE:
-    ```shell
-    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your-service-account-id
-    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your-service-account-secret
-    ```
+   ```dotenv
+   MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your_service_account_id
+   MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your_service_account_secret
 2. Update the placeholders in the `configs/config.json` file with your Atlas cluster information:
     ```json
    {
-    
     "ATLAS_BASE_URL": "https://cloud.mongodb.com", 
     "ATLAS_ORG_ID": "<your-organization-id>",
     "ATLAS_PROJECT_ID": "<your-project-id>",
     "ATLAS_CLUSTER_NAME": "Cluster0",
     "ATLAS_PROCESS_ID": "cluster0-shard-00-00.ab1cd.mongodb.net:27017"
-    
    }
     ```
     > **NOTE: Group ID == Project ID** Groups and projects are synonymous terms. Groups and projects are synonymous terms. Your group id is the same as your project id. 
@@ -87,4 +90,3 @@ runs with the defined defaults.
    ```
 
 > **NOTE: "Copy" State** This project uses a state named "copy" specifically for any manipulations needed for code copied to the artifact repo. 
-

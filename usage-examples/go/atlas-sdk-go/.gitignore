@@ -1,5 +1,6 @@
 # Secrets
 .env
+/configs/ignore.config.json
 
 # Logs
 *.log

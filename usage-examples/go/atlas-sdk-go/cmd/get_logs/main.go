@@ -62,7 +62,7 @@ func main() {
 	}
 	fmt.Println("Uncompressed log to", txtPath)
 	// :remove-start:
-	// NOTE Internal function to clean up any downloaded files
+	// NOTE: Internal-only function to clean up any downloaded files
 	if err := internal.SafeDelete(outDir); err != nil {
 		log.Printf("Cleanup error: %v", err)
 	}
