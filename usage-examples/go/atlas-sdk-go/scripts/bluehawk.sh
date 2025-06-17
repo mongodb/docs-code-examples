@@ -23,14 +23,16 @@ STATE=""
 IGNORE_PATTERNS=(
   "internal_*.*" # for INTERNAL_README.md
   "scripts/"
-  "*_test.go"
+  ".idea"
+  "*_test.go" # we're not including test files in artifact repo
   ".env"
   "*.gz"
   "*.log"
   "./logs" # for generated logs directory
-  # NOTE: DO NOT add pattern for ".gitignore"; it should be copied to the output directory
+  # NOTE: DO NOT add pattern for ".gitignore"; we are including it in the artifact repo
 )
 RENAME_PATTERNS=()
+VERBOSE=false
 
 # Process command-line args
 if [[ $# -gt 0 ]]; then
@@ -67,6 +69,10 @@ if [[ $# -gt 0 ]]; then
         STATE="${1#*=}"
         shift
         ;;
+      --verbose)
+        VERBOSE=true
+        shift
+        ;;
       *)
         echo "Unknown option: $1"
         usage
@@ -83,6 +89,14 @@ else
     [[ "$CMD" == "snip" || "$CMD" == "copy" ]] && break
     echo "enter 'snip' or 'copy'"
   done
+
+  # Ask for verbose logging
+  read -rp "Enable verbose output? (y/N): " verbose_response
+  # Convert to lowercase using tr instead of bash parameter expansion
+  verbose_response=$(echo "$verbose_response" | tr '[:upper:]' '[:lower:]')
+  if [[ "$verbose_response" == "y" ]]; then
+    VERBOSE=true
+  fi
 fi
 
 # Set up the command and its arguments
@@ -111,7 +125,17 @@ if [[ "$CMD" == "copy" ]] && [[ ${#RENAME_PATTERNS[@]} -gt 0 ]]; then
   done
 fi
 
-# Build the command
+# Check for errors first
+echo "Checking for Bluehawk parsing errors..."
+if ! check_output=$(bluehawk check "${IGNORE_ARGS[@]}" "$INPUT_DIR" 2>&1); then
+  echo "Bluehawk check failed. Errors found:"
+  echo "$check_output" | grep -A 1 "bluehawk errors"
+  exit 1
+fi
+
+echo "Validation successful! No errors found."
+
+# Build the command - DO NOT use --quiet flag as it prevents file generation
 CMD_ARGS=(bluehawk "$CMD" -o "$OUTPUT_DIR" "${IGNORE_ARGS[@]}")
 
 # Add state argument if set
@@ -128,4 +152,30 @@ fi
 CMD_ARGS+=("$INPUT_DIR")
 
 # Execute the command
-"${CMD_ARGS[@]}"
+echo "Running: ${CMD_ARGS[0]} ${CMD_ARGS[1]} [options] ${CMD_ARGS[${#CMD_ARGS[@]}-1]}"
+if [[ "$VERBOSE" == true ]]; then
+  "${CMD_ARGS[@]}"
+else
+  output=$("${CMD_ARGS[@]}" 2>&1)
+  cmd_status=$?
+
+  # Display summary
+  summary=$(echo "$output" | grep -A 3 "Processed [0-9]* files:")
+  if [[ -n "$summary" ]]; then
+    echo -e "\n$summary"
+  else
+    echo -e "\nNo summary available"
+  fi
+
+  # Filter and display only important information
+  written_count=$(echo "$output" | grep -c "wrote text file" || true)
+  echo -e "\nSuccessfully wrote the following $written_count files:"
+  files_written=$(echo "$output" | grep "wrote text file" | sed 's/^wrote text file based on.*-> /  /')
+  if [[ -n "$files_written" ]]; then
+  echo "$files_written"
+  else
+  echo "  No files written"
+  fi
+
+  exit ${cmd_status:-0}
+fi

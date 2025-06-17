@@ -1,7 +1,4 @@
-// :snippet-start: get-linked-orgs
-// :state-remove-start: copy
 // See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :state-remove-end: [copy]
 package main
 
 import (
@@ -59,4 +56,3 @@ func main() {
 	}
 }
 
-// :snippet-end: [get-linked-orgs]

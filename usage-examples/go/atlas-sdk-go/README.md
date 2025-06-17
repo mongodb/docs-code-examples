@@ -33,6 +33,7 @@ and improvements to existing code.
 │   └── config.json
 ├── internal             # Shared utilities and helpers
 │   ├── auth/
+│   ├── billing/
 │   ├── config/
 │   ├── logs/
 │   ├── metrics/

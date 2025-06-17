@@ -2,11 +2,12 @@ package internal
 
 import (
 	"fmt"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"io"
 	"log"
 	"os"            // :remove:
 	"path/filepath" // :remove:
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 // FormatAPIError formats an error returned by the Atlas API with additional context.

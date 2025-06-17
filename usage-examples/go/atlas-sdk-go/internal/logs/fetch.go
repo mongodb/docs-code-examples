@@ -1,9 +1,10 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal"
 	"context"
 	"io"
+
+	"atlas-sdk-go/internal"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
