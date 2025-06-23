@@ -19,11 +19,11 @@ func GetCrossOrgBilling(ctx context.Context, sdk admin.InvoicesApi, p *admin.Lis
 		return nil, internal.FormatAPIError("list invoices", p.OrgId, err)
 	}
 
+	crossOrgBilling := make(map[string][]admin.BillingInvoiceMetadata)
 	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
-		return make(map[string][]admin.BillingInvoiceMetadata), nil
+		return crossOrgBilling, nil
 	}
 
-	crossOrgBilling := make(map[string][]admin.BillingInvoiceMetadata)
 	crossOrgBilling[p.OrgId] = r.GetResults()
 	for _, invoice := range r.GetResults() {
 		if !invoice.HasLinkedInvoices() || len(invoice.GetLinkedInvoices()) == 0 {
