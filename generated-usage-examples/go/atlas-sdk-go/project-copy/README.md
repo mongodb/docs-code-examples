@@ -52,15 +52,9 @@ and improvements to existing code.
 - Service account credentials with appropriate permissions. See
   [Service Account Overview](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/).
 
-## Setup
+## Setting Environment Variables
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/mongodb/atlas-architecture-go-sdk.git
-   cd atlas-architecture-go-sdk
-   ```
-
-2. Create a `.env` file in the root directory with your MongoDB Atlas service account credentials:
+1. Create a `.env` file in the root directory with your MongoDB Atlas service account credentials:
    ```dotenv
    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your_service_account_id
    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your_service_account_secret
@@ -69,7 +63,7 @@ and improvements to existing code.
    > instead of environment variables. 
    > See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
 
-3. Configure Atlas details in `configs/config.json`:
+2. Configure Atlas details in `configs/config.json`:
    ```json
    {
      "MONGODB_ATLAS_BASE_URL": "<optional-base-url>",
@@ -80,11 +74,6 @@ and improvements to existing code.
    }
    ```
    > **NOTE:** The base URL defaults to `https://cloud.mongodb.com` if not specified.
-
-4. Install dependencies:
-   ```bash
-   go mod tidy
-   ```
 
 ## Running Examples
 
