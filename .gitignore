@@ -12,14 +12,19 @@
 # IDE files
 ## Visual Studio Code files
 .vscode
+
 ## JetBrains IDE files
 *.idea
+
 ## Python virtual environment
 */venv
 
 # Language specific output
 ## Node.js dependencies
-*/node_modules
+node_modules
+
 ## Java build files
 */target
 
+# Mongosh temporary files
+temp

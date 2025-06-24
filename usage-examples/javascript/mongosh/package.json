@@ -1,0 +1,42 @@
+{
+  "name": "mongosh-examples",
+  "version": "1.0.0",
+  "description": "This is a PoC to explore testing mongosh code examples for MongoDB Documentation.",
+  "homepage": "https://github.com/mongodb/docs-code-examples#readme",
+  "bugs": {
+    "url": "https://github.com/mongodb/docs-code-examples/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongodb/docs-code-examples.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Developer Docs",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --run-in-band --detectOpenHandles"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "setupFiles": ["./jest.setup.js"]
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "mongodb": "^6.17.0"
+  }
+}
