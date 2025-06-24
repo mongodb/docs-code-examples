@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"atlas-sdk-go/internal"
+
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
@@ -14,12 +16,9 @@ func FetchProcessMetrics(ctx context.Context, sdk admin.MonitoringAndLogsApi, p 
 
 	r, _, err := req.Execute()
 	if err != nil {
-		if apiErr, ok := admin.AsError(err); ok {
-			return nil, fmt.Errorf("failed to fetch process metrics: %w – %s", err, apiErr.GetDetail())
-		}
-		return nil, fmt.Errorf("failed to fetch process metrics: %w", err)
+		return nil, internal.FormatAPIError("fetch process metrics", p.GroupId, err)
 	}
-	if r == nil || !r.HasMeasurements() {
+	if r == nil || !r.HasMeasurements() || len(r.GetMeasurements()) == 0 {
 		return nil, fmt.Errorf("no metrics for process %q", p.ProcessId)
 	}
 	return r, nil
