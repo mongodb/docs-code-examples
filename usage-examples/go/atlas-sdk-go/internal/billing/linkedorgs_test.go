@@ -50,7 +50,7 @@ func TestGetLinkedOrgs_Success(t *testing.T) {
 		Return(mockResponse, nil, nil).Once()
 
 	params := &admin.ListInvoicesApiParams{OrgId: billingOrgID}
-	linkedOrgs, err := billing.GetLinkedOrgs(context.Background(), mockSvc, params)
+	linkedOrgs, err := billing.ListLinkedOrgs(context.Background(), mockSvc, params)
 
 	require.NoError(t, err)
 	assert.Len(t, linkedOrgs, 2, "Should return two linked organizations")
@@ -72,7 +72,7 @@ func TestGetLinkedOrgs_ApiError(t *testing.T) {
 		Return(nil, nil, expectedError).Once()
 
 	params := &admin.ListInvoicesApiParams{OrgId: billingOrgID}
-	_, err := billing.GetLinkedOrgs(context.Background(), mockSvc, params)
+	_, err := billing.ListLinkedOrgs(context.Background(), mockSvc, params)
 
 	// Verify error handling
 	require.Error(t, err)
@@ -103,7 +103,7 @@ func TestGetLinkedOrgs_NoLinkedOrgs(t *testing.T) {
 		Return(mockResponse, nil, nil).Once()
 
 	params := &admin.ListInvoicesApiParams{OrgId: billingOrgID}
-	linkedOrgs, err := billing.GetLinkedOrgs(context.Background(), mockSvc, params)
+	linkedOrgs, err := billing.ListLinkedOrgs(context.Background(), mockSvc, params)
 
 	require.NoError(t, err)
 	assert.Empty(t, linkedOrgs, "Should return empty when no linked orgs exist")
@@ -137,7 +137,7 @@ func TestGetLinkedOrgs_MissingOrgID(t *testing.T) {
 
 	// Run test
 	params := &admin.ListInvoicesApiParams{OrgId: billingOrgID}
-	linkedOrgs, err := billing.GetLinkedOrgs(context.Background(), mockSvc, params)
+	linkedOrgs, err := billing.ListLinkedOrgs(context.Background(), mockSvc, params)
 
 	require.NoError(t, err)
 	assert.Len(t, linkedOrgs, 1, "Should return one linked organization")

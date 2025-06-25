@@ -4,19 +4,14 @@ import (
 	"context"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
-	"atlas-sdk-go/internal"
 )
 
-// GetCrossOrgBilling returns all invoices for the billing organization and any linked organizations.
+// GetCrossOrgBilling returns a map of all billing invoices for the given organization and any linked organizations, grouped by organization ID.
 // NOTE: Organization Billing Admin or Organization Owner role required to view linked invoices.
-func GetCrossOrgBilling(ctx context.Context, sdk admin.InvoicesApi, p *admin.ListInvoicesApiParams) (map[string][]admin.BillingInvoiceMetadata, error) {
-	req := sdk.ListInvoices(ctx, p.OrgId)
-
-	r, _, err := req.Execute()
-
+func GetCrossOrgBilling(ctx context.Context, sdk admin.InvoicesApi, orgId string, opts ...InvoiceOption) (map[string][]admin.BillingInvoiceMetadata, error) {
+	r, err := ListInvoicesForOrg(ctx, sdk, orgId, opts...)
 	if err != nil {
-		return nil, internal.FormatAPIError("list invoices", p.OrgId, err)
+		return nil, err
 	}
 
 	crossOrgBilling := make(map[string][]admin.BillingInvoiceMetadata)
@@ -24,7 +19,7 @@ func GetCrossOrgBilling(ctx context.Context, sdk admin.InvoicesApi, p *admin.Lis
 		return crossOrgBilling, nil
 	}
 
-	crossOrgBilling[p.OrgId] = r.GetResults()
+	crossOrgBilling[orgId] = r.GetResults()
 	for _, invoice := range r.GetResults() {
 		if !invoice.HasLinkedInvoices() || len(invoice.GetLinkedInvoices()) == 0 {
 			continue

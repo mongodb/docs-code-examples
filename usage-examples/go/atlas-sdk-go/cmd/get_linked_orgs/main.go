@@ -9,12 +9,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -31,12 +29,9 @@ func main() {
 	}
 
 	ctx := context.Background()
-	params := &admin.ListInvoicesApiParams{
-		OrgId: cfg.OrgID,
-	}
 
-	fmt.Printf("Fetching cross-org billing info for organization: %s\n", params.OrgId)
-	results, err := billing.GetCrossOrgBilling(ctx, sdk.InvoicesApi, params)
+	fmt.Printf("Fetching cross-org billing for organization: %s\n", cfg.OrgID)
+	results, err := billing.GetCrossOrgBilling(ctx, sdk.InvoicesApi, cfg.OrgID)
 	if err != nil {
 		log.Fatalf("Failed to retrieve invoices: %v", err)
 	}
@@ -45,18 +40,35 @@ func main() {
 		return
 	}
 
-	linkedOrgs, err := billing.GetLinkedOrgs(ctx, sdk.InvoicesApi, params)
-	if err != nil {
-		log.Fatalf("Failed to retrieve linked organizations: %v", err)
+	// Print the returned map of invoices grouped by organization ID
+	fmt.Printf("Found %d organizations with invoices:\n", len(results))
+	for orgID, invoices := range results {
+		fmt.Printf("  Organization ID: %s\n", orgID)
+		if len(invoices) == 0 {
+			fmt.Println("    No invoices found for this organization")
+			continue
+		}
+		for i, invoice := range invoices {
+			fmt.Printf("    %d. Invoice #%s - Status: %s - Created: %s - Amount: $%.2f\n",
+				i+1,
+				invoice.GetId(),
+				invoice.GetStatus(),
+				invoice.GetCreatedDate(),
+				invoice.GetAmountBilledCents()/100.0)
+		}
 	}
-	if len(linkedOrgs) == 0 {
-		fmt.Println("No linked organizations found for the billing org")
-		return
-	}
-	fmt.Println("Linked organizations:")
-	for i, org := range linkedOrgs {
-		fmt.Printf("  %d. %v\n", i+1, org)
-	}
+	// linkedOrgs, err := billing.ListLinkedOrgs(ctx, sdk.InvoicesApi, cfg.OrgID)
+	// if err != nil {
+	// 	log.Fatalf("Failed to retrieve linked organizations: %v", err)
+	// }
+	// if len(linkedOrgs) == 0 {
+	// 	fmt.Println("No linked organizations found for the billing org")
+	// 	return
+	// }
+	// fmt.Println("Linked organizations:")
+	// for i, org := range linkedOrgs {
+	// 	fmt.Printf("  %d. %v\n", i+1, org)
+	// }
 }
 
 // :snippet-end: [get-linked-orgs]
