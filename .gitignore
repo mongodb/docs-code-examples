@@ -28,3 +28,12 @@ node_modules
 
 # Mongosh temporary files
 temp
+
+# C# Debug files
+Debug/
+
+# NuGet generated artifact files  
+obj/ 
+
+# User-specific settings files from JetBrains Rider and ReSharper  
+*.DotSettings.user
