@@ -6,7 +6,7 @@ const unorderedArrayOutputMatches = require("../../utils/unorderedArrayOutputMat
 
 jest.setTimeout(10000);
 
-describe("mongosh $group operator tests", () => {
+describe("mongosh group operator tests", () => {
     const mongoUri = process.env.CONNECTION_STRING;
     const port = process.env.CONNECTION_PORT;
     const dbName = "test";

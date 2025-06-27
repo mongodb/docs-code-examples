@@ -36,15 +36,27 @@ running, and then:
    docker ps  
    ```
 
-The output resembles:
+   The output resembles:
 
-```shell
-CONTAINER ID   IMAGE   COMMAND                  CREATED        STATUS                  PORTS                        NAMES
-ef70cce38f26   mongo   "/usr/local/bin/runn…"   29 hours ago   Up 29 hours (healthy)   127.0.0.1:63201->27017/tcp   mongodb-test
-```
+   ```text
+   CONTAINER ID   IMAGE   COMMAND                  CREATED        STATUS                  PORTS                        NAMES
+   ef70cce38f26   mongo   "/usr/local/bin/runn…"   29 hours ago   Up 29 hours (healthy)   127.0.0.1:63201->27017/tcp   mongodb-test
+   ```
 
-You may note the actual port is different than `27017`, if something else is already running on
-`27017` on your machine. Note the port next to the IP address for running the tests.
+   You may note the actual port is different than `27017`, if something else is already running on
+   `27017` on your machine. Note the port next to the IP address for running the tests. Alternately, you can get just
+   the port info for your container using the following command:
+
+   ```shell
+   docker port mongodb-test
+   ```
+   
+   The output resembles:
+
+   ```text
+   27017/tcp -> 0.0.0.0:27017
+   27017/tcp -> [::]:27017
+   ```
 
 ### Create a .env file
 
@@ -103,40 +115,18 @@ In the above command:
 
 You can run all the tests in a given test suite (file).
 
-From the `/tests` directory, run:
+From the `/mongosh` directory, run:
 
 ```
-export $(xargs < ../.env) && jest -t '<text string from the 'describe' block you want to run>' --runInBand
+npm test -- -t '<text string from the 'describe()' block you want to run>'
 ```
-
-In the above command:
-
-- `export $(xargs < ../.env)` is Linux flag to make the contents of the `.env`
-  file available to the test suite
-- `jest` is the command to run the test suite
-- `-t '<text string from the 'describe' block you want to run>'` is the way to
-  specify to run all tests in test suite, which in this test, is a single file
-- `--runInBand` is a flag that specifies only running one test at a time
-  to avoid collisions when creating/editing/dropping indexes. Otherwise, Jest
-  defaults to running tests in parallel.
 
 #### Run Individual Tests from the command line
 
 You can run a single test within a given test suite (file).
 
-From the `/tests` directory, run:
+From the `/mongosh` directory, run:
 
 ```
-export $(xargs < ../.env) && jest -t '<text string from the 'it' block of the test you want to run>'
+npm test -- -t '<text string from the 'it()' block you want to run>'
 ```
-
-In the above command:
-
-- `export $(xargs < ../.env)` is Linux flag to make the contents of the `.env`
-  file available to the test suite
-- `jest` is the command to run the test suite
-- `-t '<text string from the 'it' block of the test you want to run>'` is the
-  way to specify to run a single test matching your text
-
-Since you are only running a single test, there is no chance of colliding
-with the other tests, so the `--runInBand` flag isn't needed.

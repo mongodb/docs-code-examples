@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "jest --run-in-band --detectOpenHandles"
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
