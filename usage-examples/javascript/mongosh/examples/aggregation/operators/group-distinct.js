@@ -1,0 +1,1 @@
+db.sales.aggregate( [ { $group : { _id : "$item" } } ] )

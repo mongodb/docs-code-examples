@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export async function createIndexBasic() {
-    // connect to your Atlas deployment
+    // connect to the Atlas deployment
     const uri = "<connection-string>";
     const client = new MongoClient(uri);
     try {

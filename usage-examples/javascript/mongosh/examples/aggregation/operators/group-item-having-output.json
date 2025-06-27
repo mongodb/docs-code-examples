@@ -1,0 +1,5 @@
+[
+  { _id: 'xyz', totalSaleAmount: Decimal128('150') },
+  { _id: 'def', totalSaleAmount: Decimal128('112.5') },
+  { _id: 'abc', totalSaleAmount: Decimal128('170') }
+]

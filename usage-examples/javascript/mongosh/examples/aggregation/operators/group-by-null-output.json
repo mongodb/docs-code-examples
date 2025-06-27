@@ -1,0 +1,8 @@
+[
+  {
+    _id: null,
+    totalSaleAmount: Decimal128('452.5'),
+    averageQuantity: 7.875,
+    count: 8
+  }
+]
