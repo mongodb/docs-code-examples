@@ -73,22 +73,7 @@ npm install
 
 ### Run the tests
 
-#### Run Tests from the IDE
-
-Normally, you could press the play button next to a test name to run a test
-in the IDE. Because this test suite relies on an Atlas connection string and
-environment value passed in from the environment, running tests in the IDE
-will fail unless you configure the IDE with the appropriate environment
-variables.
-
-In JetBrains IDEs, you can do the following:
-
-- Click the play button next to the test suite name
-- Select the `Modify Run Configuration` option
-- In the `Environment Variables` field, supply the appropriate environment variables
-    - Note: you do not need to use quotes around the connection string in this field
-      i.e. it should resemble:
-      CONNECTION_STRING=mongodb://localhost:63201
+You can run tests from the command line or through your IDE. 
 
 #### Run All Tests from the command line
 
@@ -101,7 +86,7 @@ npm test
 This invokes the following command from the `package.json` `test` key:
 
 ```
-jest --run-in-band --detectOpenHandles
+jest --runInBand --detectOpenHandles
 ```
 
 In the above command:
