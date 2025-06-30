@@ -1,3 +1,9 @@
+//	:replace-start: {
+//	  "terms": {
+//	    "_order": "order",
+//      "_aggDb": "aggDb"
+//	  }
+//	}
 namespace Examples.Aggregation;
 
 using MongoDB.Driver;
@@ -7,16 +13,19 @@ public class GroupTotal
 {
     private IMongoDatabase _aggDB;
     private IMongoCollection<Order> _orders;
-    private string _appDir;
-    private string _envRelPath;
     
     public void SeedData()
     {
         DotNetEnv.Env.TraversePath().Load();
         string uri = DotNetEnv.Env.GetString("CONNECTION_STRING", "Env variable not found. Verify you have a .env file with a valid connection string.");
-        //var uri = "mongodb://localhost:27017";
+        // :snippet-start: connection-string
+        // :uncomment-start:
+        //var uri = "mongodb+srv://mongodb-example:27017";
+        // :uncomment-end:
+        // :snippet-end:
         var client = new MongoClient(uri);
         _aggDB = client.GetDatabase("agg_tutorials_db");
+        // :snippet-start: add-sample-data
         _orders = _aggDB.GetCollection<Order>("orders");
         _orders.DeleteMany(Builders<Order>.Filter.Empty);
 
@@ -77,6 +86,7 @@ public class GroupTotal
                 Value = 102
             }
         });
+        // :snippet-end:
     }
 
     public List<BsonDocument> PerformAggregation()
@@ -88,9 +98,14 @@ public class GroupTotal
         _aggDB = client.GetDatabase("agg_tutorials_db");
         _orders = _aggDB.GetCollection<Order>("orders");
         
+        // :snippet-start: match
         var results = _orders.Aggregate()
             .Match(o => o.OrderDate >= DateTime.Parse("2020-01-01T00:00:00Z") && o.OrderDate < DateTime.Parse("2021-01-01T00:00:00Z"))
+            // :snippet-end:
+            // :snippet-start: sort-order-date
             .SortBy(o => o.OrderDate)
+            // :snippet-end:
+            // :snippet-start: group
             .Group(
                 o => o.CustomerId,
                 g => new
@@ -102,8 +117,11 @@ public class GroupTotal
                     Orders = g.Select(i => new { i.OrderDate, i.Value }).ToList()
                 }
             )
+            // :snippet-end:
+            // :snippet-start: sort-first-order
             .SortBy(c => c.FirstPurchaseDate)
             .As<BsonDocument>();
+        // :snippet-end:
             
         foreach (var result in results.ToList())
         {
@@ -113,3 +131,4 @@ public class GroupTotal
         return results.ToList();
     }
 }
+// :replace-end:

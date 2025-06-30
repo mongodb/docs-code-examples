@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Examples.Aggregation;
 
+// :snippet-start: class-declaration
 public class Order
 {
     [BsonId]
@@ -11,3 +12,4 @@ public class Order
     public DateTime OrderDate { get; set; }
     public int Value { get; set; }
 }
+// :snippet-end:
