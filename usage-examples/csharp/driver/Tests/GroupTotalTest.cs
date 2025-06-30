@@ -12,13 +12,17 @@ public class GroupTotalTest
     }
 
     [Test]
-    public void Test1()
+    public void Test()
     {
         var obj = new GroupTotal();
         var results = obj.PerformAggregation();
         
-        string outputfilePath = "/Users/dachary.carey/workspace/docs-code-examples/usage-examples/csharp/driver/Examples/Aggregation/GroupTotalOutput.txt";
-        var fileData = TestUtils.ReadBsonDocumentsFromFile(outputfilePath);
+        DotNetEnv.Env.TraversePath().Load();
+        string solutionRoot = DotNetEnv.Env.GetString("SOLUTION_ROOT", "Env variable not found. Verify you have a .env file with a valid connection string.");
+        string outputLocation = "Examples/Aggregation/GroupTotalOutput.txt";
+        string fullPath = Path.Combine(solutionRoot, outputLocation);
+        var fileData = TestUtils.ReadBsonDocumentsFromFile(fullPath);
+        
         Assert.That(results.Count, Is.EqualTo(fileData.Length), "Result count does not match output example length.");
         for (int i = 0; i < fileData.Length; i++)  
         {  
