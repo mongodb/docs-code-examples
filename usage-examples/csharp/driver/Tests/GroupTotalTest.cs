@@ -12,7 +12,7 @@ public class GroupTotalTest
     }
 
     [Test]
-    public void Test()
+    public void TestOutputMatchesDocs()
     {
         var obj = new GroupTotal();
         var results = obj.PerformAggregation();
