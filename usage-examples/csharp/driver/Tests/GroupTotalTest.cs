@@ -4,27 +4,26 @@ namespace Tests;
 
 public class GroupTotalTest
 {
+    private GroupTotal _example;
     [SetUp]
     public void Setup()
     {
-        var obj = new GroupTotal();
-        obj.SeedData();
+        _example = new GroupTotal();
+        _example.LoadSampleData();
     }
 
     [Test]
     public void TestOutputMatchesDocs()
     {
-        var obj = new GroupTotal();
-        var results = obj.PerformAggregation();
+        var results = _example.PerformAggregation();
         
-        DotNetEnv.Env.TraversePath().Load();
-        string solutionRoot = DotNetEnv.Env.GetString("SOLUTION_ROOT", "Env variable not found. Verify you have a .env file with a valid connection string.");
-        string outputLocation = "Examples/Aggregation/GroupTotalOutput.txt";
-        string fullPath = Path.Combine(solutionRoot, outputLocation);
+        var solutionRoot = DotNetEnv.Env.GetString("SOLUTION_ROOT", "Env variable not found. Verify you have a .env file with a valid connection string.");
+        var outputLocation = "Examples/Aggregation/GroupTotalOutput.txt";
+        var fullPath = Path.Combine(solutionRoot, outputLocation);
         var fileData = TestUtils.ReadBsonDocumentsFromFile(fullPath);
         
-        Assert.That(results.Count, Is.EqualTo(fileData.Length), "Result count does not match output example length.");
-        for (int i = 0; i < fileData.Length; i++)  
+        Assert.That(results.Count, Is.EqualTo(fileData.Length), $"Result count {results.Count} does not match output example length {fileData.Length}.");
+        for (var i = 0; i < fileData.Length; i++)  
         {  
             Assert.That(fileData[i], Is.EqualTo(results[i]), $"Mismatch at index {i}: expected {fileData[i]}, got {results[i]}.");
         }

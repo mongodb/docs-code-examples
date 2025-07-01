@@ -4,6 +4,7 @@
 //      "_aggDb": "aggDb"
 //	  }
 //	}
+
 namespace Examples.Aggregation;
 
 using MongoDB.Driver;
@@ -11,13 +12,12 @@ using MongoDB.Bson;
 
 public class GroupTotal
 {
-    private IMongoDatabase _aggDB;
-    private IMongoCollection<Order> _orders;
+    private IMongoDatabase? _aggDB;
+    private IMongoCollection<Order>? _orders;
     
-    public void SeedData()
+    public void LoadSampleData()
     {
-        DotNetEnv.Env.TraversePath().Load();
-        string uri = DotNetEnv.Env.GetString("CONNECTION_STRING", "Env variable not found. Verify you have a .env file with a valid connection string.");
+        var uri = DotNetEnv.Env.GetString("CONNECTION_STRING", "Env variable not found. Verify you have a .env file with a valid connection string.");
         // :snippet-start: connection-string
         // :uncomment-start:
         //var uri = "mongodb+srv://mongodb-example:27017";
@@ -91,12 +91,10 @@ public class GroupTotal
 
     public List<BsonDocument> PerformAggregation()
     {
-        DotNetEnv.Env.TraversePath().Load();
-        string uri = DotNetEnv.Env.GetString("CONNECTION_STRING", "Env variable not found. Verify you have a .env file with a valid connection string.");
-        //var uri = "mongodb://localhost:27017";
-        var client = new MongoClient(uri);
-        _aggDB = client.GetDatabase("agg_tutorials_db");
-        _orders = _aggDB.GetCollection<Order>("orders");
+        if (_aggDB == null || _orders == null)  
+        {  
+            throw new InvalidOperationException("You must call LoadSampleData before performing aggregation.");  
+        }
         
         // :snippet-start: match
         var results = _orders.Aggregate()
