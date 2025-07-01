@@ -1,10 +1,11 @@
 package billing
 
 import (
-	"atlas-sdk-go/internal"
+	"atlas-sdk-go/internal/errors"
 	"context"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"time"
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 // InvoiceOption defines a function type that modifies the parameters for listing invoices.
@@ -38,7 +39,8 @@ func WithViewLinkedInvoices(viewLinkedInvoices bool) InvoiceOption {
 	}
 }
 
-// WithStatusNames sets the optional statusNames parameter (default: all statuses).
+// WithStatusNames sets the optional statusNames parameter (default: include all statuses).
+// Possible status names: "PENDING" "CLOSED" "FORGIVEN" "FAILED" "PAID" "FREE" "PREPAID" "INVOICED"
 func WithStatusNames(statusNames []string) InvoiceOption {
 	return func(p *admin.ListInvoicesApiParams) {
 		p.StatusNames = &statusNames
@@ -48,8 +50,8 @@ func WithStatusNames(statusNames []string) InvoiceOption {
 // WithDateRange sets the optional fromDate and toDate parameters (default: all possible dates).
 func WithDateRange(fromDate, toDate time.Time) InvoiceOption {
 	return func(p *admin.ListInvoicesApiParams) {
-		from := fromDate.Format("2006-01-02")
-		to := toDate.Format("2006-01-02")
+		from := fromDate.Format(time.DateOnly) // Format to "YYYY-MM-DD" string
+		to := toDate.Format(time.DateOnly)     // Format to "YYYY-MM-DD" string
 		p.FromDate = &from
 		p.ToDate = &to
 	}
@@ -69,11 +71,19 @@ func WithOrderBy(orderBy string) InvoiceOption {
 	}
 }
 
-// ListInvoicesForOrg returns all eligible invoices for the given organization, including linked organizations when cross-organization billing is enabled. If optional parameters aren't specified, default values are used.
-// NOTE: Organization Billing Admin or Organization Owner role required to view linked invoices.
-func ListInvoicesForOrg(ctx context.Context, sdk admin.InvoicesApi, orgId string, opts ...InvoiceOption) (*admin.PaginatedApiInvoiceMetadata, error) {
+// ListInvoicesForOrg returns all eligible invoices for the given organization,
+// including linked organizations when cross-organization billing is enabled.
+// It accepts a context for the request, an InvoicesApi client instance, the ID of the
+// organization to retrieve invoices for, and optional query parameters.
+// It returns the invoice results or an error if the invoice retrieval fails.
+// Use options to customize pagination, filtering, and sorting (see With* functions).
+//
+// Required Permissions:
+//	- Organization Billing Viewer role can view invoices for the organization.
+//	- Organization Billing Admin or Organization Owner role can view invoices and linked invoices for the organization.
+func ListInvoicesForOrg(ctx context.Context, sdk admin.InvoicesApi, orgID string, opts ...InvoiceOption) (*admin.PaginatedApiInvoiceMetadata, error) {
 	params := &admin.ListInvoicesApiParams{
-		OrgId: orgId,
+		OrgId: orgID,
 	}
 
 	for _, opt := range opts {
@@ -111,10 +121,11 @@ func ListInvoicesForOrg(ctx context.Context, sdk admin.InvoicesApi, orgId string
 	}
 
 	r, _, err := req.Execute()
-
 	if err != nil {
-		return nil, internal.FormatAPIError("list invoices", orgId, err)
+		return nil, errors.FormatError("list invoices", orgID, err)
 	}
-
+	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
+		return nil, &errors.NotFoundError{Resource: "Invoices", ID: orgID}
+	}
 	return r, nil
 }

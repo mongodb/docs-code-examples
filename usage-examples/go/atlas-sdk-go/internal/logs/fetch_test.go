@@ -1,13 +1,12 @@
 package logs
 
 import (
+	"atlas-sdk-go/internal/fileutils"
 	"context"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
-
-	"atlas-sdk-go/internal"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -74,7 +73,7 @@ func TestFetchHostLogs_Unit(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			defer internal.SafeClose(rc)
+			defer fileutils.SafeClose(rc)
 
 			data, err := io.ReadAll(rc)
 			require.NoError(t, err)

@@ -1,4 +1,4 @@
-package logs
+package fileutils
 
 import (
 	"compress/gzip"

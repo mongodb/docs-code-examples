@@ -1,21 +1,26 @@
-package internal
+package fileutils
 
 import (
 	"fmt"
 	"io"
 	"log"
-	"os"            // :remove:
-	"path/filepath" // :remove:
-
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+	"os"
+	"path/filepath"
 )
 
-// FormatAPIError formats an error returned by the Atlas API with additional context.
-func FormatAPIError(operation string, params interface{}, err error) error {
-	if apiErr, ok := admin.AsError(err); ok && apiErr.GetDetail() != "" {
-		return fmt.Errorf("%s %v: %w: %s", operation, params, err, apiErr.GetDetail())
+// WriteToFile copies everything from r into a new file at path.
+// It will create or truncate that file.
+func WriteToFile(r io.Reader, path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("create %s: %w", path, err)
 	}
-	return fmt.Errorf("%s %v: %w", operation, params, err)
+	defer SafeClose(f)
+
+	if err := SafeCopy(f, r); err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+	return nil
 }
 
 // SafeClose closes c and logs a warning on error.

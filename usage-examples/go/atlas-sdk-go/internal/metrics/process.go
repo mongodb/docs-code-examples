@@ -1,10 +1,9 @@
 package metrics
 
 import (
+	"atlas-sdk-go/examples/internal"
 	"context"
 	"fmt"
-
-	"atlas-sdk-go/internal"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
@@ -16,7 +15,7 @@ func FetchProcessMetrics(ctx context.Context, sdk admin.MonitoringAndLogsApi, p 
 
 	r, _, err := req.Execute()
 	if err != nil {
-		return nil, internal.FormatAPIError("fetch process metrics", p.GroupId, err)
+		return nil, internal.FormatError("fetch process metrics", p.GroupId, err)
 	}
 	if r == nil || !r.HasMeasurements() || len(r.GetMeasurements()) == 0 {
 		return nil, fmt.Errorf("no metrics for process %q", p.ProcessId)

@@ -8,15 +8,15 @@ import (
 )
 
 // ListLinkedOrgs returns all linked organizations for a given billing organization.
-func ListLinkedOrgs(ctx context.Context, sdk admin.InvoicesApi, orgId string, opts ...InvoiceOption) ([]string, error) {
-	invoices, err := GetCrossOrgBilling(ctx, sdk, orgId, opts...)
+func ListLinkedOrgs(ctx context.Context, sdk admin.InvoicesApi, orgID string, opts ...InvoiceOption) ([]string, error) {
+	invoices, err := GetCrossOrgBilling(ctx, sdk, orgID, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("get cross-org billing: %w", err)
 	}
 
 	var linkedOrgs []string
 	for orgID := range invoices {
-		if orgID != orgId {
+		if orgID != orgID {
 			linkedOrgs = append(linkedOrgs, orgID)
 		}
 	}

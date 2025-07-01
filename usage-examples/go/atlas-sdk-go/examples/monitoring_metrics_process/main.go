@@ -5,6 +5,8 @@
 package main
 
 import (
+	"atlas-sdk-go/internal/auth"
+	"atlas-sdk-go/internal/config"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,21 +15,21 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
-	"atlas-sdk-go/internal/auth"
-	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/metrics"
 )
 
 func main() {
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not loaded: %v", err)
+	}
 	secrets, cfg, err := config.LoadAll("configs/config.json")
 	if err != nil {
-		log.Fatalf("config load: %v", err)
+		log.Fatalf("config: load config file: %v", err)
 	}
 
 	sdk, err := auth.NewClient(cfg, secrets)
 	if err != nil {
-		log.Fatalf("client init: %v", err)
+		log.Fatalf("auth: client init: %v", err)
 	}
 
 	ctx := context.Background()
@@ -47,7 +49,7 @@ func main() {
 
 	view, err := metrics.FetchProcessMetrics(ctx, sdk.MonitoringAndLogsApi, p)
 	if err != nil {
-		log.Fatalf("process metrics: %v", err)
+		log.Fatalf("metrics: fetch process metrics: %v", err)
 	}
 
 	out, _ := json.MarshalIndent(view, "", "  ")

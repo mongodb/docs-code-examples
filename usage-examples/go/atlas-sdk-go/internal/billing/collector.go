@@ -1,0 +1,143 @@
+package billing
+
+import (
+	"atlas-sdk-go/internal/errors"
+	"context"
+	"fmt"
+	"time"
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+)
+
+// Detail represents the transformed billing line item
+type Detail struct {
+	Org      OrgInfo     `json:"org"`
+	Project  ProjectInfo `json:"project"`
+	Cluster  string      `json:"cluster"`
+	SKU      string      `json:"sku"`
+	Cost     float64     `json:"cost"`
+	Date     time.Time   `json:"date"`
+	Provider string      `json:"provider"`
+	Instance string      `json:"instance"`
+	Category string      `json:"category"`
+}
+
+// OrgInfo contains organization identifier information
+type OrgInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// ProjectInfo contains project identifier information
+type ProjectInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// CollectLineItemBillingData fetches all pending invoices for the specified organization and extracts line items with tags
+func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgSdk admin.OrganizationsApi, orgID string, lastProcessedDate *time.Time) ([]Detail, error) {
+	req := sdk.ListPendingInvoices(ctx, orgID)
+	r, _, err := req.Execute()
+
+	if err != nil {
+		return nil, errors.FormatError("list pending invoices", orgID, err)
+	}
+	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
+		return nil, &errors.NotFoundError{
+			Resource: "pending invoices",
+			ID:       orgID,
+		}
+	}
+
+	fmt.Printf("Found %d pending invoice(s)\n", len(r.GetResults()))
+
+	// Get organization name
+	orgName, err := getOrganizationName(ctx, orgSdk, orgID)
+	if err != nil {
+		// Non-critical error, continue with orgID as name
+		fmt.Printf("Warning: %v\n", err)
+		orgName = orgID
+	}
+
+	// Process invoices and collect line items
+	billingDetails, err := processInvoices(r.GetResults(), orgID, orgName, lastProcessedDate)
+	if err != nil {
+		return nil, errors.WithContext(err, "processing invoices")
+	}
+
+	if len(billingDetails) == 0 {
+		return nil, &errors.NotFoundError{
+			Resource: "line items in pending invoices",
+			ID:       orgID,
+		}
+	}
+
+	return billingDetails, nil
+}
+
+// processInvoices extracts and transforms line items from invoices
+func processInvoices(invoices []admin.BillingInvoice, orgID, orgName string, lastProcessedDate *time.Time) ([]Detail, error) {
+	var billingDetails []Detail
+
+	for _, invoice := range invoices {
+		fmt.Printf("Processing invoice ID: %s\n", invoice.GetId())
+
+		for _, lineItem := range invoice.GetLineItems() {
+			// Parse start date
+			startDate := lineItem.GetStartDate()
+
+			// Skip if older than last processed date
+			if lastProcessedDate != nil && !startDate.After(*lastProcessedDate) {
+				continue
+			}
+
+			// Create transformed billing detail
+			detail := Detail{
+				Org: OrgInfo{
+					ID:   orgID,
+					Name: orgName,
+				},
+				Project: ProjectInfo{
+					ID:   lineItem.GetGroupId(),
+					Name: lineItem.GetGroupName(),
+				},
+				Cluster:  getValueOrDefault(lineItem.GetClusterName(), "--n/a--"),
+				SKU:      lineItem.GetSku(),
+				Cost:     float64(lineItem.GetTotalPriceCents()) / 100.0,
+				Date:     startDate,
+				Provider: determineProvider(lineItem.GetSku()),
+				Instance: determineInstance(lineItem.GetSku()),
+				Category: determineCategory(lineItem.GetSku()),
+			}
+			billingDetails = append(billingDetails, detail)
+		}
+	}
+
+	return billingDetails, nil
+}
+
+// getOrganizationName fetches organization name from API or returns orgID if not found
+func getOrganizationName(ctx context.Context, sdk admin.OrganizationsApi, orgID string) (string, error) {
+	req := sdk.GetOrganization(ctx, orgID)
+	org, _, err := req.Execute()
+	if err != nil {
+		return orgID, errors.FormatError("get organization details", orgID, err)
+	}
+	if org == nil {
+		return orgID, fmt.Errorf("organization response is nil for ID %s", orgID)
+	}
+	return org.GetName(), nil
+}
+
+// getValueOrDefault returns the value or a default if empty
+func getValueOrDefault(value string, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
+// VerifyDataCompleteness compares source and transformed data counts
+func VerifyDataCompleteness(sourceCount, transformedCount int) bool {
+	return sourceCount == transformedCount
+}

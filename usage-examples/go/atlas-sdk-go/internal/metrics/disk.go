@@ -1,10 +1,9 @@
 package metrics
 
 import (
+	"atlas-sdk-go/examples/internal"
 	"context"
 	"fmt"
-
-	"atlas-sdk-go/internal"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
@@ -16,11 +15,10 @@ func FetchDiskMetrics(ctx context.Context, sdk admin.MonitoringAndLogsApi, p *ad
 
 	r, _, err := req.Execute()
 	if err != nil {
-		return nil, internal.FormatAPIError("fetch disk metrics", p.PartitionName, err)
+		return nil, internal.FormatError("fetch disk metrics", p.PartitionName, err)
 	}
 	if r == nil || !r.HasMeasurements() || len(r.GetMeasurements()) == 0 {
-		return nil, fmt.Errorf("no metrics for partition %q on process %q",
-			p.PartitionName, p.ProcessId)
+		return nil, fmt.Errorf("no metrics for partition %q on process %q", p.PartitionName, p.ProcessId)
 	}
 	return r, nil
 }

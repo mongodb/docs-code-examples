@@ -1,12 +1,11 @@
 package config
 
 import (
+	"atlas-sdk-go/internal/fileutils"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
-
-	"atlas-sdk-go/internal"
 )
 
 type Config struct {
@@ -23,7 +22,7 @@ func LoadConfig(path string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open config %s: %w", path, err)
 	}
-	defer internal.SafeClose(f)
+	defer fileutils.SafeClose(f)
 
 	var c Config
 	if err := json.NewDecoder(f).Decode(&c); err != nil {
