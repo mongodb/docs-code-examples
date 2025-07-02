@@ -1,10 +1,12 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"io"
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 // FetchHostLogs retrieves logs for a specific host in a given Atlas project.

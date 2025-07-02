@@ -1,11 +1,12 @@
 package fileutils
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 // WriteToFile copies everything from r into a new file at path.

@@ -2,11 +2,12 @@
 package main
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"atlas-sdk-go/internal/errors"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"

@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"log"
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
