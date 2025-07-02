@@ -22,16 +22,13 @@ func TestToJSON(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Successfully writes JSON to file", func(t *testing.T) {
-		// Setup
 		tempDir := t.TempDir()
 		filePath := filepath.Join(tempDir, "test.json")
 		testData := TestStruct{ID: 1, Name: "Test", Value: 99.99}
 
-		// Execute
 		err := ToJSON(testData, filePath)
 		require.NoError(t, err)
 
-		// Verify
 		fileContent, err := os.ReadFile(filePath)
 		require.NoError(t, err)
 
@@ -57,20 +54,17 @@ func TestToJSON(t *testing.T) {
 	})
 
 	t.Run("Creates directory structure if needed", func(t *testing.T) {
-		// Setup
 		tempDir := t.TempDir()
 		dirPath := filepath.Join(tempDir, "subdir1", "subdir2")
 		filePath := filepath.Join(dirPath, "test.json")
 		testData := TestStruct{ID: 1, Name: "Test", Value: 99.99}
 
-		// Execute
 		err := ToJSON(testData, filePath)
 		require.NoError(t, err)
 
-		// Verify directory was created
 		dirInfo, err := os.Stat(dirPath)
 		require.NoError(t, err)
-		assert.True(t, dirInfo.IsDir())
+		assert.True(t, dirInfo.IsDir(), "Expected directory to be created")
 	})
 }
 
@@ -86,11 +80,9 @@ func TestToCSV(t *testing.T) {
 			{"1", "Test", "99.99"},
 		}
 
-		// Execute
 		err := ToCSV(testData, filePath)
 		require.NoError(t, err)
 
-		// Verify
 		file, err := os.Open(filePath)
 		require.NoError(t, err)
 		defer file.Close()
@@ -99,7 +91,7 @@ func TestToCSV(t *testing.T) {
 		rows, err := reader.ReadAll()
 		require.NoError(t, err)
 
-		assert.Equal(t, testData, rows)
+		assert.Equal(t, testData, rows, "Expected CSV rows to match input data")
 	})
 
 	t.Run("Returns error for nil data", func(t *testing.T) {
@@ -135,11 +127,9 @@ func TestToCSVWithMapper(t *testing.T) {
 			}
 		}
 
-		// Execute
 		err := ToCSVWithMapper(testData, filePath, headers, rowMapper)
 		require.NoError(t, err)
 
-		// Verify
 		file, err := os.Open(filePath)
 		require.NoError(t, err)
 		defer file.Close()

@@ -59,7 +59,7 @@ func main() {
 }
 
 // :snippet-end: [get-metrics-dev]
-// :state-remove-start: [copy]
+// :state-remove-start: copy
 // NOTE: INTERNAL
 // ** OUTPUT EXAMPLE **
 // {
