@@ -1,9 +1,10 @@
 package config
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"os"
 	"strings"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 const (

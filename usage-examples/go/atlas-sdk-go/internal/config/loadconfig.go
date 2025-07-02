@@ -1,9 +1,10 @@
 package config
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"encoding/json"
 	"os"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 type Config struct {

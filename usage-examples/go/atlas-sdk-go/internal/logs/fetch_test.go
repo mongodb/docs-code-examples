@@ -1,13 +1,14 @@
 package logs
 
 import (
-	internalerrors "atlas-sdk-go/internal/errors"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
+
+	internalerrors "atlas-sdk-go/internal/errors"
 
 	"atlas-sdk-go/internal/fileutils"
 

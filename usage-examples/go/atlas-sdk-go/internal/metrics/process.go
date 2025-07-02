@@ -1,9 +1,11 @@
 package metrics
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
+
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 // FetchProcessMetrics returns measurements for a specified host process in a MongoDB Atlas project.

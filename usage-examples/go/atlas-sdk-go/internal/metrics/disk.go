@@ -1,8 +1,9 @@
 package metrics
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
+
+	"atlas-sdk-go/internal/errors"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
