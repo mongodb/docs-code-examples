@@ -1,4 +1,3 @@
-// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
 package main
 
 import (
@@ -55,3 +54,25 @@ func main() {
 	fmt.Println(string(out))
 }
 
+// NOTE: INTERNAL
+// ** OUTPUT EXAMPLE **
+// {
+//   "measurements": [
+//     {
+//       "name": "DISK_PARTITION_SPACE_FREE",
+//       "granularity": "P1D",
+//       "period": "P1D",
+//       "values": [
+//         {
+//           "timestamp": "2023-10-01T00:00:00Z",
+//           "value": 1234567890
+//         },
+//         {
+//           "timestamp": "2023-10-02T00:00:00Z",
+//           "value": 1234567890
+//         }
+//       ]
+//     },
+//	 	...
+//   ]
+// }

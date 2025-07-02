@@ -1,4 +1,3 @@
-// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
 package main
 
 import (
