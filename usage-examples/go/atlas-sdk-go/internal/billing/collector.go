@@ -1,10 +1,11 @@
 package billing
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
 	"fmt"
 	"time"
+
+	"atlas-sdk-go/internal/errors"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
@@ -34,7 +35,9 @@ type ProjectInfo struct {
 	Name string `json:"name"`
 }
 
-// CollectLineItemBillingData fetches all pending invoices for the specified organization and extracts line items with tags
+// CollectLineItemBillingData retrieves all pending invoices for the specified organization,
+// transforms them into detailed billing records, and filters out items processed before lastProcessedDate.
+// Returns a slice of billing Details or an error if no valid invoices or line items are found.
 func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgSdk admin.OrganizationsApi, orgID string, lastProcessedDate *time.Time) ([]Detail, error) {
 	req := sdk.ListPendingInvoices(ctx, orgID)
 	r, _, err := req.Execute()
@@ -43,10 +46,7 @@ func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgS
 		return nil, errors.FormatError("list pending invoices", orgID, err)
 	}
 	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
-		return nil, &errors.NotFoundError{
-			Resource: "pending invoices",
-			ID:       orgID,
-		}
+		return nil, &errors.NotFoundError{Resource: "pending invoices", ID: orgID}
 	}
 
 	fmt.Printf("Found %d pending invoice(s)\n", len(r.GetResults()))
@@ -66,16 +66,16 @@ func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgS
 	}
 
 	if len(billingDetails) == 0 {
-		return nil, &errors.NotFoundError{
-			Resource: "line items in pending invoices",
-			ID:       orgID,
-		}
+		return nil, &errors.NotFoundError{Resource: "line items in pending invoices", ID: orgID}
 	}
 
 	return billingDetails, nil
 }
 
-// processInvoices extracts and transforms line items from invoices
+// processInvoices extracts and transforms billing line items from invoices into Detail structs.
+// The function iterates through all invoices and their line items, filters out items processed before
+// lastProcessedDate (if provided), then determines line item details, such as organization and project,
+// pricing, and SKU-based information.
 func processInvoices(invoices []admin.BillingInvoice, orgID, orgName string, lastProcessedDate *time.Time) ([]Detail, error) {
 	var billingDetails []Detail
 
@@ -83,15 +83,11 @@ func processInvoices(invoices []admin.BillingInvoice, orgID, orgName string, las
 		fmt.Printf("Processing invoice ID: %s\n", invoice.GetId())
 
 		for _, lineItem := range invoice.GetLineItems() {
-			// Parse start date
 			startDate := lineItem.GetStartDate()
-
-			// Skip if older than last processed date
 			if lastProcessedDate != nil && !startDate.After(*lastProcessedDate) {
 				continue
 			}
 
-			// Create transformed billing detail
 			detail := Detail{
 				Org: OrgInfo{
 					ID:   orgID,
@@ -101,7 +97,7 @@ func processInvoices(invoices []admin.BillingInvoice, orgID, orgName string, las
 					ID:   lineItem.GetGroupId(),
 					Name: lineItem.GetGroupName(),
 				},
-				Cluster:  getValueOrDefault(lineItem.GetClusterName(), "--n/a--"),
+				Cluster:  getValueOrDefault(lineItem.GetClusterName(), "N/A"),
 				SKU:      lineItem.GetSku(),
 				Cost:     float64(lineItem.GetTotalPriceCents()) / 100.0,
 				Date:     startDate,
@@ -135,9 +131,4 @@ func getValueOrDefault(value string, defaultValue string) string {
 		return defaultValue
 	}
 	return value
-}
-
-// VerifyDataCompleteness compares source and transformed data counts
-func VerifyDataCompleteness(sourceCount, transformedCount int) bool {
-	return sourceCount == transformedCount
 }

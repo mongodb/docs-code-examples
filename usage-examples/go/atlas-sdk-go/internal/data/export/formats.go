@@ -6,17 +6,24 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"atlas-sdk-go/internal/fileutils"
 )
 
-// ToJSON starts a goroutine to encode and write JSON data to a file
+// ToJSON starts a goroutine to encode and write JSON data to a file at the given filePath
 func ToJSON(data interface{}, filePath string) error {
 	if data == nil {
 		return fmt.Errorf("data cannot be nil")
 	}
 	if filePath == "" {
 		return fmt.Errorf("filePath cannot be empty")
+	}
+
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory for JSON export: %w", err)
 	}
 
 	pr, pw := io.Pipe()
@@ -44,14 +51,18 @@ func ToJSON(data interface{}, filePath string) error {
 	return writeErr
 }
 
-// ToCSV starts a goroutine to encode and write CSV data to a file
-// ToCSV writes data in CSV format to a file
+// ToCSV starts a goroutine to encode and write data in CSV format to a file at the given filePath
 func ToCSV(data [][]string, filePath string) error {
 	if data == nil {
 		return fmt.Errorf("data cannot be nil")
 	}
 	if filePath == "" {
 		return fmt.Errorf("filePath cannot be empty")
+	}
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory for csv export: %w", err)
 	}
 
 	file, err := os.Create(filePath)
@@ -73,7 +84,18 @@ func ToCSV(data [][]string, filePath string) error {
 }
 
 // ToCSVWithMapper provides a generic method to convert domain objects to CSV data.
-// It exports any slice of data to CSV with custom headers and row mapping
+// It exports any slice of data to CSV with custom headers and row mapping (see below for example)
+//
+// headers := []string{"InvoiceID", "Status", "Created", "AmountBilled"}
+//
+//	rowMapper := func(invoice billing.InvoiceOption) []string {
+//	    return []string{
+//	        invoice.GetId(),
+//	        invoice.GetStatusName(),
+//	        invoice.GetCreated().Format(time.RFC3339),
+//	        fmt.Sprintf("%.2f", float64(invoice.GetAmountBilledCents())/100.0),
+//	    }
+//	}
 func ToCSVWithMapper[T any](data []T, filePath string, headers []string, rowMapper func(T) []string) error {
 	if data == nil {
 		return fmt.Errorf("data cannot be nil")
@@ -85,7 +107,6 @@ func ToCSVWithMapper[T any](data []T, filePath string, headers []string, rowMapp
 		return fmt.Errorf("rowMapper function cannot be nil")
 	}
 
-	// Convert data to CSV format
 	rows := make([][]string, 0, len(data)+1)
 	rows = append(rows, headers)
 

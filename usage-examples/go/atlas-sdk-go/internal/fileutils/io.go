@@ -1,7 +1,7 @@
 package fileutils
 
 import (
-	"fmt"
+	"atlas-sdk-go/internal/errors"
 	"io"
 	"log"
 	"os"
@@ -11,19 +11,23 @@ import (
 // WriteToFile copies everything from r into a new file at path.
 // It will create or truncate that file.
 func WriteToFile(r io.Reader, path string) error {
+	if r == nil {
+		return &errors.ValidationError{Message: "reader cannot be nil"}
+	}
+
 	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("create %s: %w", path, err)
+		return errors.WithContext(err, "create file")
 	}
 	defer SafeClose(f)
 
 	if err := SafeCopy(f, r); err != nil {
-		return fmt.Errorf("write %s: %w", path, err)
+		return errors.WithContext(err, "write to file")
 	}
 	return nil
 }
 
-// SafeClose closes c and logs a warning on error.
+// SafeClose closes c and logs a warning on error
 func SafeClose(c io.Closer) {
 	if c != nil {
 		if err := c.Close(); err != nil {
@@ -32,23 +36,26 @@ func SafeClose(c io.Closer) {
 	}
 }
 
-// SafeCopy copies src → dst and propagates any error (after logging).
+// SafeCopy copies src → dst and propagates any error
 func SafeCopy(dst io.Writer, src io.Reader) error {
+	if dst == nil || src == nil {
+		return &errors.ValidationError{Message: "source and destination cannot be nil"}
+	}
+
 	if _, err := io.Copy(dst, src); err != nil {
-		log.Printf("warning: copy failed: %v", err)
-		return err
+		return errors.WithContext(err, "copy data")
 	}
 	return nil
 }
 
 // :remove-start:
 
-// SafeDelete removes files generated in the specified directory.
+// SafeDelete removes files generated in the specified directory
 // NOTE: INTERNAL ONLY FUNCTION
 func SafeDelete(dir string) error {
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return errors.WithContext(err, "walking directory")
 		}
 		if !info.IsDir() {
 			if removeErr := os.Remove(path); removeErr != nil {
@@ -57,8 +64,9 @@ func SafeDelete(dir string) error {
 		}
 		return nil
 	})
+
 	if err != nil {
-		return err
+		return errors.WithContext(err, "cleaning up directory")
 	}
 	return nil
 }

@@ -1,13 +1,17 @@
 package logs
 
 import (
-	"atlas-sdk-go/internal/fileutils"
+	internalerrors "atlas-sdk-go/internal/errors"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
 
+	"atlas-sdk-go/internal/fileutils"
+
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -26,10 +30,11 @@ func TestFetchHostLogs_Unit(t *testing.T) {
 	}
 
 	cases := []struct {
-		name     string
-		setup    func(m *mockadmin.MonitoringAndLogsApi)
-		wantErr  bool
-		wantBody string
+		name      string
+		setup     func(m *mockadmin.MonitoringAndLogsApi)
+		wantErr   bool
+		wantBody  string
+		errorType string
 	}{
 		{
 			name:    "API error",
@@ -56,6 +61,19 @@ func TestFetchHostLogs_Unit(t *testing.T) {
 					Return(io.NopCloser(strings.NewReader("log-data")), nil, nil).Once()
 			},
 		},
+		{
+			name:      "NotFoundError when response is nil",
+			wantErr:   true,
+			errorType: "NotFoundError",
+			setup: func(m *mockadmin.MonitoringAndLogsApi) {
+				m.EXPECT().
+					GetHostLogs(mock.Anything, params.GroupId, params.HostName, params.LogName).
+					Return(admin.GetHostLogsApiRequest{ApiService: m}).Once()
+				m.EXPECT().
+					GetHostLogsExecute(mock.Anything).
+					Return(nil, nil, nil).Once() // Return nil response but no error
+			},
+		},
 	}
 
 	for _, tc := range cases {
@@ -66,8 +84,19 @@ func TestFetchHostLogs_Unit(t *testing.T) {
 			tc.setup(mockSvc)
 
 			rc, err := FetchHostLogs(ctx, mockSvc, params)
+
 			if tc.wantErr {
-				require.ErrorContainsf(t, err, "failed to fetch logs", "expected API error")
+				require.Error(t, err)
+
+				if tc.errorType == "NotFoundError" {
+					var notFoundErr *internalerrors.NotFoundError
+					require.True(t, errors.As(err, &notFoundErr), "expected error to be *errors.NotFoundError")
+					assert.Equal(t, "logs", notFoundErr.Resource)
+					assert.Equal(t, params.HostName+"/"+params.LogName, notFoundErr.ID)
+				} else {
+					require.ErrorContains(t, err, "fetch logs", "expected API error")
+				}
+
 				require.Nil(t, rc)
 				return
 			}

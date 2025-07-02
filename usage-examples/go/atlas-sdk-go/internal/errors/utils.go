@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
-// FormatError formats an error message for a specific operation and entity ID.
+// FormatError formats an error message for a specific operation and entity ID
 func FormatError(operation string, entityID string, err error) error {
 	if apiErr, ok := admin.AsError(err); ok && apiErr.GetDetail() != "" {
 		return fmt.Errorf("%s for %s: %w: %s", operation, entityID, err, apiErr.GetDetail())
@@ -20,17 +20,28 @@ func WithContext(err error, context string) error {
 	return fmt.Errorf("%s: %w", context, err)
 }
 
-// NotFoundError represents a resource not found error
+// ValidationError represents an error due to invalid input parameters
+type ValidationError struct {
+	Message string
+}
+
+// Error implements the ValidationError error interface
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("validation error: %s", e.Message)
+}
+
+// NotFoundError represents an error when a requested resource cannot be found
 type NotFoundError struct {
 	Resource string
 	ID       string
 }
 
+// Error implements the error interface
 func (e *NotFoundError) Error() string {
-	return fmt.Sprintf("%s with ID '%s' not found", e.Resource, e.ID)
+	return fmt.Sprintf("resource not found: %s [%s]", e.Resource, e.ID)
 }
 
-// ExitWithError prints an error message with context and exits the program.
+// ExitWithError prints an error message with context and exits the program
 func ExitWithError(context string, err error) {
 	log.Fatalf("%s: %v", context, err)
 	// Note: log.Fatalf calls os.Exit(1)

@@ -5,13 +5,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log"
+
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/errors"
-	"context"
-	"fmt"
-	"log"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -33,16 +34,18 @@ func main() {
 	}
 
 	ctx := context.Background()
-	orgID := cfg.OrgID
-
-	fmt.Printf("Fetching linked organizations for billing organization: %s\n", orgID)
-
-	invoices, err := billing.GetCrossOrgBilling(ctx, client.InvoicesApi, orgID)
-	if err != nil {
-		errors.ExitWithError(fmt.Sprintf("Failed to retrieve cross-organization billing data for %s", orgID), err)
+	p := &admin.ListInvoicesApiParams{
+		OrgId: cfg.OrgID,
 	}
 
-	displayLinkedOrganizations(invoices, orgID)
+	fmt.Printf("Fetching linked organizations for billing organization: %s\n", p.OrgId)
+
+	invoices, err := billing.GetCrossOrgBilling(ctx, client.InvoicesApi, p)
+	if err != nil {
+		errors.ExitWithError(fmt.Sprintf("Failed to retrieve cross-organization billing data for %s", p.OrgId), err)
+	}
+
+	displayLinkedOrganizations(invoices, p.OrgId)
 }
 
 func displayLinkedOrganizations(invoices map[string][]admin.BillingInvoiceMetadata, primaryOrgID string) {
@@ -66,6 +69,7 @@ func displayLinkedOrganizations(invoices map[string][]admin.BillingInvoiceMetada
 
 // :snippet-end: [linked-billing]
 // :state-remove-start: copy
+// NOTE: INTERNAL
 // ** OUTPUT EXAMPLE **
 //
 // Fetching linked organizations for billing organization: 5f7a9ec7d78fc03b42959328

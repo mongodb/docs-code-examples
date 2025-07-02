@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"atlas-sdk-go/internal/errors"
 	"os"
 	"strings"
 )
@@ -32,7 +32,9 @@ func LoadSecrets() (*Secrets, error) {
 	look(EnvSAClientSecret, &s.ServiceAccountSecret)
 
 	if len(missing) > 0 {
-		return nil, fmt.Errorf("missing required env vars: %s", strings.Join(missing, ", "))
+		return nil, &errors.ValidationError{
+			Message: "missing required environment variables: " + strings.Join(missing, ", "),
+		}
 	}
 	return s, nil
 }
