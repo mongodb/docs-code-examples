@@ -1,19 +1,19 @@
 package config
 
 import (
-	"fmt"
+	"atlas-sdk-go/internal/errors"
 )
 
 // LoadAll loads secrets and config from the specified paths
 func LoadAll(configPath string) (*Secrets, *Config, error) {
 	s, err := LoadSecrets()
 	if err != nil {
-		return nil, nil, fmt.Errorf("loading secrets: %w", err)
+		return nil, nil, errors.WithContext(err, "loading secrets")
 	}
 
 	c, err := LoadConfig(configPath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("loading config: %w", err)
+		return nil, nil, errors.WithContext(err, "loading config")
 	}
 
 	return s, c, nil

@@ -14,7 +14,9 @@ Currently, the repository includes examples that demonstrate the following:
 - Authenticate with service accounts
 - Return cluster and database metrics
 - Download logs for a specific host
+- Pull and parse line-item-level billing data
 - Return all linked organizations from a specific billing organization
+- Get historical invoices for an organization 
 - Programmatically manage Atlas resources
 
 As the Architecture Center documentation evolves, this repository will be updated with new examples 
@@ -24,20 +26,20 @@ and improvements to existing code.
 
 ```text
 .
-├── cmd                  # Runnable examples by category
-│   ├── get_linked_orgs/main.go
-│   ├── get_logs/main.go
-│   ├── get_metrics_disk/main.go
-│   └── get_metrics_process/main.go
+├── examples             # Runnable examples by category
+│   ├── billing/
+│   └── monitoring/
 ├── configs              # Atlas configuration template
 │   └── config.json
 ├── internal             # Shared utilities and helpers
 │   ├── auth/
 │   ├── billing/
 │   ├── config/
+│   ├── data/
+│   ├── errors/
+│   ├── fileutils/
 │   ├── logs/
-│   ├── metrics/
-│   └── utils.go
+│   └── metrics/
 ├── go.mod
 ├── go.sum
 ├── CHANGELOG.md         # List of major changes to the project 
@@ -85,9 +87,17 @@ You can also adjust them to suit your needs:
 - Change output formats
 
 ### Billing
-#### Get All Linked Organizations 
+#### Get Historical Invoices 
 ```bash
-go run cmd/get_linked_orgs/main.go
+go run examples/billing/historical/main.go
+```
+#### Get Line-Item-Level Billing Data
+```bash
+go run examples/billing/line_items/main.go
+```
+#### Get All Linked Organizations
+```bash
+go run examples/billing/linked_orgs/main.go
 ```
 
 ### Logs
@@ -95,7 +105,7 @@ Logs output to `./logs` as `.gz` and `.txt`.
 
 #### Fetch All Host Logs
 ```bash
-go run cmd/get_logs/main.go
+go run examples/monitoring/logs/main.go
 ```
 
 ### Metrics
@@ -103,12 +113,12 @@ Metrics print to the console.
 
 #### Get Disk Measurements
 ```bash
-go run cmd/get_metrics_disk/main.go
+go run examples/monitoring/metrics_disk/main.go
 ```
 
 #### Get Cluster Metrics
 ```bash
-go run cmd/get_metrics_process/main.go
+go run examples/monitoring/metrics_process/main.go
 ```
 
 ## Changelog

@@ -7,27 +7,33 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
+	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/metrics"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 func main() {
-	_ = godotenv.Load()
-	secrets, cfg, err := config.LoadAll("configs/config.json")
-	if err != nil {
-		log.Fatalf("config load: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not loaded: %v", err)
 	}
 
-	sdk, err := auth.NewClient(cfg, secrets)
+	secrets, cfg, err := config.LoadAll("configs/config.json")
 	if err != nil {
-		log.Fatalf("client init: %v", err)
+		errors.ExitWithError("Failed to load configuration", err)
+	}
+
+	client, err := auth.NewClient(cfg, secrets)
+	if err != nil {
+		errors.ExitWithError("Failed to initialize authentication client", err)
 	}
 
 	ctx := context.Background()
+
+	// Fetch disk metrics with the provided parameters
 	p := &admin.GetDiskMeasurementsApiParams{
 		GroupId:       cfg.ProjectID,
 		ProcessId:     cfg.ProcessID,
@@ -36,13 +42,16 @@ func main() {
 		Granularity:   admin.PtrString("P1D"),
 		Period:        admin.PtrString("P1D"),
 	}
-
-	view, err := metrics.FetchDiskMetrics(ctx, sdk.MonitoringAndLogsApi, p)
+	view, err := metrics.FetchDiskMetrics(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		log.Fatalf("disk metrics: %v", err)
+		errors.ExitWithError("Failed to fetch disk metrics", err)
 	}
 
-	out, _ := json.MarshalIndent(view, "", "  ")
+	// Output metrics
+	out, err := json.MarshalIndent(view, "", "  ")
+	if err != nil {
+		errors.ExitWithError("Failed to format metrics data", err)
+	}
 	fmt.Println(string(out))
 }
 
