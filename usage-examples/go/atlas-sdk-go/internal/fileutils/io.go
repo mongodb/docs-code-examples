@@ -4,7 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
+	"path/filepath" // :remove:
 
 	"atlas-sdk-go/internal/errors"
 )
@@ -52,7 +52,7 @@ func SafeCopy(dst io.Writer, src io.Reader) error {
 // :remove-start:
 
 // SafeDelete removes files generated in the specified directory
-// NOTE: INTERNAL ONLY FUNCTION
+// NOTE: INTERNAL ONLY FUNCTION; remove this and "path/filepath" import from Bluehawked files
 func SafeDelete(dir string) error {
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

@@ -48,6 +48,10 @@ func main() {
 		errors.ExitWithError(fmt.Sprintf("Failed to retrieve pending invoices for %s", p.OrgId), err)
 	}
 
+	if len(details) == 0 {
+		fmt.Printf("No pending invoices found for organization: %s\n", p.OrgId)
+		return
+	}
 	fmt.Printf("Found %d line items in pending invoices\n", len(details))
 
 	// Export invoice data to be used in other systems or for reporting

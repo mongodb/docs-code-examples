@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 
 	"atlas-sdk-go/internal/errors"
 )

@@ -148,6 +148,15 @@ if [[ "$CMD" == "copy" ]] && [[ ${#RENAME_ARGS[@]} -gt 0 ]]; then
   CMD_ARGS+=("${RENAME_ARGS[@]}")
 fi
 
+# Clean destination directory for copy command
+if [[ "$CMD" == "copy" ]]; then
+  echo "Cleaning destination directory: $OUTPUT_DIR"
+  if [[ -d "$OUTPUT_DIR" ]]; then
+    rm -rf "$OUTPUT_DIR"
+  fi
+  mkdir -p "$OUTPUT_DIR"
+fi
+
 # Add input directory
 CMD_ARGS+=("$INPUT_DIR")
 
