@@ -1,33 +1,45 @@
 # Atlas SDK for Go 
 
 > NOTE: This is an internal-only file and refers to the internal project details.  
-> The external project details are documented in the README.md file.
+> User-facing project details are documented in the [README.md](README.md) file, which is copied to the artifact repo.
 
 This project demonstrates how to script specific functionality using the Atlas
 SDK for Go. Code examples are used in the Atlas Architecture Center docs, and
-a sanitized copy of the project is available in a user-facing repo: 
+a sanitized copy of the project is available in a user-facing "artifact repo": 
 https://github.com/mongodb/atlas-architecture-go-sdk.
+
+## Terms
+
+Artifact Repo
+The user-facing GitHub repo that contains the sanitized version of this project (i.e. stripped of any internal comments, markup, test files, etc.).
+Files are copied
+
+
+
 
 ## Project Structure
 ```text
 .
-├── cmd/                   # Self-contained, runnable examples by category
+├── examples/              # Self-contained, runnable examples by category
+│   ├── billing/
+│   └── monitoring/
 ├── configs/               # Atlas details 
-├── internal               # Shared utilities and helpers (NOTE: ANY TEST FILES ARE INTERNAL ONLY)
+├── internal               # Shared utilities and helpers (NOTE: ALL TEST FILES ARE INTERNAL ONLY - DON'T COPY TO ARTIFACT REPO)
 ├── go.mod
 ├── CHANGELOG.md           # User-facing list of major project changes
 │── README.md              # User-facing README for copied project
 │── INTERNAL_README.md     # (NOTE: INTERNAL ONLY - DON'T COPY TO ARTIFACT REPO)
-│── scripts/               # (NOTE: INTERNAL ONLY) snip and copy code examples
+│── scripts/               # (NOTE: INTERNAL ONLY) Script to generate code examples
 │   └── bluehawk.sh 
-├── .gitignore             
-└── .env.example           
+├── .gitignore           # Ignores .env file and log output
+└── .env.example         # Example environment variables         
 ```
+Unless noted, all files are Bluehawk-copied to the generated `project-copy` dir, then copied to the artifact repo. This includes `.gitignore` and `.env.example`. 
 
 ## Adding Examples
 To add examples to the project: 
 
-
+[TODO] 
 
 ## Runnable Scripts
 You can run individual scripts from the terminal. For example, to run `get_logs/main.go`:
@@ -65,7 +77,7 @@ Contact the Developer Docs team with any setup questions or issues.
 
 ## Write Tests
 
-... TODO
+[TODO]
 
 ## Generate Examples
 

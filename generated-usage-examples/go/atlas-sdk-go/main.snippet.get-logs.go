@@ -5,57 +5,67 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"time"
+
+	"atlas-sdk-go/internal/auth"
+	"atlas-sdk-go/internal/config"
+	"atlas-sdk-go/internal/errors"
+	"atlas-sdk-go/internal/fileutils"
+	"atlas-sdk-go/internal/logs"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
-	"atlas-sdk-go/internal"
-	"atlas-sdk-go/internal/auth"
-	"atlas-sdk-go/internal/config"
-	"atlas-sdk-go/internal/logs"
 )
 
 func main() {
-	_ = godotenv.Load()
-	secrets, cfg, err := config.LoadAll("configs/config.json")
-	if err != nil {
-		log.Fatalf("config load: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not loaded: %v", err)
 	}
 
-	sdk, err := auth.NewClient(cfg, secrets)
+	secrets, cfg, err := config.LoadAll("configs/config.json")
 	if err != nil {
-		log.Fatalf("client init: %v", err)
+		errors.ExitWithError("Failed to load configuration", err)
+	}
+
+	client, err := auth.NewClient(cfg, secrets)
+	if err != nil {
+		errors.ExitWithError("Failed to initialize authentication client", err)
 	}
 
 	ctx := context.Background()
+
+	// Fetch logs with the provided parameters
 	p := &admin.GetHostLogsApiParams{
 		GroupId:  cfg.ProjectID,
 		HostName: cfg.HostName,
 		LogName:  "mongodb",
 	}
-	ts := time.Now().Format("20060102_150405")
-	base := fmt.Sprintf("%s_%s_%s", p.HostName, p.LogName, ts)
-	outDir := "logs"
-	os.MkdirAll(outDir, 0o755)
-	gzPath := filepath.Join(outDir, base+".gz")
-	txtPath := filepath.Join(outDir, base+".txt")
-
-	rc, err := logs.FetchHostLogs(ctx, sdk.MonitoringAndLogsApi, p)
+	rc, err := logs.FetchHostLogs(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		log.Fatalf("download logs: %v", err)
+		errors.ExitWithError("Failed to fetch logs", err)
 	}
-	defer internal.SafeClose(rc)
+	defer fileutils.SafeClose(rc)
 
-	if err := logs.WriteToFile(rc, gzPath); err != nil {
-		log.Fatalf("save gz: %v", err)
+	// Prepare output paths
+	outDir := "logs"
+	prefix := fmt.Sprintf("%s_%s", p.HostName, p.LogName)
+	gzPath, err := fileutils.GenerateOutputPath(outDir, prefix, "gz")
+	if err != nil {
+		errors.ExitWithError("Failed to generate GZ output path", err)
+	}
+	txtPath, err := fileutils.GenerateOutputPath(outDir, prefix, "txt")
+	if err != nil {
+		errors.ExitWithError("Failed to generate TXT output path", err)
+	}
+
+	// Save compressed logs
+	if err := fileutils.WriteToFile(rc, gzPath); err != nil {
+		errors.ExitWithError("Failed to save compressed logs", err)
 	}
 	fmt.Println("Saved compressed log to", gzPath)
 
-	if err := logs.DecompressGzip(gzPath, txtPath); err != nil {
-		log.Fatalf("decompress: %v", err)
+	// Decompress logs
+	if err := fileutils.DecompressGzip(gzPath, txtPath); err != nil {
+		errors.ExitWithError("Failed to decompress logs", err)
 	}
 	fmt.Println("Uncompressed log to", txtPath)
 }

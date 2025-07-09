@@ -7,27 +7,35 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+	"atlas-sdk-go/internal/errors"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+
 	"atlas-sdk-go/internal/metrics"
 )
 
 func main() {
-	_ = godotenv.Load()
-	secrets, cfg, err := config.LoadAll("configs/config.json")
-	if err != nil {
-		log.Fatalf("config load: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not loaded: %v", err)
 	}
 
-	sdk, err := auth.NewClient(cfg, secrets)
+	secrets, cfg, err := config.LoadAll("configs/config.json")
 	if err != nil {
-		log.Fatalf("client init: %v", err)
+		errors.ExitWithError("Failed to load configuration", err)
+	}
+
+	client, err := auth.NewClient(cfg, secrets)
+	if err != nil {
+		errors.ExitWithError("Failed to initialize authentication client", err)
 	}
 
 	ctx := context.Background()
+
+	// Fetch process metrics with the provided parameters
 	p := &admin.GetHostMeasurementsApiParams{
 		GroupId:   cfg.ProjectID,
 		ProcessId: cfg.ProcessID,
@@ -42,12 +50,16 @@ func main() {
 		Period:      admin.PtrString("P7D"),
 	}
 
-	view, err := metrics.FetchProcessMetrics(ctx, sdk.MonitoringAndLogsApi, p)
+	view, err := metrics.FetchProcessMetrics(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		log.Fatalf("process metrics: %v", err)
+		errors.ExitWithError("Failed to fetch process metrics", err)
 	}
 
-	out, _ := json.MarshalIndent(view, "", "  ")
+	// Output metrics
+	out, err := json.MarshalIndent(view, "", "  ")
+	if err != nil {
+		errors.ExitWithError("Failed to format metrics data", err)
+	}
 	fmt.Println(string(out))
 }
 
