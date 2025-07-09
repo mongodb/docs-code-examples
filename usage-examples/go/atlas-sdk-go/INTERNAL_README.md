@@ -8,6 +8,15 @@ SDK for Go. Code examples are used in the Atlas Architecture Center docs, and
 a sanitized copy of the project is available in a user-facing "artifact repo": 
 https://github.com/mongodb/atlas-architecture-go-sdk.
 
+## Terms
+
+Artifact Repo
+The user-facing GitHub repo that contains the sanitized version of this project (i.e. stripped of any internal comments, markup, test files, etc.).
+Files are copied
+
+
+
+
 ## Project Structure
 ```text
 .

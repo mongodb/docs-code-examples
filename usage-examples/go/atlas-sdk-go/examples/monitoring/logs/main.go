@@ -42,6 +42,8 @@ func main() {
 		HostName: cfg.HostName,
 		LogName:  "mongodb",
 	}
+	fmt.Printf("Request parameters: GroupID=%s, HostName=%s, LogName=%s\n",
+		cfg.ProjectID, cfg.HostName, p.LogName)
 	rc, err := logs.FetchHostLogs(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
 		errors.ExitWithError("Failed to fetch logs", err)
@@ -49,6 +51,7 @@ func main() {
 	defer fileutils.SafeClose(rc)
 
 	// Prepare output paths
+	// If the ATLAS_DOWNLOADS_DIR env variable is set, it will be used as the base directory for output files
 	outDir := "logs"
 	prefix := fmt.Sprintf("%s_%s", p.HostName, p.LogName)
 	gzPath, err := fileutils.GenerateOutputPath(outDir, prefix, "gz")
