@@ -12,11 +12,12 @@ func TestDetermineProvider(t *testing.T) {
 		sku      string
 		expected string
 	}{
-		{"AWS SKU", "MONGODB_ATLAS_AWS_INSTANCE_M10", "AWS"},
-		{"AZURE SKU", "MONGODB_ATLAS_AZURE_INSTANCE_M20", "AZURE"},
-		{"GCP SKU", "MONGODB_ATLAS_GCP_INSTANCE_M30", "GCP"},
-		{"Unknown provider", "MONGODB_ATLAS_INSTANCE_M40", "n/a"},
+		{"AWS SKU", "NDS_AWS_INSTANCE_M10", "AWS"},
+		{"AZURE SKU", "NDS_AZURE_INSTANCE_M20", "AZURE"},
+		{"GCP SKU", "NDS_GCP_INSTANCE_M30", "GCP"},
+		{"Unknown provider", "NDS_INSTANCE_M40", "n/a"},
 		{"Empty SKU", "", "n/a"},
+		{"Mixed case", "nds_Aws_instance", "AWS"},
 	}
 
 	for _, tc := range tests {
@@ -33,11 +34,11 @@ func TestDetermineInstance(t *testing.T) {
 		sku      string
 		expected string
 	}{
-		{"Basic instance", "MONGODB_ATLAS_AWS_INSTANCE_M10", "M10"},
-		{"Complex instance name", "MONGODB_ATLAS_AWS_INSTANCE_M30_NVME", "M30_NVME"},
-		{"No instance marker", "MONGODB_ATLAS_BACKUP", "non-instance"},
+		{"Basic instance", "NDS_AWS_INSTANCE_M10", "M10"},
+		{"Complex instance name", "NDS_AWS_INSTANCE_M40_NVME", "M40_NVME"},
+		{"Serverless instance", "NDS_AWS_SERVERLESS_RPU", "non-instance"},
 		{"Empty SKU", "", "non-instance"},
-		{"Multiple instance markers", "INSTANCE_M10_INSTANCE_M20", "M20"},
+		{"Search instance", "NDS_AWS_SEARCH_INSTANCE_S20_COMPUTE_NVME", "S20_COMPUTE_NVME"},
 	}
 
 	for _, tc := range tests {
@@ -54,23 +55,31 @@ func TestDetermineCategory(t *testing.T) {
 		sku      string
 		expected string
 	}{
-		{"Instance category", "MONGODB_ATLAS_AWS_INSTANCE_M10", "instances"},
-		{"Backup category", "MONGODB_ATLAS_BACKUP", "backup"},
-		{"PIT Restore", "MONGODB_ATLAS_PIT_RESTORE", "backup"},
-		{"Data Transfer", "MONGODB_ATLAS_DATA_TRANSFER", "data xfer"},
-		{"Storage", "MONGODB_ATLAS_STORAGE", "storage"},
-		{"BI Connector", "MONGODB_ATLAS_BI_CONNECTOR", "bi-connector"},
-		{"Data Lake", "MONGODB_ATLAS_DATA_LAKE", "data lake"},
-		{"Auditing", "MONGODB_ATLAS_AUDITING", "audit"},
-		{"Atlas Support", "MONGODB_ATLAS_SUPPORT", "support"},
-		{"Free Support", "MONGODB_ATLAS_FREE_SUPPORT", "free support"},
-		{"Charts", "MONGODB_ATLAS_CHARTS", "charts"},
-		{"Serverless", "MONGODB_ATLAS_SERVERLESS", "serverless"},
-		{"Security", "MONGODB_ATLAS_SECURITY", "security"},
-		{"Private Endpoint", "MONGODB_ATLAS_PRIVATE_ENDPOINT", "private endpoint"},
-		{"Other category", "MONGODB_ATLAS_UNKNOWN", "other"},
-		{"Empty SKU", "", "other"},
-		{"Multiple patterns", "MONGODB_ATLAS_BACKUP_STORAGE", "backup"}, // First match should win
+		{"Instance category", "NDS_AWS_INSTANCE_M10", "Clusters"},
+		{"Backup category", "NDS_AWS_BACKUP_SNAPSHOT_STORAGE", "Backup"},
+		{"PIT Restore", "NDS_AWS_PIT_RESTORE_STORAGE", "Backup"},
+		{"Legacy Backup", "CLASSIC_BACKUP_STORAGE", "Legacy Backup"},
+		{"Data Transfer", "NDS_AWS_DATA_TRANSFER_SAME_REGION", "Data Transfer"},
+		{"Storage", "NDS_AWS_STORAGE_STANDARD", "Storage"},
+		{"BI Connector", "NDS_BI_CONNECTOR", "BI Connector"},
+		{"Data Lake", "DATA_LAKE_AWS_DATA_SCANNED", "Atlas Data Federation"},
+		{"Data Federation", "DATA_FEDERATION_AZURE_DATA_SCANNED", "Atlas Data Federation"},
+		{"Auditing", "NDS_ENTERPRISE_AUDITING", "Premium Features"},
+		{"Atlas Support", "NDS_ENTITLEMENTS", "Support"},
+		{"Free Support", "NDS_FREE_SUPPORT", "Support"},
+		{"Charts", "CHARTS_DATA_DOWNLOADED", "Charts"},
+		{"Serverless", "NDS_AWS_SERVERLESS_RPU", "Serverless Instances"},
+		{"Security", "NDS_ADVANCED_SECURITY", "Premium Features"},
+		{"Private Endpoint", "NDS_AWS_PRIVATE_ENDPOINT", "Data Transfer"},
+		{"Cloud Manager", "MMS_PREMIUM", "Cloud Manager Standard/Premium"},
+		{"Stream Processing", "NDS_AWS_STREAM_PROCESSING_INSTANCE_SP10", "Atlas Stream Processing"},
+		{"App Services", "REALM_APP_REQUESTS", "App Services"},
+		{"Credits", "CREDIT", "Credits"},
+		{"Flex Consulting", "MONGODB_FLEX_CONSULTING", "Flex Consulting"},
+		{"Other category", "UNKNOWN_SKU_TYPE", "Other"},
+		{"Empty SKU", "", "Other"},
+		{"Overlapping patterns", "NDS_AWS_SERVERLESS_STORAGE", "Serverless Instances"},
+		{"Conflicting patterns", "NDS_AZURE_DATA_LAKE_STORAGE", "Atlas Data Federation"},
 	}
 
 	for _, tc := range tests {
