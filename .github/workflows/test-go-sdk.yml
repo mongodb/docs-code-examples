@@ -1,14 +1,33 @@
-# name: CI
-# on: [push, pull_request]
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#         - name: Checkout code
-#           uses: actions/checkout@v4
-#         - name: Set up Go
-#           uses: actions/setup-go@v5
-#           with:
-#             go-version-file: go.mod
-#         - name: Test
-#           run: go test
+name: Test Atlas Go SDK Code Examples
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    paths:
+      - "usage-examples/go/atlas-sdk-go/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check access
+        if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' }}
+        run: |
+          echo "Event not triggered by a collaborator."
+          exit 1
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Setup Go version based on go.mod version
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: '/usage-examples/go/atlas-sdk-go/go.mod'
+      - name: Install dependencies
+        run: |
+          cd go/
+          go mod download
+      - name: Run tests
+        run: |
+          cd usage-examples/go/atlas-sdk-go/
+          go test -v -p 1 ./internal/...
