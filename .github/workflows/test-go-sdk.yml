@@ -22,7 +22,7 @@ jobs:
       - name: Setup Go version based on go.mod version
         uses: actions/setup-go@v5
         with:
-          go-version-file: '/usage-examples/go/atlas-sdk-go/go.mod'
+          go-version-file: 'usage-examples/go/atlas-sdk-go/go.mod'
       - name: Install dependencies
         run: |
           cd go/
