@@ -1,14 +1,43 @@
-# name: CI
-# on: [push, pull_request]
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#         - name: Checkout code
-#           uses: actions/checkout@v4
-#         - name: Set up Go
-#           uses: actions/setup-go@v5
-#           with:
-#             go-version-file: go.mod
-#         - name: Test
-#           run: go test
+name: Test Atlas Go SDK Code Examples
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "usage-examples/go/atlas-sdk-go/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # IMPORTANT: Update PROJECT_PATH variable when project structure changes
+    # in addition to changing it in the static `paths` in ln 7 above
+    env:
+      PROJECT_PATH: "usage-examples/go/atlas-sdk-go/"
+
+    steps:
+      - name: Check access
+        if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' }}
+        run: |
+          echo "Event not triggered by a collaborator."
+          exit 1
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Setup Go version based on go.mod version
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: '${{ env.PROJECT_PATH }}go.mod'
+      - name: Install dependencies
+        run: |
+          cd go/
+          go mod download
+      - name: Run tests
+        run: |
+          cd ${{ env.PROJECT_PATH }}
+
+          # NOTE: Test runner supports parallel processing. Code order determines
+          # sequence of tests, but parallel-enabled tests will run concurrently.
+
+          go test -v ./internal/...
