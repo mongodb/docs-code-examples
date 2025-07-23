@@ -11,6 +11,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # IMPORTANT: Update PROJECT_PATH variable when project structure changes
+    # in addition to changing it in the static `paths` in ln 7 above
     env:
       PROJECT_PATH: "usage-examples/go/atlas-sdk-go/"
 
@@ -34,4 +36,8 @@ jobs:
       - name: Run tests
         run: |
           cd ${{ env.PROJECT_PATH }}
+
+          # NOTE: Test runner supports parallel processing. Code order determines
+          # sequence of tests, but parallel-enabled tests will run concurrently.
+
           go test -v ./internal/...
