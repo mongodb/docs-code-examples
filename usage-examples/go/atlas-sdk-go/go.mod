@@ -1,6 +1,7 @@
 module atlas-sdk-go
 
 go 1.24
+
 // :remove-start:
 // NOTE: confirm testify and indirect dependencies are removed in Bluehawk copy output
 // once copied, confirm project builds successfully in artifact repo
@@ -14,8 +15,8 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mongodb-forks/digest v1.1.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect // :remove:
-	github.com/stretchr/objx v0.5.2 // indirect // :remove:
+	github.com/pmezard/go-difflib v1.0.0 // indirect; indirect // :remove:
+	github.com/stretchr/objx v0.5.2 // indirect; indirect // :remove:
 	golang.org/x/oauth2 v0.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

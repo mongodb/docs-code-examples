@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
@@ -17,28 +18,25 @@ import (
 	"atlas-sdk-go/internal/data/export"
 	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/fileutils"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	// Use the context-aware version
+	appCtx, err := config.LoadAppContextWithContext(ctx, "", false)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}
 
-	client, err := auth.NewClient(cfg, secrets)
+	client, err := auth.NewClient(appCtx.Config, appCtx.Secrets)
 	if err != nil {
 		errors.ExitWithError("Failed to initialize authentication client", err)
 	}
 
-	ctx := context.Background()
 	p := &admin.ListInvoicesApiParams{
-		OrgId: cfg.OrgID,
+		OrgId: appCtx.Config.OrgID,
 	}
 
 	fmt.Printf("Fetching pending invoices for organization: %s\n", p.OrgId)
@@ -122,3 +120,11 @@ func exportInvoicesToCSV(details []billing.Detail, outDir, prefix string) {
 // Exported billing data to invoices/pending_5f7a9ec7d78fc03b42959328.json
 // Exported billing data to invoices/pending_5f7a9ec7d78fc03b42959328.csv
 // :state-remove-end: [copy]
+// With timeout
+func loadConfigWithTimeout() (*config.AppContext, error) {
+	// Create a context with a 5-second timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return config.LoadAppContextWithContext(ctx, "", false)
+}

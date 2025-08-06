@@ -20,11 +20,9 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
-	}
-
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	configPath := ""  // Use default config path for environment
+	explicitEnv := "" // Use default environment
+	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}

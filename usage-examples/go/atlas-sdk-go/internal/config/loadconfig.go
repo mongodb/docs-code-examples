@@ -61,3 +61,19 @@ func LoadConfig(path string) (*Config, error) {
 
 	return &config, nil
 }
+
+func (c *Config) Validate(env string) error {
+	if c.BaseURL == "" {
+		return &errors.ValidationError{Message: "BaseURL is required"}
+	}
+
+	// Add environment-specific validation
+	if env == "production" {
+		// Stricter validation for production
+		if strings.Contains(c.BaseURL, "dev") || strings.Contains(c.BaseURL, "test") {
+			return &errors.ValidationError{Message: "Production environment cannot use development URLs"}
+		}
+	}
+
+	return nil
+}
