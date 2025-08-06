@@ -18,23 +18,21 @@ import (
 // In a production scenario, you would customize the collection analysis
 // logic in CollectionsForArchiving() to match your specific data patterns.
 func main() {
-	// Set up context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
-	// Load application context with configuration
-	appCtx, err := config.LoadAppContextWithContext(ctx, "internal", false)
+	// Load application context with configuration and secrets for the specified environment
+	explicitEnv := "internal"
+	appCtx, err := config.LoadAppContextWithContext(ctx, explicitEnv, false)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}
 
-	// Initialize the Atlas API client
 	client, err := auth.NewClient(appCtx.Config, appCtx.Secrets)
 	if err != nil {
 		errors.ExitWithError("Failed to initialize Atlas client", err)
 	}
 
-	// Get the project ID from configuration
 	projectID := appCtx.Config.ProjectID
 	if projectID == "" {
 		errors.ExitWithError("Project ID not found in configuration", nil)

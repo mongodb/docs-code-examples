@@ -2,6 +2,7 @@ package main
 
 import (
 	"atlas-sdk-go/internal/clusters"
+	"atlas-sdk-go/internal/metrics"
 	"atlas-sdk-go/internal/scale"
 	"context"
 	"fmt"
@@ -26,15 +27,15 @@ const (
 
 // CPUMetrics represents CPU utilization metrics for a cluster
 type CPUMetrics struct {
-	AverageCPUUsage float64
-	MaxCPUUsage     float64
+	AverageCPUUsage float32
+	MaxCPUUsage     float32
 	SampleCount     int
 }
 
 // CPUThresholds defines the thresholds for scaling decisions
 type CPUThresholds struct {
-	ScaleUpThreshold   float64
-	ScaleDownThreshold float64
+	ScaleUpThreshold   float32
+	ScaleDownThreshold float32
 }
 
 // ScalingDecision represents a decision on whether to scale a cluster
@@ -49,8 +50,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
-	// Load application context with configuration
-	appCtx, err := config.LoadAppContextWithContext(ctx, "internal", false)
+	explicitEnv := "internal"
+	appCtx, err := config.LoadAppContextWithContext(ctx, explicitEnv, false)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}
@@ -62,7 +63,11 @@ func main() {
 	}
 	// Get the project ID from configuration
 	projectId := appCtx.Config.ProjectID
-	if projectId == "" {
+
+	clusterParams := &admin.ListClustersApiParams{
+		GroupId: projectId,
+	}
+	if clusterParams.GroupId == "" {
 		errors.ExitWithError("Project ID not found in configuration", nil)
 	}
 
@@ -75,19 +80,23 @@ func main() {
 		cpuThresholds.ScaleUpThreshold, cpuThresholds.ScaleDownThreshold)
 
 	// Get list of all clusters in the project
-	clusterNames, err = clusters.ListClusterNames(ctx, client, projectId)
+	var clusterNames []string
+	clusterNameParams := &admin.ListClustersApiParams{
+		GroupId: projectId,
+	}
+	clusterNames, err = clusters.ListClusterNames(ctx, client.ClustersApi, clusterNameParams)
 	if err != nil {
 		errors.ExitWithError("Failed to list clusters", err)
 	}
 
 	if len(clusterNames) == 0 {
-		fmt.Printf("No clusters found for the project ID: %s\n", projectId)
+		fmt.Printf("No clusters found for the project ID: %s\n", clusterNameParams.GroupId)
 		return
 	}
 
 	// Evaluate each cluster's details to determine eligibility for scaling
 	for _, clusterName := range clusterNames {
-		clusterDetails, resp, err := client.ClustersApi.GetCluster(ctx, projectId, clusterName).Execute()
+		clusterDetails, _, err := client.ClustersApi.GetCluster(ctx, projectId, clusterName).Execute()
 		if err != nil {
 			log.Printf("Error getting details for cluster %s: %v", clusterName, err)
 			continue
@@ -100,31 +109,39 @@ func main() {
 			continue
 		}
 
+		processParams := &admin.ListAtlasProcessesApiParams{
+			GroupId: projectId,
+		}
 		// Get CPU metrics for the cluster
-		processId, err := clusters.GetProcessIdForCluster(ctx, client, projectId, clusterName)
+		processId, err := clusters.GetProcessIdForCluster(ctx, client.MonitoringAndLogsApi, processParams, clusterName)
 		if err != nil {
-			log.Printf("Could not get process ID for cluster %s: %v", clusterName, err)
+			log.Printf("Error fetching process ID for cluster %s: %v", clusterName, err)
 			continue
 		}
 
-		cpuMetrics, err := getClusterCPUMetrics(ctx, client, projectId, processId, cpuMonitoringPeriod)
+		cpuParams := &admin.GetHostMeasurementsApiParams{
+			GroupId:   projectId,
+			ProcessId: processId,
+		}
+		cpuMetrics, err := getClusterCPUMetrics(ctx, client, cpuParams)
 		if err != nil {
-			log.Printf("Could not fetch CPU metrics for cluster %s: %v", clusterName, err)
+			log.Printf("Error fetching CPU metrics for cluster %s: %v", clusterName, err)
 			continue
 		}
+		cpuUsage := cpuMetrics
 
 		// Evaluate scaling decision based on CPU usage
-		scalingDecision := evaluateCPUBasedScaling(cpuMetrics, cpuThresholds)
+		scalingDecision := evaluateCPUBasedScaling(cpuUsage, cpuThresholds)
 
 		log.Printf("Cluster %s - CPU: avg=%.2f%%, max=%.2f%%, samples=%d",
-			clusterName, cpuMetrics.AverageCPUUsage, cpuMetrics.MaxCPUUsage, cpuMetrics.SampleCount)
+			clusterName, cpuUsage.AverageCPUUsage, cpuUsage.MaxCPUUsage, cpuUsage.SampleCount)
 		log.Printf("Scaling decision: %s", scalingDecision.Reason)
 
 		// Perform scaling if needed
 		if scalingDecision.ShouldScale && scalingDecision.Direction == "up" {
 			log.Printf("Scaling cluster %s UP from %s to %s due to high CPU usage",
 				clusterName, currentInstanceSize, targetInstanceSize)
-			err := scale.UpdateClusterSize(ctx, client, projectId, clusterName, clusterDetails, targetInstanceSize)
+			err := scale.UpdateClusterSize(ctx, client.ClustersApi, projectId, clusterName, clusterDetails, targetInstanceSize)
 			if err != nil {
 				log.Printf("Error during scaling: %v", err)
 			}
@@ -133,7 +150,7 @@ func main() {
 			scaleDownSize := getScaleDownSize(currentInstanceSize)
 			log.Printf("Scaling cluster %s DOWN from %s to %s due to low CPU usage",
 				clusterName, currentInstanceSize, scaleDownSize)
-			err := scale.UpdateClusterSize(ctx, client, projectId, clusterName, clusterDetails, scaleDownSize)
+			err := scale.UpdateClusterSize(ctx, client.ClustersApi, projectId, clusterName, clusterDetails, scaleDownSize)
 			if err != nil {
 				log.Printf("Error during scaling: %v", err)
 			}
@@ -145,34 +162,30 @@ func main() {
 	log.Println("Cluster scaling process completed successfully.")
 }
 
-func getClusterCPUMetrics(ctx context.Context, client *admin.APIClient, projectID, processID, period string) (CPUMetrics, error) {
+func getClusterCPUMetrics(ctx context.Context, client *admin.APIClient, p *admin.GetHostMeasurementsApiParams) (CPUMetrics, error) {
 	// Configure time window for metrics
-	end := time.Now().UTC()
-	start := end.Add(-24 * time.Hour) // Default to 1 day
-	granularity := "PT1H"             // 1-hour granularity
-
-	startStr := start.Format(time.RFC3339)
-	endStr := end.Format(time.RFC3339)
-
-	request := client.MonitoringAndLogsApi.GetProcessMeasurements(ctx, projectID, processID)
-	request = request.M("CPU_USAGE")
-	request = request.Granularity(granularity)
-	request = request.Period(period)
-	request = request.Start(startStr)
-	request = request.End(endStr)
-
-	metrics, httpResp, err := request.Execute()
+	p = &admin.GetHostMeasurementsApiParams{
+		GroupId:     p.GroupId,
+		ProcessId:   p.ProcessId,
+		M:           &[]string{"CPU_USAGE"},
+		Granularity: admin.PtrString("PT1H"),
+		Period:      admin.PtrString(cpuMonitoringPeriod),
+	}
+	cpuMetrics, err := metrics.FetchProcessMetrics(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		return CPUMetrics{}, fmt.Errorf("failed to get CPU metrics: %w", err)
+		log.Printf("Error fetching CPU metrics for process ID %s: %v", p.ProcessId, err)
+	}
+	if cpuMetrics == nil || !cpuMetrics.HasMeasurements() || len(cpuMetrics.GetMeasurements()) == 0 {
+		return CPUMetrics{}, fmt.Errorf("no CPU metrics available for process ID %s", p.ProcessId)
 	}
 
-	var totalCPU float64
-	var maxCPU float64
+	var totalCPU float32
+	var maxCPU float32
 	var sampleCount int
 
 	// Calculate average and max CPU usage
-	if metrics.Measurements != nil {
-		for _, measurement := range *metrics.Measurements {
+	if cpuMetrics.Measurements != nil {
+		for _, measurement := range *cpuMetrics.Measurements {
 			if measurement.DataPoints != nil {
 				for _, dataPoint := range *measurement.DataPoints {
 					if dataPoint.Value != nil {
@@ -193,7 +206,7 @@ func getClusterCPUMetrics(ctx context.Context, client *admin.APIClient, projectI
 	}
 
 	return CPUMetrics{
-		AverageCPUUsage: totalCPU / float64(sampleCount),
+		AverageCPUUsage: totalCPU / float32(sampleCount),
 		MaxCPUUsage:     maxCPU,
 		SampleCount:     sampleCount,
 	}, nil
@@ -226,7 +239,7 @@ func evaluateCPUBasedScaling(metrics CPUMetrics, thresholds CPUThresholds) Scali
 	}
 }
 
-func isEligibleForScaling(cluster *admin.ClusterDescription, currentSize string) bool {
+func isEligibleForScaling(cluster *admin.ClusterDescription20240805, currentSize string) bool {
 	if cluster.ReplicationSpecs == nil || len(*cluster.ReplicationSpecs) == 0 {
 		return false
 	}
