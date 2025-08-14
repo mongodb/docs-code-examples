@@ -1,6 +1,7 @@
 module atlas-sdk-go
 
 go 1.24
+
 require (
 	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/atlas-sdk/v20250219001 v20250219001.1.0

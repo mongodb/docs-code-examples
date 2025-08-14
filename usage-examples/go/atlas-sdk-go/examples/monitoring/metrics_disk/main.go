@@ -5,13 +5,14 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/metrics"
-	"context"
-	"encoding/json"
-	"fmt"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )

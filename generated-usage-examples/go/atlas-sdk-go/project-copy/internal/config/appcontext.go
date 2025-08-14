@@ -75,34 +75,6 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 		}
 		log.Printf("Warning: Unexpected environment '%s' may cause issues", env)
 	}
-	// :state-remove-start: copy
-	// Special handling for test environment
-	if env == "test" {
-		log.Printf("Using test environment - ensure test fixtures are available")
-
-		// If TEST_MOCK_CONFIG is set, use mock configuration
-		if os.Getenv("TEST_MOCK_CONFIG") == "true" {
-			mockConfig, mockSecrets, err := getTestConfiguration()
-			if err != nil {
-				return nil, errors.WithContext(err, "loading test configuration")
-			}
-
-			appCtx := &AppContext{
-				Environment: env,
-				Config:      mockConfig,
-				Secrets:     mockSecrets,
-			}
-
-			// Cache the result
-			cacheMutex.Lock()
-			cachedAppContext = appCtx
-			cachedAppContextTime = time.Now()
-			cacheMutex.Unlock()
-
-			return appCtx, nil
-		}
-	}
-	// :state-remove-end:
 	// Load environment files
 	envFiles := []string{
 		fmt.Sprintf(".env.%s", env),

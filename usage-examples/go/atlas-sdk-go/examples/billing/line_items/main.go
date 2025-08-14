@@ -21,22 +21,21 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// Use the context-aware version
-	appCtx, err := config.LoadAppContextWithContext(ctx, "", false)
+	configPath := ""  // Use default config path for environment
+	explicitEnv := "" // Use default environment
+	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}
 
-	client, err := auth.NewClient(appCtx.Config, appCtx.Secrets)
+	client, err := auth.NewClient(cfg, secrets)
 	if err != nil {
 		errors.ExitWithError("Failed to initialize authentication client", err)
 	}
 
+	ctx := context.Background()
 	p := &admin.ListInvoicesApiParams{
-		OrgId: appCtx.Config.OrgID,
+		OrgId: cfg.OrgID,
 	}
 
 	fmt.Printf("Fetching pending invoices for organization: %s\n", p.OrgId)

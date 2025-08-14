@@ -1,5 +1,14 @@
 # Secrets
 .env
+!.env.example
+.env.development
+.env.production
+configs/config.example.json
+!configs/config.development.json
+!configs/config.production.json
+
+tmp
+
 
 # Logs
 *.log

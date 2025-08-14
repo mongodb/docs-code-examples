@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"atlas-sdk-go/internal/metrics"
+
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -78,7 +80,7 @@ func TestFetchProcessMetrics_Unit(t *testing.T) {
 				GetHostMeasurementsExecute(mock.Anything).
 				Return(tc.view, nil, nil).Once()
 
-			result, err := FetchProcessMetrics(ctx, mockSvc, &baseProcess)
+			result, err := metrics.FetchProcessMetrics(ctx, mockSvc, &baseProcess)
 
 			if tc.wantErr {
 				require.Error(t, err)

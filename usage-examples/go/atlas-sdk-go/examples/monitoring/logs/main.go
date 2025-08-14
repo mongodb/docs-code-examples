@@ -15,7 +15,6 @@ import (
 	"atlas-sdk-go/internal/fileutils"
 	"atlas-sdk-go/internal/logs"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 

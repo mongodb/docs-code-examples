@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
@@ -14,16 +15,12 @@ import (
 	"atlas-sdk-go/internal/data/export"
 	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/fileutils"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
-	}
-
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	configPath := ""  // Use default config path for environment
+	explicitEnv := "" // Use default environment
+	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
 	if err != nil {
 		errors.ExitWithError("Failed to load configuration", err)
 	}

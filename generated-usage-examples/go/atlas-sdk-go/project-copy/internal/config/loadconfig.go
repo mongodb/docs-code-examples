@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"strings"
 
 	"atlas-sdk-go/internal/errors"
 )
@@ -37,11 +38,42 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, errors.WithContext(err, "parsing configuration file")
 	}
 
+	if config.OrgID == "" {
+		return nil, &errors.ValidationError{
+			Message: "organization ID is required in configuration",
+		}
+	}
 	if config.ProjectID == "" {
 		return nil, &errors.ValidationError{
 			Message: "project ID is required in configuration",
 		}
 	}
 
+	if config.HostName == "" {
+		if host, _, ok := strings.Cut(config.ProcessID, ":"); ok {
+			config.HostName = host
+		} else {
+			return nil, &errors.ValidationError{
+				Message: "process ID must be in the format 'hostname:port'",
+			}
+		}
+	}
+
 	return &config, nil
+}
+
+func (c *Config) Validate(env string) error {
+	if c.BaseURL == "" {
+		return &errors.ValidationError{Message: "BaseURL is required"}
+	}
+
+	// Add environment-specific validation
+	if env == "production" {
+		// Stricter validation for production
+		if strings.Contains(c.BaseURL, "dev") || strings.Contains(c.BaseURL, "test") {
+			return &errors.ValidationError{Message: "Production environment cannot use development URLs"}
+		}
+	}
+
+	return nil
 }

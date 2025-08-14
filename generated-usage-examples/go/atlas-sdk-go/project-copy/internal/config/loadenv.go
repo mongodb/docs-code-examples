@@ -7,11 +7,6 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
-const (
-	EnvSAClientID     = "MONGODB_ATLAS_SERVICE_ACCOUNT_ID"
-	EnvSAClientSecret = "MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"
-)
-
 type Secrets struct {
 	ServiceAccountID     string
 	ServiceAccountSecret string

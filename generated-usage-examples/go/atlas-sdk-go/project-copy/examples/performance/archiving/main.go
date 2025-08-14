@@ -1,7 +1,3 @@
-// :snippet-start: archive-collections
-// :state-remove-start: copy
-// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :state-remove-end: [copy]
 package main
 
 import (
@@ -82,26 +78,3 @@ func main() {
 	fmt.Println("Archive analysis and configuration completed")
 }
 
-// :snippet-end: [archive-collections]
-// :state-remove-start: copy
-// NOTE: INTERNAL
-// ** OUTPUT EXAMPLE **
-//
-// Configuration loaded successfully: env=production, baseURL=https://cloud.mongodb.com, orgID=5bfda007553855125605a5cf
-// Starting archive analysis for project: 5f60207f14dfb25d24511201
-// Found 2 clusters to analyze
-// Analyzing cluster: Cluster0
-// Found 2 collections eligible for archiving in cluster Cluster0
-// Configuring archive for sample_analytics.transactions
-// Successfully configured online archive for sample_analytics.transactions
-// Configuring archive for sample_analytics.users
-// Successfully configured online archive for sample_analytics.users
-// Analyzing cluster: Cluster1
-// Found 1 collections eligible for archiving in cluster Cluster1
-// Configuring archive for sample_analytics.orders
-//  Failed to configure archive: validate archive candidate for sample_analytics.transactions: date field transaction_date must be included in partition fields
-//  Configuring archive for sample_logs.application_logs
-//  Failed to configure archive: validate archive candidate for sample_logs.application_logs: date field timestamp must be included in partition fields
-//  Warning: 2 archive configurations failed
-//  Archive analysis and configuration completed
-// :state-remove-end: [copy]
