@@ -8,6 +8,7 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
+// Config holds the configuration for connecting to MongoDB Atlas
 type Config struct {
 	BaseURL     string `json:"MONGODB_ATLAS_BASE_URL"`
 	OrgID       string `json:"ATLAS_ORG_ID"`
@@ -18,6 +19,7 @@ type Config struct {
 }
 
 // LoadConfig reads a JSON configuration file and returns a Config struct
+// It validates required fields and returns an error if any validation fails.
 func LoadConfig(path string) (*Config, error) {
 	if path == "" {
 		return nil, &errors.ValidationError{
@@ -34,7 +36,7 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	var config Config
-	if err := json.Unmarshal(data, &config); err != nil {
+	if err = json.Unmarshal(data, &config); err != nil {
 		return nil, errors.WithContext(err, "parsing configuration file")
 	}
 
@@ -62,6 +64,8 @@ func LoadConfig(path string) (*Config, error) {
 	return &config, nil
 }
 
+// Validate checks the configuration for required fields and environment-specific rules
+// It returns an error if any validation fails.
 func (c *Config) Validate(env string) error {
 	if c.BaseURL == "" {
 		return &errors.ValidationError{Message: "BaseURL is required"}

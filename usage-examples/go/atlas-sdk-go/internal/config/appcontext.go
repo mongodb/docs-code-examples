@@ -13,6 +13,8 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
+// Package config provides application context management, including environment-specific configurations
+// and caching mechanisms to optimize performance and reduce redundant loading of configurations.
 var (
 	cachedAppContext     *AppContext
 	cachedAppContextTime time.Time
@@ -41,12 +43,13 @@ type AppContext struct {
 // If strictValidation is true, invalid environments will return an error
 func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, error) {
 	// Environment resolution priority:
-	// 1. Explicitly passed environment parameter
-	// 2. APP_ENV environment variable
-	// 3. Default to "development"
-	//
+	// 1. An explicitly passed environment parameter
+	// 2. An APP_ENV environment variable
+	// 3. Otherwise, defaults to "development"
+	// :state-remove-start: copy
 	// Special environments:
 	// - "test": Used for automated testing, loads from .env.test and configs/config.test.json
+	// :state-remove-end:
 
 	// Determine environment
 	env := explicitEnv
@@ -68,7 +71,6 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	}
 	cacheMutex.RUnlock()
 
-	// Validate environment
 	if !ValidateEnvironment(env) {
 		if strictValidation {
 			return nil, fmt.Errorf("invalid environment: %s", env)
@@ -76,9 +78,9 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 		log.Printf("Warning: Unexpected environment '%s' may cause issues", env)
 	}
 	// :state-remove-start: copy
-	// Special handling for test environment
+	// Special handling for internal-only test environment
 	if env == "test" {
-		log.Printf("Using test environment - ensure test fixtures are available")
+		log.Printf("Using test environment")
 
 		// If TEST_MOCK_CONFIG is set, use mock configuration
 		if os.Getenv("TEST_MOCK_CONFIG") == "true" {
@@ -131,7 +133,6 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	log.Printf("Loading configuration for environment: %s", env)
 	log.Printf("Using config file: %s", configPath)
 
-	// Load secrets and config
 	secrets, err := LoadSecrets()
 	if err != nil {
 		return nil, errors.WithContext(err, "loading secrets")
@@ -142,8 +143,7 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 		return nil, errors.WithContext(err, "loading config")
 	}
 
-	// Validate config with environment context
-	if err := config.Validate(env); err != nil {
+	if err = config.Validate(env); err != nil {
 		return nil, errors.WithContext(err, "validating config")
 	}
 
@@ -166,7 +166,9 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	return appCtx, nil
 }
 
-// LoadAppContextWithContext Add context support to handle timeouts and cancellation
+// LoadAppContextWithContext initializes application context with environment-specific configuration using a provided context for cancellation support.
+// If explicitEnv is provided, it overrides the APP_ENV environment variable
+// If strictValidation is true, invalid environments will return an error
 func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictValidation bool) (*AppContext, error) {
 	// Use context for potential operations that may need cancellation
 	select {
@@ -196,7 +198,7 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	}
 	cacheMutex.RUnlock()
 
-	// Rest of implementation mirrors LoadAppContext but with context checks
+	// The implementation mirrors LoadAppContext but with context checks
 	if !ValidateEnvironment(env) {
 		if strictValidation {
 			return nil, fmt.Errorf("invalid environment: %s", env)
@@ -204,11 +206,12 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 		log.Printf("Warning: Unexpected environment '%s' may cause issues", env)
 	}
 
+	// :state-remove-start: copy
 	// Special handling for test environment
 	if env == "test" {
 		log.Printf("Using test environment - ensure test fixtures are available")
 	}
-
+	// :state-remove-end:
 	// Add context check before expensive operations
 	select {
 	case <-ctx.Done():
@@ -216,7 +219,7 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	default:
 	}
 
-	// Load environment files with improved approach
+	// Load environment files
 	envFiles := []string{
 		fmt.Sprintf(".env.%s", env),
 		".env",
@@ -251,7 +254,6 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	log.Printf("Loading configuration for environment: %s", env)
 	log.Printf("Using config file: %s", configPath)
 
-	// Load secrets and config
 	secrets, err := LoadSecrets()
 	if err != nil {
 		return nil, errors.WithContext(err, "loading secrets")
@@ -262,8 +264,7 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 		return nil, errors.WithContext(err, "loading config")
 	}
 
-	// Validate config with environment context
-	if err := config.Validate(env); err != nil {
+	if err = config.Validate(env); err != nil {
 		return nil, errors.WithContext(err, "validating config")
 	}
 
@@ -286,14 +287,16 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	return appCtx, nil
 }
 
-// getTestConfiguration provides specialized test configuration
+// :state-remove-start: copy
+// getTestConfiguration is an internal-only testing function that checks for a specific test configuration file
+// and returns a mock configuration if it exists, otherwise returns a fully mocked configuration.
 func getTestConfiguration() (*Config, *Secrets, error) {
 	// Check if specific test config file exists
 	testConfigFile := "configs/config.test.json"
 	if _, err := os.Stat(testConfigFile); err == nil {
-		config, err := LoadConfig(testConfigFile)
-		if err != nil {
-			return nil, nil, err
+		config, cfgErr := LoadConfig(testConfigFile)
+		if cfgErr != nil {
+			return nil, nil, cfgErr
 		}
 
 		// Still use mock secrets to avoid requiring real credentials
@@ -319,7 +322,6 @@ func getTestConfiguration() (*Config, *Secrets, error) {
 		}, nil
 }
 
-// Add diff support for testing
 func (a *AppContext) Diff(other *AppContext) []string {
 	var differences []string
 
@@ -356,3 +358,5 @@ func (a *AppContext) Diff(other *AppContext) []string {
 
 	return differences
 }
+
+// :state-remove-end:

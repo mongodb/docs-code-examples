@@ -13,6 +13,8 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
+// Package config provides application context management, including environment-specific configurations
+// and caching mechanisms to optimize performance and reduce redundant loading of configurations.
 var (
 	cachedAppContext     *AppContext
 	cachedAppContextTime time.Time
@@ -41,12 +43,9 @@ type AppContext struct {
 // If strictValidation is true, invalid environments will return an error
 func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, error) {
 	// Environment resolution priority:
-	// 1. Explicitly passed environment parameter
-	// 2. APP_ENV environment variable
-	// 3. Default to "development"
-	//
-	// Special environments:
-	// - "test": Used for automated testing, loads from .env.test and configs/config.test.json
+	// 1. An explicitly passed environment parameter
+	// 2. An APP_ENV environment variable
+	// 3. Otherwise, defaults to "development"
 
 	// Determine environment
 	env := explicitEnv
@@ -68,7 +67,6 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	}
 	cacheMutex.RUnlock()
 
-	// Validate environment
 	if !ValidateEnvironment(env) {
 		if strictValidation {
 			return nil, fmt.Errorf("invalid environment: %s", env)
@@ -103,7 +101,6 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	log.Printf("Loading configuration for environment: %s", env)
 	log.Printf("Using config file: %s", configPath)
 
-	// Load secrets and config
 	secrets, err := LoadSecrets()
 	if err != nil {
 		return nil, errors.WithContext(err, "loading secrets")
@@ -114,8 +111,7 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 		return nil, errors.WithContext(err, "loading config")
 	}
 
-	// Validate config with environment context
-	if err := config.Validate(env); err != nil {
+	if err = config.Validate(env); err != nil {
 		return nil, errors.WithContext(err, "validating config")
 	}
 
@@ -138,7 +134,9 @@ func LoadAppContext(explicitEnv string, strictValidation bool) (*AppContext, err
 	return appCtx, nil
 }
 
-// LoadAppContextWithContext Add context support to handle timeouts and cancellation
+// LoadAppContextWithContext initializes application context with environment-specific configuration using a provided context for cancellation support.
+// If explicitEnv is provided, it overrides the APP_ENV environment variable
+// If strictValidation is true, invalid environments will return an error
 func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictValidation bool) (*AppContext, error) {
 	// Use context for potential operations that may need cancellation
 	select {
@@ -168,17 +166,12 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	}
 	cacheMutex.RUnlock()
 
-	// Rest of implementation mirrors LoadAppContext but with context checks
+	// The implementation mirrors LoadAppContext but with context checks
 	if !ValidateEnvironment(env) {
 		if strictValidation {
 			return nil, fmt.Errorf("invalid environment: %s", env)
 		}
 		log.Printf("Warning: Unexpected environment '%s' may cause issues", env)
-	}
-
-	// Special handling for test environment
-	if env == "test" {
-		log.Printf("Using test environment - ensure test fixtures are available")
 	}
 
 	// Add context check before expensive operations
@@ -188,7 +181,7 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	default:
 	}
 
-	// Load environment files with improved approach
+	// Load environment files
 	envFiles := []string{
 		fmt.Sprintf(".env.%s", env),
 		".env",
@@ -223,7 +216,6 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	log.Printf("Loading configuration for environment: %s", env)
 	log.Printf("Using config file: %s", configPath)
 
-	// Load secrets and config
 	secrets, err := LoadSecrets()
 	if err != nil {
 		return nil, errors.WithContext(err, "loading secrets")
@@ -234,8 +226,7 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 		return nil, errors.WithContext(err, "loading config")
 	}
 
-	// Validate config with environment context
-	if err := config.Validate(env); err != nil {
+	if err = config.Validate(env); err != nil {
 		return nil, errors.WithContext(err, "validating config")
 	}
 
@@ -258,73 +249,3 @@ func LoadAppContextWithContext(ctx context.Context, explicitEnv string, strictVa
 	return appCtx, nil
 }
 
-// getTestConfiguration provides specialized test configuration
-func getTestConfiguration() (*Config, *Secrets, error) {
-	// Check if specific test config file exists
-	testConfigFile := "configs/config.test.json"
-	if _, err := os.Stat(testConfigFile); err == nil {
-		config, err := LoadConfig(testConfigFile)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		// Still use mock secrets to avoid requiring real credentials
-		mockSecrets := &Secrets{
-			ServiceAccountID:     "test-service-account-id",
-			ServiceAccountSecret: "test-service-account-secret",
-		}
-
-		return config, mockSecrets, nil
-	}
-
-	// Fall back to fully mocked configuration
-	return &Config{
-			BaseURL:     "https://cloud-mock.mongodb.com",
-			OrgID:       "test-org-id",
-			ProjectID:   "test-project-id",
-			ClusterName: "TestCluster",
-			ProcessID:   "test-cluster-shard-00-00.test.mongodb.net:27017",
-			HostName:    "test-cluster-shard-00-00.test.mongodb.net",
-		}, &Secrets{
-			ServiceAccountID:     "test-service-account-id",
-			ServiceAccountSecret: "test-service-account-secret",
-		}, nil
-}
-
-// Add diff support for testing
-func (a *AppContext) Diff(other *AppContext) []string {
-	var differences []string
-
-	if a.Environment != other.Environment {
-		differences = append(differences, fmt.Sprintf("Environment: %s vs %s",
-			a.Environment, other.Environment))
-	}
-
-	// Compare important config fields
-	if a.Config.BaseURL != other.Config.BaseURL {
-		differences = append(differences, fmt.Sprintf("BaseURL: %s vs %s",
-			a.Config.BaseURL, other.Config.BaseURL))
-	}
-
-	if a.Config.OrgID != other.Config.OrgID {
-		differences = append(differences, fmt.Sprintf("OrgID: %s vs %s",
-			a.Config.OrgID, other.Config.OrgID))
-	}
-
-	if a.Config.ProjectID != other.Config.ProjectID {
-		differences = append(differences, fmt.Sprintf("ProjectID: %s vs %s",
-			a.Config.ProjectID, other.Config.ProjectID))
-	}
-
-	if a.Config.ClusterName != other.Config.ClusterName {
-		differences = append(differences, fmt.Sprintf("ClusterName: %s vs %s",
-			a.Config.ClusterName, other.Config.ClusterName))
-	}
-
-	if a.Config.ProcessID != other.Config.ProcessID {
-		differences = append(differences, fmt.Sprintf("ProcessID: %s vs %s",
-			a.Config.ProcessID, other.Config.ProcessID))
-	}
-
-	return differences
-}

@@ -7,11 +7,14 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
+// Environment variable names for service account credentials
 type Secrets struct {
 	ServiceAccountID     string
 	ServiceAccountSecret string
 }
 
+// LoadSecrets loads the required secrets from environment variables.
+// It returns a Secrets struct or an error if any required variable is missing.
 func LoadSecrets() (*Secrets, error) {
 	s := &Secrets{}
 	var missing []string

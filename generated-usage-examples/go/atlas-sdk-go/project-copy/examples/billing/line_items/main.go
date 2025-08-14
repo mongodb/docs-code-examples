@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"time"
-
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+	"log"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
@@ -97,11 +95,3 @@ func exportInvoicesToCSV(details []billing.Detail, outDir, prefix string) {
 	fmt.Printf("Exported billing data to %s\n", csvPath)
 }
 
-// With timeout
-func loadConfigWithTimeout() (*config.AppContext, error) {
-	// Create a context with a 5-second timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	return config.LoadAppContextWithContext(ctx, "", false)
-}

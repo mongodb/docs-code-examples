@@ -1,28 +1,13 @@
-package metrics_test
+package metrics
 
 import (
 	"context"
-	"testing"
-	"time"
-
-	"atlas-sdk-go/internal/metrics"
-
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/atlas-sdk/v20250219001/mockadmin"
+	"testing"
 )
-
-// fixed timestamp for tests
-var fixedTS = "2025-01-01T12:00:00Z"
-
-// parseTS wraps time.Parse and flags error on test failure
-func parseTS(t *testing.T, ts string) time.Time {
-	t.Helper()
-	parsed, err := time.Parse(time.RFC3339, ts)
-	require.NoError(t, err)
-	return parsed
-}
 
 // -----------------------------------------------------------------------------
 // Integration tests against test HTTP server
@@ -80,7 +65,7 @@ func TestFetchProcessMetrics_Unit(t *testing.T) {
 				GetHostMeasurementsExecute(mock.Anything).
 				Return(tc.view, nil, nil).Once()
 
-			result, err := metrics.FetchProcessMetrics(ctx, mockSvc, &baseProcess)
+			result, err := FetchProcessMetrics(ctx, mockSvc, &baseProcess)
 
 			if tc.wantErr {
 				require.Error(t, err)
