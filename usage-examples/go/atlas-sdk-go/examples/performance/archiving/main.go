@@ -1,3 +1,7 @@
+// :snippet-start: archive-collections
+// :state-remove-start: copy
+// See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
+// :state-remove-end: [copy]
 package main
 
 import (
@@ -6,17 +10,10 @@ import (
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/errors"
 	"context"
-	"log"
+	"fmt"
 	"time"
 )
 
-// This program demonstrates an automated approach to:
-// 1. Discover all clusters in an Atlas project
-// 2. Analyze collections within each cluster for archiving candidates
-// 3. Configure Online Archive for eligible collections
-//
-// In a production scenario, you would customize the collection analysis
-// logic in CollectionsForArchiving() to match your specific data patterns.
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
@@ -38,7 +35,7 @@ func main() {
 		errors.ExitWithError("Project ID not found in configuration", nil)
 	}
 
-	log.Println("Starting archive analysis for project:", projectID)
+	fmt.Println("Starting archive analysis for project:", projectID)
 
 	// Step 1: List all clusters in the project
 	clusters, _, err := client.ClustersApi.ListClusters(ctx, projectID).Execute()
@@ -46,42 +43,64 @@ func main() {
 		errors.ExitWithError("Failed to list clusters", err)
 	}
 
-	log.Printf("Found %d clusters to analyze", len(clusters.GetResults()))
+	fmt.Printf("Found %d clusters to analyze", len(clusters.GetResults()))
 
 	// Step 2: Process each cluster
 	failedArchives := 0
 	for _, cluster := range clusters.GetResults() {
 		clusterName := cluster.GetName()
-		log.Printf("Analyzing cluster: %s", clusterName)
+		fmt.Printf("Analyzing cluster: %s", clusterName)
 
 		// Step 3: Find collections suitable for archiving
-		// Note: Partition fields are ordered by query frequency - most frequently
-		// queried field should be first for optimal query performance against
-		// archived data. This significantly impacts cost and performance.
+		// NOTE: In a production scenario, you would customize the collection analysis logic to match your specific data patterns.
 		candidates := archive.CollectionsForArchiving(ctx, client, projectID, clusterName)
-		log.Printf("Found %d collections eligible for archiving in cluster %s",
+		fmt.Printf("Found %d collections eligible for archiving in cluster %s",
 			len(candidates), clusterName)
 
 		// Step 4: Configure online archive for each candidate collection
 		for _, candidate := range candidates {
-			log.Printf("Configuring archive for %s.%s",
+			fmt.Printf("Configuring archive for %s.%s",
 				candidate.DatabaseName, candidate.CollectionName)
 
 			configureErr := archive.ConfigureOnlineArchive(ctx, client, projectID, clusterName, candidate)
 			if configureErr != nil {
-				log.Printf("Failed to configure archive: %v", configureErr)
+				fmt.Printf("Failed to configure archive: %v", configureErr)
 				failedArchives++
 				continue
 			}
 
-			log.Printf("Successfully configured online archive for %s.%s",
+			fmt.Printf("Successfully configured online archive for %s.%s",
 				candidate.DatabaseName, candidate.CollectionName)
 		}
 	}
 
 	if failedArchives > 0 {
-		log.Printf("Warning: %d archive configurations failed", failedArchives)
+		fmt.Printf("Warning: %d archive configurations failed", failedArchives)
 	}
 
-	log.Println("Archive analysis and configuration completed")
+	fmt.Println("Archive analysis and configuration completed")
 }
+
+// :snippet-end: [archive-collections]
+// :state-remove-start: copy
+// NOTE: INTERNAL
+// ** OUTPUT EXAMPLE **
+//
+// Configuration loaded successfully: env=production, baseURL=https://cloud.mongodb.com, orgID=5bfda007553855125605a5cf
+// Starting archive analysis for project: 5f60207f14dfb25d24511201
+// Found 2 clusters to analyze
+// Analyzing cluster: Cluster0
+// Found 2 collections eligible for archiving in cluster Cluster0
+// Configuring archive for sample_analytics.transactions
+// Successfully configured online archive for sample_analytics.transactions
+// Configuring archive for sample_analytics.users
+// Successfully configured online archive for sample_analytics.users
+// Analyzing cluster: Cluster1
+// Found 1 collections eligible for archiving in cluster Cluster1
+// Configuring archive for sample_analytics.orders
+//  Failed to configure archive: validate archive candidate for sample_analytics.transactions: date field transaction_date must be included in partition fields
+//  Configuring archive for sample_logs.application_logs
+//  Failed to configure archive: validate archive candidate for sample_logs.application_logs: date field timestamp must be included in partition fields
+//  Warning: 2 archive configurations failed
+//  Archive analysis and configuration completed
+// :state-remove-end: [copy]

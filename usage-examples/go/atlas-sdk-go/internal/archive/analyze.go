@@ -39,124 +39,14 @@ func DefaultOptions() Options {
 	}
 }
 
-// CollectionsForArchiving identifies collections suitable for archiving based on data patterns
-// func CollectionsForArchivingFull(ctx context.Context, sdk *admin.APIClient,
-//
-//		projectID, clusterName string) ([]Candidate, error) {
-//
-//		// Get all databases in the cluster
-//		databases, err := listDatabases(ctx, sdk, projectID, clusterName)
-//		if err != nil {
-//			return nil, errors.FormatError("list databases", err)
-//		}
-//
-//		var candidates []Candidate
-//
-//		// For each database, analyze collections
-//		for _, dbName := range databases {
-//			// Skip system databases
-//			if dbName == "admin" || dbName == "local" || dbName == "config" {
-//				continue
-//			}
-//
-//			collections, err := listCollections(ctx, sdk, projectID, clusterName, dbName)
-//			if err != nil {
-//				log.Printf("Error listing collections for %s: %v", dbName, err)
-//				continue
-//			}
-//
-//			for _, collName := range collections {
-//				// Get collection stats and metadata
-//				stats, err := getCollectionStats(ctx, sdk, projectID, clusterName, dbName, collName)
-//				if err != nil {
-//					log.Printf("Error getting stats for %s.%s: %v", dbName, collName, err)
-//					continue
-//				}
-//
-//				// Skip collections smaller than threshold (e.g., 1GB)
-//				if stats.Size < 1_000_000_000 {
-//					continue
-//				}
-//
-//				// Analyze data age distribution
-//				dateField, dateFormat, err := identifyDateField(ctx, sdk, projectID, clusterName, dbName, collName)
-//				if err != nil || dateField == "" {
-//					log.Printf("No suitable date field found in %s.%s", dbName, collName)
-//					continue
-//				}
-//
-//				// Calculate appropriate retention period based on data distribution
-//				retentionDays := calculateRetentionDays(stats.AgeDistribution)
-//
-//				// Identify optimal partition fields based on index usage statistics
-//				partitionFields := identifyPartitionFields(ctx, sdk, projectID, clusterName, dbName, collName)
-//
-//				// Create candidate if it meets minimum requirements
-//				if retentionDays >= 30 && len(partitionFields) > 0 {
-//					candidates = append(candidates, Candidate{
-//						DatabaseName:    dbName,
-//						CollectionName:  collName,
-//						DateField:       dateField,
-//						DateFormat:      dateFormat,
-//						RetentionDays:   retentionDays,
-//						PartitionFields: partitionFields,
-//					})
-//				}
-//			}
-//		}
-//
-//		return candidates, nil
-//	}
-//
-// // Helper functions would include:
-//
-//	func listDatabases(ctx context.Context, sdk *admin.APIClient, projectID, clusterName string) ([]string, error) {
-//		// Use Atlas API or direct MongoDB connection to list databases
-//		// ...
-//	}
-//
-//	func listCollections(ctx context.Context, sdk *admin.APIClient, projectID, clusterName, dbName string) ([]string, error) {
-//		// Use Atlas API or direct MongoDB connection to list collections
-//		// ...
-//	}
-//
-//	func getCollectionStats(ctx context.Context, sdk *admin.APIClient, projectID, clusterName, dbName, collName string) (*CollectionStats, error) {
-//		// Get collection statistics including size, document count, etc.
-//		// ...
-//	}
-//
-//	func identifyDateField(ctx context.Context, sdk *admin.APIClient, projectID, clusterName, dbName, collName string) (string, string, error) {
-//		// Sample documents to identify fields with date values
-//		// Determine the format (ISO date, epoch timestamp, etc.)
-//		// ...
-//	}
-//
-//	func calculateRetentionDays(ageDistribution map[string]float64) int {
-//		// Analyze age distribution to determine optimal retention period
-//		// Balance between keeping recent data in live collection and archiving older data
-//		// ...
-//	}
-//
-//	func identifyPartitionFields(ctx context.Context, sdk *admin.APIClient, projectID, clusterName, dbName, collName string) []string {
-//		// Analyze index usage statistics to determine most frequently queried fields
-//		// Review existing indexes to understand query patterns
-//		// ...
-//	}
-//
-// CollectionsForArchiving Simplified function to identify collections suitable for archiving
+// CollectionsForArchiving demonstrates how to identify collections suitable for archiving
 // In a real implementation, you would analyze collection data patterns
+// and determine which collections are eligible based on criteria such as size, age, and access patterns.
+// This function returns a list of candidates that meet the archiving criteria
+// Note: This is a simplified example and should be customized for your specific use case
 func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string) []Candidate {
-
-	// This would normally analyze collection data patterns
-	// Discovers all databases and collections in the cluster
-	// Analyzes collection statistics (size, document count, growth rate)
-	// Identifies date fields for time-based archiving
-	// Calculates appropriate retention periods based on data age distribution
-	// Determines optimal partition fields based on query patterns
-	// Returns only collections that meet minimum size and access pattern requirements for archiving
-
-	// For demo purposes, we'll return some example candidates
+	// For demonstration purposes, we specify example candidates
 	return []Candidate{
 		{
 			DatabaseName:    "sample_analytics",
@@ -178,31 +68,26 @@ func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient,
 }
 
 type ExpireAfterDays struct {
-	// This struct can be extended to include more complex rules if needed
-	// For now, it serves as a placeholder for the data expiration rule
+	// NOTE: this placeholder struct can be extended to include more complex rules if needed
 	ExpireAfterDays int `json:"expireAfterDays,omitempty"`
 }
 
 // ValidateCandidate ensures the archiving candidate meets requirements
 func ValidateCandidate(candidate Candidate, opts Options) error {
-	// Validate required fields
 	if candidate.DatabaseName == "" || candidate.CollectionName == "" {
 		return fmt.Errorf("database name and collection name are required")
 	}
 
-	// Validate retention days
 	if candidate.RetentionDays < opts.MinimumRetentionDays {
 		return fmt.Errorf("retention days must be at least %d", opts.MinimumRetentionDays)
 	}
 
-	// Validate partition fields
 	if len(candidate.PartitionFields) == 0 {
 		return fmt.Errorf("at least one partition field is required")
 	}
 
 	// For date-based archiving, validate date field settings
 	if candidate.DateField != "" {
-		// Validate date format
 		validFormats := map[string]bool{
 			"DATE":              true,
 			"EPOCH_SECONDS":     true,
@@ -234,10 +119,8 @@ func ValidateCandidate(candidate Candidate, opts Options) error {
 func ConfigureOnlineArchive(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string, candidate Candidate) error {
 
-	// Use default options if not specified
 	opts := DefaultOptions()
 
-	// Validate the candidate
 	if err := ValidateCandidate(candidate, opts); err != nil {
 		return errors.FormatError("validate archive candidate",
 			fmt.Sprintf("%s.%s", candidate.DatabaseName, candidate.CollectionName),

@@ -64,7 +64,7 @@ func main() {
 	exportInvoicesToCSV(invoices, outDir, prefix)
 	// :remove-start:
 	// Clean up (internal-only function)
-	if err := fileutils.SafeDelete(outDir); err != nil {
+	if err = fileutils.SafeDelete(outDir); err != nil {
 		log.Printf("Cleanup error: %v", err)
 	}
 	fmt.Println("Deleted generated files from", outDir)

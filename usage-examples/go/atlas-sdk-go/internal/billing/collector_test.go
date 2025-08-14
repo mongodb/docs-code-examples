@@ -1,4 +1,4 @@
-package billing
+package billing_test
 
 import (
 	"context"
