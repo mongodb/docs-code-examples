@@ -31,7 +31,6 @@ jobs:
           go-version-file: '${{ env.PROJECT_PATH }}go.mod'
       - name: Install dependencies
         run: |
-          cd go/
           go mod download
       - name: Run tests
         run: |
