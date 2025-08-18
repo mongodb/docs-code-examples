@@ -41,14 +41,17 @@ func DefaultOptions() Options {
 	}
 }
 
-// CollectionsForArchiving demonstrates how to identify collections suitable for archiving
-// In a real implementation, you would analyze collection data patterns
-// and determine which collections are eligible based on criteria such as size, age, and access patterns.
-// This function returns a list of candidates that meet the archiving criteria
-// Note: This is a simplified example and should be customized for your specific use case
+type ExpireAfterDays struct {
+	// NOTE: this placeholder struct can be extended to include more complex rules if needed
+	ExpireAfterDays int `json:"expireAfterDays,omitempty"`
+}
+
+// CollectionsForArchiving identifies collections suitable for archiving as a simplified example for demonstration purposes.
+// This function returns a list of Candidates that meet the archiving criteria
+// NOTE: In a real implementation, you would determine which collections are eligible based on criteria analysis such as size, age, and access patterns.
 func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string) []Candidate {
-	// For demonstration purposes, we specify example candidates
+	// For demonstration purposes, we specify example Candidates
 	return []Candidate{
 		{
 			DatabaseName:    "sample_analytics",
@@ -67,11 +70,6 @@ func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient,
 			PartitionFields: []string{"service_name", "log_level"},
 		},
 	}
-}
-
-type ExpireAfterDays struct {
-	// NOTE: this placeholder struct can be extended to include more complex rules if needed
-	ExpireAfterDays int `json:"expireAfterDays,omitempty"`
 }
 
 // ValidateCandidate ensures the archiving candidate meets requirements

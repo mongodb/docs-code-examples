@@ -4,40 +4,40 @@ import (
 	"atlas-sdk-go/internal/errors"
 )
 
-// LoadAll loads secrets and config
-// If configPath is empty, uses environment-specific loading
-// If explicitEnv is provided, it overrides the APP_ENV environment variable
-func LoadAll(configPath string, explicitEnv string) (*Secrets, *Config, error) {
-	if configPath == "" {
-		// Use environment-based loading
-		appCtx, err := LoadAppContext(explicitEnv, false) // Use non-strict validation by default
-		if err != nil {
-			return nil, nil, err
-		}
-		return appCtx.Secrets, appCtx.Config, nil
-	}
-
-	// Legacy path-specific loading
-	s, err := LoadSecrets()
-	if err != nil {
-		return nil, nil, errors.WithContext(err, "loading secrets")
-	}
-
-	c, err := LoadConfig(configPath)
-	if err != nil {
-		return nil, nil, errors.WithContext(err, "loading config")
-	}
-
-	return s, c, nil
+// EnvironmentNames defines valid runtime environments
+var allowedEnvironments = map[Environment]struct{}{
+	envDevelopment: {},
+	envStaging:     {},
+	envProduction:  {},
 }
 
-// ValidateEnvironment checks if the provided environment is valid
 func ValidateEnvironment(env string) bool {
-	validEnvs := map[string]bool{
-		"development": true,
-		"staging":     true,
-		"production":  true,
-		"test":        true,
+	_, ok := allowedEnvironments[Environment(env)]
+	return ok
+}
+
+// LoadAll loads configuration for a specific environment
+//
+// Parameters:
+//   - envName: Environment name (dev/staging/prod/test); overrides APP_ENV if provided
+//   - configPath: Optional explicit config file path; if empty, uses environment-based path
+//
+// Returns secrets, config and any errors encountered during loading
+func LoadAll(envName Environment, configPath string) (Secrets, Config, error) {
+	if configPath == "" {
+		appCtx, err := LoadAppContext(envName)
+		if err != nil {
+			return Secrets{}, Config{}, err
+		}
+		return appCtx.secrets, appCtx.config, nil // return values, not pointers
 	}
-	return validEnvs[env]
+	s, err := LoadSecrets()
+	if err != nil {
+		return Secrets{}, Config{}, errors.WithContext(err, "loading secrets")
+	}
+	c, err := LoadConfig(configPath)
+	if err != nil {
+		return Secrets{}, Config{}, errors.WithContext(err, "loading config")
+	}
+	return s, c, nil // return values, not pointers
 }
