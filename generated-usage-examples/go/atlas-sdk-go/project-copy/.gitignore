@@ -1,15 +1,18 @@
-# Secrets
+# Secrets (keep example)
 .env
 !.env.example
 .env.development
 .env.production
-configs/config.example.json
-!configs/config.development.json
-!configs/config.production.json
+.env.test
 
+# config files (keep example)
+configs
+!configs/config.example.json
+
+# temporary files
 tmp
+temp
 
-
-# Logs
+# downloaded logs
 *.log
 *.gz

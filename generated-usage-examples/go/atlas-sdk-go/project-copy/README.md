@@ -31,7 +31,7 @@ and improvements to existing code.
 │   ├── monitoring/
 │   └── performance/
 ├── configs              # Atlas configuration template
-│   └── config.json
+│   └── config.example.json
 ├── internal             # Shared utilities and helpers
 │   ├── archive/
 │   ├── auth/
@@ -59,19 +59,17 @@ and improvements to existing code.
 
 ## Setting Environment Variables
 
-1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, to create a `.env.development` file for your dev environment: 
+1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, create a `.env.development` file for your dev environment: 
    ```dotenv
    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your_service_account_id
    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your_service_account_secret
-   ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads"
-   CONFIG_PATH="/configs"
-   APP_ENV="dev"
+   ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
    ```
    > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
    > instead of environment variables. 
    > See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
 
-2. Configure Atlas details in `configs/config.json`:
+2. Create a `config.<environment>.json` file in the `configs/` directory with your Atlas configuration details. For example, create a `configs/config.development.json` for your dev environment:
    ```json
    {
      "MONGODB_ATLAS_BASE_URL": "<optional-base-url>",

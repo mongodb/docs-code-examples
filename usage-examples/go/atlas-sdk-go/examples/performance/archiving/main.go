@@ -21,16 +21,18 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: could not load .env file: %v", err)
+	}
 
-	envName := config.Environment("")        // Use empty string to load from environment variables
-	configPath := "configs/config.test.json" // Optional explicit config file path; if empty, uses environment-based path
+	envName := config.Environment("production")
+	configPath := "configs/config.production.json"
 	secrets, cfg, err := config.LoadAll(envName, configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
 
-	client, err := auth.NewClient(ctx, &cfg, &secrets) // Pass pointers
+	client, err := auth.NewClient(ctx, cfg, secrets)
 	if err != nil {
 		log.Fatalf("Failed to initialize authentication client: %v", err)
 	}
@@ -42,49 +44,51 @@ func main() {
 
 	fmt.Printf("Starting archive analysis for project: %s\n", projectID)
 
-	// Step 1: List all clusters in the project
+	// List all clusters in the project
 	clusters, _, err := client.ClustersApi.ListClusters(ctx, projectID).Execute()
 	if err != nil {
 		log.Fatalf("Failed to list clusters: %v", err)
 	}
 
-	fmt.Printf("Found %d clusters to analyze\n", len(clusters.GetResults()))
+	fmt.Printf("\nFound %d clusters to analyze\n", len(clusters.GetResults()))
 
-	// Step 2: Process each cluster
+	// Process each cluster
 	failedArchives := 0
+	totalCandidates := 0
 	for _, cluster := range clusters.GetResults() {
 		clusterName := cluster.GetName()
-		fmt.Printf("Analyzing cluster: %s\n", clusterName)
+		fmt.Printf("\n=== Analyzing cluster: %s ===", clusterName)
 
-		// Step 3: Find collections suitable for archiving
-		// NOTE: This example passes example database/collections.
-		// In a real production scenario, you would customize the collection analysis logic to match your specific data patterns.
+		// Find collections suitable for archiving
+		// NOTE: This function passes example database/collection names.
+		// In a real production scenario, you would analyze data patterns and customize the selection logic.
 		candidates := archive.CollectionsForArchiving(ctx, client, projectID, clusterName)
-		fmt.Printf("\nFound %d collections eligible for archiving in cluster %s",
-			len(candidates), clusterName)
+		totalCandidates += len(candidates)
+		fmt.Printf("\nFound %d collections eligible for archiving in cluster %s\n",
+			totalCandidates, clusterName)
 
 		// Step 4: Configure online archive for each candidate collection
 		for _, candidate := range candidates {
-			fmt.Printf("\nConfiguring archive for %s.%s ",
+			fmt.Printf("- Configuring archive for %s.%s\n",
 				candidate.DatabaseName, candidate.CollectionName)
 
 			configureErr := archive.ConfigureOnlineArchive(ctx, client, projectID, clusterName, candidate)
 			if configureErr != nil {
-				fmt.Printf("\nFailed to configure archive: %v", configureErr)
+				fmt.Printf("  Failed to configure archive: %v\n", configureErr)
 				failedArchives++
 				continue
 			}
 
-			fmt.Printf("\nSuccessfully configured online archive for %s.%s ",
+			fmt.Printf("  Successfully configured online archive for %s.%s\n",
 				candidate.DatabaseName, candidate.CollectionName)
 		}
 	}
 
 	if failedArchives > 0 {
-		fmt.Printf("Warning: %d archive configurations failed\n", failedArchives)
+		fmt.Printf("\nWARNING: %d of %d archive configurations failed\n", failedArchives, totalCandidates)
 	}
 
-	fmt.Println("Archive analysis and configuration completed")
+	fmt.Println("Archive analysis and configuration completed.")
 }
 
 // :snippet-end: [archive-collections]
@@ -92,21 +96,24 @@ func main() {
 // NOTE: INTERNAL
 // ** OUTPUT EXAMPLE **
 //
-// Configuration loaded successfully: env=production, baseURL=https://cloud.mongodb.com, orgID=5bfda007553855125605a5cf
 // Starting archive analysis for project: 5f60207f14dfb25d24511201
-// Found 2 clusters to analyze
-// Analyzing cluster: Cluster0
-// Found 2 collections eligible for archiving in cluster Cluster0
-// Configuring archive for sample_analytics.transactions
-// Successfully configured online archive for sample_analytics.transactions
-// Configuring archive for sample_analytics.users
-// Successfully configured online archive for sample_analytics.users
-// Analyzing cluster: Cluster1
-// Found 1 collections eligible for archiving in cluster Cluster1
-// Configuring archive for sample_analytics.orders
-//  Failed to configure archive: validate archive candidate for sample_analytics.transactions: date field transaction_date must be included in partition fields
-//  Configuring archive for sample_logs.application_logs
-//  Failed to configure archive: validate archive candidate for sample_logs.application_logs: date field timestamp must be included in partition fields
-//  Warning: 2 archive configurations failed
-//  Archive analysis and configuration completed
+//
+//Found 2 clusters to analyze
+//
+//=== Analyzing cluster: Cluster0 ===
+//Found 2 collections eligible for archiving in cluster Cluster0
+//- Configuring archive for sample_analytics.transactions
+//Failed to configure archive: validate archive candidate for sample_analytics.transactions: date field transaction_date must be included in partition fields
+//- Configuring archive for sample_logs.application_logs
+//Failed to configure archive: validate archive candidate for sample_logs.application_logs: date field timestamp must be included in partition fields
+//
+//=== Analyzing cluster: AtlasCluster ===
+//Found 4 collections eligible for archiving in cluster AtlasCluster
+//- Configuring archive for sample_analytics.transactions
+//Failed to configure archive: validate archive candidate for sample_analytics.transactions: date field transaction_date must be included in partition fields
+//- Configuring archive for sample_logs.application_logs
+//Failed to configure archive: validate archive candidate for sample_logs.application_logs: date field timestamp must be included in partition fields
+//
+//WARNING: 4 of 4 archive configurations failed
+//Archive analysis and configuration completed.
 // :state-remove-end: [copy]

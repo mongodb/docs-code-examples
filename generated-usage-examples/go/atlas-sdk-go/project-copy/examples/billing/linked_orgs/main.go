@@ -14,17 +14,19 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load() // or godotenv.Load(".env.development")
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: could not load .env file: %v", err)
+	}
 
 	ctx := context.Background()
-	envName := config.Environment("test")    // Cast string to config.Environment
-	configPath := "configs/config.test.json" // Optional explicit config file path; if empty, uses environment-based path
+	envName := config.Environment("production")
+	configPath := "configs/config.production.json"
 	secrets, cfg, err := config.LoadAll(envName, configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
 
-	client, err := auth.NewClient(ctx, cfg, secrets) // Pass pointers
+	client, err := auth.NewClient(ctx, cfg, secrets)
 	if err != nil {
 		log.Fatalf("Failed to initialize authentication client: %v", err)
 	}
