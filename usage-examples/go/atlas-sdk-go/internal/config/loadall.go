@@ -1,7 +1,7 @@
 package config
 
 import (
-	"atlas-sdk-go/internal/errors"
+	"fmt"
 )
 
 // EnvironmentNames defines valid runtime environments
@@ -16,28 +16,29 @@ func ValidateEnvironment(env string) bool {
 	return ok
 }
 
-// LoadAll loads configuration for a specific environment
-//
+// LoadAll loads the application configuration and secrets based on the provided environment name and optional config file path.
+// If configPath is empty, it defaults to "configs/config.{env}.json" based on the environment name.
+// If envName is empty, it defaults to "configs/config.json".
 // Parameters:
-//   - envName: Environment name (dev/staging/prod/test); overrides APP_ENV if provided
-//   - configPath: Optional explicit config file path; if empty, uses environment-based path
+//   - envName: Environment to load configuration for (development, staging, production)
+//   - configPath: Optional explicit path to the configuration file
 //
-// Returns secrets, config and any errors encountered during loading
+// Returns:
+//   - Secrets: Loaded secrets
+//   - Config: Loaded application configuration
+//   - error: Any error encountered during loading
 func LoadAll(envName Environment, configPath string) (Secrets, Config, error) {
-	if configPath == "" {
-		appCtx, err := LoadAppContext(envName)
-		if err != nil {
-			return Secrets{}, Config{}, err
-		}
-		return appCtx.secrets, appCtx.config, nil // return values, not pointers
+	var configFile string
+	if configPath != "" {
+		configFile = configPath
+	} else if envName != "" {
+		configFile = fmt.Sprintf("configs/config.%s.json", envName)
+	} else {
+		configFile = "configs/config.json"
 	}
-	s, err := LoadSecrets()
+	appConfig, err := LoadAppConfig(configFile, envName)
 	if err != nil {
-		return Secrets{}, Config{}, errors.WithContext(err, "loading secrets")
+		return Secrets{}, Config{}, err
 	}
-	c, err := LoadConfig(configPath)
-	if err != nil {
-		return Secrets{}, Config{}, errors.WithContext(err, "loading config")
-	}
-	return s, c, nil // return values, not pointers
+	return appConfig.secrets, appConfig.config, nil
 }

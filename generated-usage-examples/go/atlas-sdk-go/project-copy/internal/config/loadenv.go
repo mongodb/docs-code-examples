@@ -1,22 +1,37 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"os"
-	"strings"
-
-	"atlas-sdk-go/internal/errors"
 )
 
-// Environment variable names for service account credentials
+// Environment variable constants
+const (
+	envServiceAccountID     = "MONGODB_ATLAS_SERVICE_ACCOUNT_ID"
+	envServiceAccountSecret = "MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"
+)
+
+var errMissingEnv = errors.New("missing environment variable")
+
+// Secrets contains sensitive configuration loaded from environment variables
 type Secrets struct {
-	ServiceAccountID     string
-	ServiceAccountSecret string
+	serviceAccountID     string
+	serviceAccountSecret string
 }
 
-// LoadSecrets loads the required secrets from environment variables.
-// It returns a Secrets struct or an error if any required variable is missing.
-func LoadSecrets() (*Secrets, error) {
-	s := &Secrets{}
+func (s Secrets) ServiceAccountID() string {
+	return s.serviceAccountID
+}
+
+func (s Secrets) ServiceAccountSecret() string {
+	return s.serviceAccountSecret
+}
+
+// LoadSecrets loads sensitive configuration from environment variables
+// Returns error if any required environment variable is missing
+func LoadSecrets() (Secrets, error) {
+	s := Secrets{}
 	var missing []string
 
 	look := func(key string, dest *string) {
@@ -27,13 +42,12 @@ func LoadSecrets() (*Secrets, error) {
 		}
 	}
 
-	look(EnvSAClientID, &s.ServiceAccountID)
-	look(EnvSAClientSecret, &s.ServiceAccountSecret)
+	look(envServiceAccountID, &s.serviceAccountID)
+	look(envServiceAccountSecret, &s.serviceAccountSecret)
 
 	if len(missing) > 0 {
-		return nil, &errors.ValidationError{
-			Message: "missing required environment variables: " + strings.Join(missing, ", "),
-		}
+		return Secrets{}, fmt.Errorf("load secrets: %w (missing: %v)", errMissingEnv, missing)
 	}
 	return s, nil
 }
+

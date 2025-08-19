@@ -4,31 +4,36 @@ package main
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"log"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/data/export"
-	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/fileutils"
 )
 
 func main() {
-	configPath := ""  // Use default config path for environment
-	explicitEnv := "" // Use default environment
-	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
-	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: could not load .env file: %v", err)
 	}
 
 	ctx := context.Background()
+	envName := config.Environment("production")
+	configPath := "configs/config.production.json"
+	secrets, cfg, err := config.LoadAll(envName, configPath)
+	if err != nil {
+		log.Fatalf("Failed to load configuration %v", err)
+	}
+
+	client, err := auth.NewClient(ctx, cfg, secrets)
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
+
 	p := &admin.ListInvoicesApiParams{
 		OrgId: cfg.OrgID,
 	}
@@ -37,7 +42,7 @@ func main() {
 
 	details, err := billing.CollectLineItemBillingData(ctx, client.InvoicesApi, client.OrganizationsApi, p.OrgId, nil)
 	if err != nil {
-		errors.ExitWithError(fmt.Sprintf("Failed to retrieve pending invoices for %s", p.OrgId), err)
+		log.Fatalf("Failed to retrieve pending invoices for %s: %v", p.OrgId, err)
 	}
 
 	if len(details) == 0 {
@@ -50,26 +55,33 @@ func main() {
 	outDir := "invoices"
 	prefix := fmt.Sprintf("pending_%s", p.OrgId)
 
-	exportInvoicesToJSON(details, outDir, prefix)
-	exportInvoicesToCSV(details, outDir, prefix)
+	err = exportInvoicesToJSON(details, outDir, prefix)
+	if err != nil {
+		log.Fatalf("Failed to export invoices to JSON: %v", err)
+	}
+	err = exportInvoicesToCSV(details, outDir, prefix)
+	if err != nil {
+		log.Fatalf("Failed to export invoices to CSV: %v", err)
+	}
 }
 
-func exportInvoicesToJSON(details []billing.Detail, outDir, prefix string) {
+func exportInvoicesToJSON(details []billing.Detail, outDir, prefix string) error {
 	jsonPath, err := fileutils.GenerateOutputPath(outDir, prefix, "json")
 	if err != nil {
-		errors.ExitWithError("Failed to generate JSON output path", err)
+		return fmt.Errorf("failed to generate JSON output path: %v", err)
 	}
 
 	if err := export.ToJSON(details, jsonPath); err != nil {
-		errors.ExitWithError("Failed to write JSON file", err)
+		return fmt.Errorf("failed to write JSON file: %v", err)
 	}
 	fmt.Printf("Exported billing data to %s\n", jsonPath)
+	return nil
 }
 
-func exportInvoicesToCSV(details []billing.Detail, outDir, prefix string) {
+func exportInvoicesToCSV(details []billing.Detail, outDir, prefix string) error {
 	csvPath, err := fileutils.GenerateOutputPath(outDir, prefix, "csv")
 	if err != nil {
-		errors.ExitWithError("Failed to generate CSV output path", err)
+		return fmt.Errorf("failed to generate CSV output path: %v", err)
 	}
 
 	// Set the headers and mapped rows for the CSV export
@@ -91,8 +103,9 @@ func exportInvoicesToCSV(details []billing.Detail, outDir, prefix string) {
 		}
 	})
 	if err != nil {
-		errors.ExitWithError("Failed to write CSV file", err)
+		return fmt.Errorf("failed to write CSV file: %v", err)
 	}
 	fmt.Printf("Exported billing data to %s\n", csvPath)
+	return nil
 }
 

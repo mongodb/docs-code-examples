@@ -8,27 +8,28 @@ import (
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
-	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/fileutils"
 	"atlas-sdk-go/internal/logs"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 func main() {
-	configPath := ""  // Use default config path for environment
-	explicitEnv := "" // Use default environment
-	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
-	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
-	}
+	_ = godotenv.Load() // or godotenv.Load(".env.development")
 
 	ctx := context.Background()
+	envName := config.Environment("test")    // Cast string to config.Environment
+	configPath := "configs/config.test.json" // Optional explicit config file path; if empty, uses environment-based path
+	secrets, cfg, err := config.LoadAll(envName, configPath)
+	if err != nil {
+		log.Fatalf("Failed to load configuration %v", err)
+	}
+
+	client, err := auth.NewClient(ctx, cfg, secrets) // Pass pointers
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
 
 	// Fetch logs with the provided parameters
 	p := &admin.GetHostLogsApiParams{
@@ -40,7 +41,7 @@ func main() {
 		cfg.ProjectID, cfg.HostName, p.LogName)
 	rc, err := logs.FetchHostLogs(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		errors.ExitWithError("Failed to fetch logs", err)
+		log.Fatalf("Failed to fetch logs: %v", err)
 	}
 	defer fileutils.SafeClose(rc)
 
@@ -50,22 +51,22 @@ func main() {
 	prefix := fmt.Sprintf("%s_%s", p.HostName, p.LogName)
 	gzPath, err := fileutils.GenerateOutputPath(outDir, prefix, "gz")
 	if err != nil {
-		errors.ExitWithError("Failed to generate GZ output path", err)
+		log.Fatalf("Failed to generate GZ output path: %v", err)
 	}
 	txtPath, err := fileutils.GenerateOutputPath(outDir, prefix, "txt")
 	if err != nil {
-		errors.ExitWithError("Failed to generate TXT output path", err)
+		log.Fatalf("Failed to generate TXT output path: %v", err)
 	}
 
 	// Save compressed logs
 	if err := fileutils.WriteToFile(rc, gzPath); err != nil {
-		errors.ExitWithError("Failed to save compressed logs", err)
+		log.Fatalf("Failed to save compressed logs: %v", err)
 	}
 	fmt.Println("Saved compressed log to", gzPath)
 
 	// Decompress logs
 	if err := fileutils.DecompressGzip(gzPath, txtPath); err != nil {
-		errors.ExitWithError("Failed to decompress logs", err)
+		log.Fatalf("Failed to decompress logs: %v", err)
 	}
 	fmt.Println("Uncompressed log to", txtPath)
 }

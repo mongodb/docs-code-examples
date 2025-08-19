@@ -5,31 +5,32 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"atlas-sdk-go/internal/errors"
+	"log"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 
 	"atlas-sdk-go/internal/metrics"
 )
 
 func main() {
-	configPath := "" // Use default config path for environment
-	explicitEnv := "production"
-	secrets, cfg, err := config.LoadAll(configPath, explicitEnv)
-	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
-	}
+	_ = godotenv.Load()
 
 	ctx := context.Background()
+	envName := config.Environment("test")    // Cast string to config.Environment
+	configPath := "configs/config.test.json" // Optional explicit config file path; if empty, uses environment-based path
+	secrets, cfg, err := config.LoadAll(envName, configPath)
+	if err != nil {
+		log.Fatalf("Failed to load configuration %v", err)
+	}
+
+	client, err := auth.NewClient(ctx, cfg, secrets) // Pass pointers
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
 
 	// Fetch process metrics with the provided parameters
 	p := &admin.GetHostMeasurementsApiParams{
@@ -48,13 +49,13 @@ func main() {
 
 	view, err := metrics.FetchProcessMetrics(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		errors.ExitWithError("Failed to fetch process metrics", err)
+		log.Fatalf("Failed to fetch process metrics: %v", err)
 	}
 
 	// Output metrics
 	out, err := json.MarshalIndent(view, "", "  ")
 	if err != nil {
-		errors.ExitWithError("Failed to format metrics data", err)
+		log.Fatalf("Failed to format metrics data: %v", err)
 	}
 	fmt.Println(string(out))
 }

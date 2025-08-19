@@ -50,3 +50,13 @@ func LoadSecrets() (Secrets, error) {
 	}
 	return s, nil
 }
+
+// :remove-start:
+
+// NewSecrets creates a new Secrets instance with the provided service account ID and secret
+// Used for testing or to set secrets programmatically.
+func NewSecrets(id, secret string) Secrets {
+	return Secrets{serviceAccountID: id, serviceAccountSecret: secret}
+}
+
+// :remove-end:

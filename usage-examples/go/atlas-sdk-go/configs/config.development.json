@@ -5,8 +5,4 @@
   "ATLAS_PROJECT_ID": "5e2211c17a3e5a48f5497de3",
   "ATLAS_PROJECT_NAME": "Customer Portal - Dev",
   "ATLAS_PROCESS_ID": "CustomerPortalDev-shard-00-00.ajlj3.mongodb.net:27017",
-  "CLOUD_PROVIDER": "AWS",
-  "AUTO_SCALING_DISK_GB": true,
-  "AUTO_SCALING_COMPUTE": true,
-  "DISK_SIZE_GB": 10000
 }

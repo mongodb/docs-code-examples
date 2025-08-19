@@ -28,7 +28,7 @@ func main() {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
 
-	client, err := auth.NewClient(ctx, &cfg, &secrets) // Pass pointers
+	client, err := auth.NewClient(ctx, cfg, secrets) // Pass pointers
 	if err != nil {
 		log.Fatalf("Failed to initialize authentication client: %v", err)
 	}
