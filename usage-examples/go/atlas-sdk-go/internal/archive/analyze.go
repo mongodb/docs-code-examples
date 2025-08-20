@@ -1,10 +1,11 @@
 package archive
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"context"
 	"fmt"
 	"time"
+
+	"atlas-sdk-go/internal/errors"
 
 	"atlas-sdk-go/internal/clusters"
 
@@ -36,44 +37,13 @@ type Options struct {
 	ArchiveSchedule string
 }
 
-// DefaultOptions provides sensible defaults for archiving
+// DefaultOptions provides defaults for archiving
 func DefaultOptions() Options {
 	return Options{
 		DefaultRetentionMultiplier: 2,
 		MinimumRetentionDays:       30,
 		EnableDataExpiration:       true,
 		ArchiveSchedule:            "DAILY",
-	}
-}
-
-type ExpireAfterDays struct {
-	// NOTE: this placeholder struct can be extended to include more complex rules if needed
-	ExpireAfterDays int `json:"expireAfterDays,omitempty"`
-}
-
-// CollectionsForArchivingExample identifies collections suitable for archiving as a simplified example for demonstration purposes.
-// This function returns a list of Candidates that meet the archiving criteria
-// NOTE: In a real implementation, you would determine which collections are eligible based on criteria analysis such as size, age, and access patterns.
-func CollectionsForArchivingExample(ctx context.Context, sdk *admin.APIClient,
-	projectID, clusterName string) []Candidate {
-	// For demonstration purposes, we specify example Candidates
-	return []Candidate{
-		{
-			DatabaseName:    "sample_analytics",
-			CollectionName:  "transactions",
-			DateField:       "transaction_date",
-			DateFormat:      "DATE",
-			RetentionDays:   90,
-			PartitionFields: []string{"customer_id", "merchant"},
-		},
-		{
-			DatabaseName:    "sample_logs",
-			CollectionName:  "application_logs",
-			DateField:       "timestamp",
-			DateFormat:      "EPOCH_MILLIS",
-			RetentionDays:   30,
-			PartitionFields: []string{"service_name", "log_level"},
-		},
 	}
 }
 
@@ -120,7 +90,9 @@ func ValidateCandidate(candidate Candidate, opts Options) error {
 	return nil
 }
 
-// ConfigureOnlineArchive configures online archive for a collection
+// ConfigureOnlineArchive configures online archive for a collection in a MongoDB Atlas cluster.
+// It validates the candidate, sets up partition fields, and creates the archive schedule.
+// If data expiration is enabled, it also configures the data expiration rule based on retention days
 func ConfigureOnlineArchive(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string, candidate Candidate) error {
 
@@ -220,7 +192,7 @@ func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient, projectI
 
 	// Set the simple demo criteria for archiving collections, skipping internal databases.
 	// NOTE: For this example, we assume collections with more than 100,000 documents are candidates
-	// for archiving, but this threshold can be adjusted based on your requirements.
+	// for archiving.
 	const docThreshold = 100000
 	for _, dbName := range dbNames {
 		if dbName == "admin" || dbName == "local" || dbName == "config" {

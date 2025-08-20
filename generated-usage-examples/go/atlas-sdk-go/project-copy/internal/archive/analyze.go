@@ -3,10 +3,16 @@ package archive
 import (
 	"context"
 	"fmt"
-
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+	"time"
 
 	"atlas-sdk-go/internal/errors"
+
+	"atlas-sdk-go/internal/clusters"
+
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Candidate represents a collection eligible for archiving
@@ -31,44 +37,13 @@ type Options struct {
 	ArchiveSchedule string
 }
 
-// DefaultOptions provides sensible defaults for archiving
+// DefaultOptions provides defaults for archiving
 func DefaultOptions() Options {
 	return Options{
 		DefaultRetentionMultiplier: 2,
 		MinimumRetentionDays:       30,
 		EnableDataExpiration:       true,
 		ArchiveSchedule:            "DAILY",
-	}
-}
-
-type ExpireAfterDays struct {
-	// NOTE: this placeholder struct can be extended to include more complex rules if needed
-	ExpireAfterDays int `json:"expireAfterDays,omitempty"`
-}
-
-// CollectionsForArchiving identifies collections suitable for archiving as a simplified example for demonstration purposes.
-// This function returns a list of Candidates that meet the archiving criteria
-// NOTE: In a real implementation, you would determine which collections are eligible based on criteria analysis such as size, age, and access patterns.
-func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient,
-	projectID, clusterName string) []Candidate {
-	// For demonstration purposes, we specify example Candidates
-	return []Candidate{
-		{
-			DatabaseName:    "sample_analytics",
-			CollectionName:  "transactions",
-			DateField:       "transaction_date",
-			DateFormat:      "DATE",
-			RetentionDays:   90,
-			PartitionFields: []string{"customer_id", "merchant"},
-		},
-		{
-			DatabaseName:    "sample_logs",
-			CollectionName:  "application_logs",
-			DateField:       "timestamp",
-			DateFormat:      "EPOCH_MILLIS",
-			RetentionDays:   30,
-			PartitionFields: []string{"service_name", "log_level"},
-		},
 	}
 }
 
@@ -115,7 +90,9 @@ func ValidateCandidate(candidate Candidate, opts Options) error {
 	return nil
 }
 
-// ConfigureOnlineArchive configures online archive for a collection
+// ConfigureOnlineArchive configures online archive for a collection in a MongoDB Atlas cluster.
+// It validates the candidate, sets up partition fields, and creates the archive schedule.
+// If data expiration is enabled, it also configures the data expiration rule based on retention days
 func ConfigureOnlineArchive(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string, candidate Candidate) error {
 
@@ -178,4 +155,71 @@ func ConfigureOnlineArchive(ctx context.Context, sdk *admin.APIClient,
 	}
 
 	return nil
+}
+
+// CollectionsForArchiving retrieves collections from a MongoDB Atlas cluster that are candidates for archiving.
+// It connects to the cluster using the official MongoDB Go Driver and lists collections based on specified criteria.
+// NOTE: This is a simplified example; in a real implementation, you would analyze collections based on size, age,
+// access patterns, and other factors to determine candidates for archiving.
+func CollectionsForArchiving(ctx context.Context, sdk *admin.APIClient, projectID, clusterName string) []Candidate {
+	candidates := make([]Candidate, 0)
+
+	// Get the SRV connection string for the cluster
+	srv, err := clusters.GetClusterSRVConnectionString(ctx, sdk, projectID, clusterName)
+	if err != nil || srv == "" {
+		return candidates
+	}
+
+	ctxConn, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	clientOpts := options.Client().ApplyURI(srv).
+		SetServerSelectionTimeout(2 * time.Second).
+		SetConnectTimeout(2 * time.Second)
+
+	// Connect to the cluster using the official MongoDB Go Driver
+	client, err := mongo.Connect(ctxConn, clientOpts)
+	if err != nil {
+		return candidates
+	}
+	defer func() { _ = client.Disconnect(context.Background()) }()
+
+	_ = client.Ping(ctxConn, nil)
+
+	dbNames, err := client.ListDatabaseNames(ctx, bson.D{})
+	if err != nil {
+		return candidates
+	}
+
+	// Set the simple demo criteria for archiving collections, skipping internal databases.
+	// NOTE: For this example, we assume collections with more than 100,000 documents are candidates
+	// for archiving.
+	const docThreshold = 100000
+	for _, dbName := range dbNames {
+		if dbName == "admin" || dbName == "local" || dbName == "config" {
+			continue
+		}
+		collNames, err := client.Database(dbName).ListCollectionNames(ctx, bson.D{})
+		if err != nil {
+			continue
+		}
+		for _, collName := range collNames {
+			coll := client.Database(dbName).Collection(collName)
+			// Use EstimatedDocumentCount for speed
+			count, err := coll.EstimatedDocumentCount(ctx)
+			if err != nil {
+				continue
+			}
+			if count >= docThreshold {
+				candidates = append(candidates, Candidate{
+					DatabaseName:    dbName,
+					CollectionName:  collName,
+					DateField:       "createdAt",
+					DateFormat:      "DATE",
+					RetentionDays:   90,
+					PartitionFields: []string{"createdAt"},
+				})
+			}
+		}
+	}
+	return candidates
 }

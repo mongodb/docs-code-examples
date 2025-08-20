@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"atlas-sdk-go/internal/archive"
@@ -15,20 +16,19 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-	defer cancel()
-
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: could not load .env file: %v", err)
+	envFile := ".env.production"
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	envName := config.Environment("production")
-	configPath := "configs/config.production.json"
-	secrets, cfg, err := config.LoadAll(envName, configPath)
+	configPath := os.Getenv("CONFIG_FILE")
+	secrets, cfg, err := config.LoadAll(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
 	client, err := auth.NewClient(ctx, cfg, secrets)
 	if err != nil {
 		log.Fatalf("Failed to initialize authentication client: %v", err)
@@ -41,7 +41,7 @@ func main() {
 
 	fmt.Printf("Starting archive analysis for project: %s\n", projectID)
 
-	// List all clusters in the project
+	// Get all clusters in the project
 	clusters, _, err := client.ClustersApi.ListClusters(ctx, projectID).Execute()
 	if err != nil {
 		log.Fatalf("Failed to list clusters: %v", err)
@@ -49,22 +49,22 @@ func main() {
 
 	fmt.Printf("\nFound %d clusters to analyze\n", len(clusters.GetResults()))
 
-	// Process each cluster
+	// Connect to each cluster and analyze collections for archiving
 	failedArchives := 0
 	totalCandidates := 0
 	for _, cluster := range clusters.GetResults() {
 		clusterName := cluster.GetName()
 		fmt.Printf("\n=== Analyzing cluster: %s ===", clusterName)
 
-		// Find collections suitable for archiving
-		// NOTE: This function passes example database/collection names.
-		// In a real production scenario, you would analyze data patterns and customize the selection logic.
+		// Find collections suitable for archiving based on specific criteria.
+		// NOTE: The actual implementation of this function would involve more complex logic
+		// to determine which collections are eligible for archiving.
 		candidates := archive.CollectionsForArchiving(ctx, client, projectID, clusterName)
 		totalCandidates += len(candidates)
 		fmt.Printf("\nFound %d collections eligible for archiving in cluster %s\n",
-			totalCandidates, clusterName)
+			len(candidates), clusterName)
 
-		// Step 4: Configure online archive for each candidate collection
+		// Configure online archive for each candidate collection
 		for _, candidate := range candidates {
 			fmt.Printf("- Configuring archive for %s.%s\n",
 				candidate.DatabaseName, candidate.CollectionName)

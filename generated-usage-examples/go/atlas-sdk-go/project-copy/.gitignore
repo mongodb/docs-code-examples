@@ -1,9 +1,9 @@
 # Secrets (keep example)
-.env
+tmp/.env
 !.env.example
-.env.development
+tmp/.env.development
 .env.production
-.env.test
+tmp/.env.test
 
 # config files (keep example)
 configs

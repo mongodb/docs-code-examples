@@ -6,7 +6,6 @@ import (
 	"os"
 )
 
-// Environment variable constants
 const (
 	envServiceAccountID     = "MONGODB_ATLAS_SERVICE_ACCOUNT_ID"
 	envServiceAccountSecret = "MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET"

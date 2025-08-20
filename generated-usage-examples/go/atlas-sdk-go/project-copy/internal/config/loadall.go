@@ -2,43 +2,31 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
+	"atlas-sdk-go/internal/errors"
 )
 
-// EnvironmentNames defines valid runtime environments
-var allowedEnvironments = map[Environment]struct{}{
-	envDevelopment: {},
-	envStaging:     {},
-	envProduction:  {},
-}
+const defaultConfigDir = "configs"
 
-func ValidateEnvironment(env string) bool {
-	_, ok := allowedEnvironments[Environment(env)]
-	return ok
-}
-
-// LoadAll loads the application configuration and secrets based on the provided environment name and optional config file path.
-// If configPath is empty, it defaults to "configs/config.{env}.json" based on the environment name.
-// If envName is empty, it defaults to "configs/config.json".
-// Parameters:
-//   - envName: Environment to load configuration for (development, staging, production)
-//   - configPath: Optional explicit path to the configuration file
-//
-// Returns:
-//   - Secrets: Loaded secrets
-//   - Config: Loaded application configuration
-//   - error: Any error encountered during loading
-func LoadAll(envName Environment, configPath string) (Secrets, Config, error) {
-	var configFile string
-	if configPath != "" {
-		configFile = configPath
-	} else if envName != "" {
-		configFile = fmt.Sprintf("configs/config.%s.json", envName)
-	} else {
-		configFile = "configs/config.json"
+// LoadAll loads both secrets and configuration from the specified paths.
+func LoadAll(configPath string) (Secrets, Config, error) {
+	if strings.TrimSpace(configPath) == "" {
+		configPath = fmt.Sprintf("%s/config.json", defaultConfigDir) // Default path if not specified in environment
 	}
-	appConfig, err := LoadAppConfig(configFile, envName)
+
+	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
+		return Secrets{}, Config{}, &errors.NotFoundError{Resource: "configuration file", ID: configPath}
+	}
+
+	secrets, err := LoadSecrets()
 	if err != nil {
-		return Secrets{}, Config{}, err
+		return Secrets{}, Config{}, errors.WithContext(err, "loading secrets")
 	}
-	return appConfig.secrets, appConfig.config, nil
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		return Secrets{}, Config{}, errors.WithContext(err, "loading config")
+	}
+	return secrets, cfg, nil
 }

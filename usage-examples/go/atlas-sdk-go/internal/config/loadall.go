@@ -1,10 +1,11 @@
 package config
 
 import (
-	"atlas-sdk-go/internal/errors"
 	"fmt"
 	"os"
 	"strings"
+
+	"atlas-sdk-go/internal/errors"
 )
 
 const defaultConfigDir = "configs"

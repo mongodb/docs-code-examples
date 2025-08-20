@@ -26,7 +26,7 @@ func main() {
 	if err := godotenv.Load(envFile); err != nil {
 		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
-	configPath := os.Getenv("CONFIG_FILE")
+	configPath := os.Getenv("CONFIG_PATH")
 	secrets, cfg, err := config.LoadAll(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)

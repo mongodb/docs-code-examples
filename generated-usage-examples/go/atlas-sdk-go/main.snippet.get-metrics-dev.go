@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
@@ -16,18 +17,18 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: could not load .env file: %v", err)
+	envFile := ".env.development"
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	ctx := context.Background()
-	envName := config.Environment("development")
-	configPath := "configs/config.development.json"
-	secrets, cfg, err := config.LoadAll(envName, configPath)
+	configPath := os.Getenv("CONFIG_FILE")
+	secrets, cfg, err := config.LoadAll(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
 
+	ctx := context.Background()
 	client, err := auth.NewClient(ctx, cfg, secrets)
 	if err != nil {
 		log.Fatalf("Failed to initialize authentication client: %v", err)
