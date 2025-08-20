@@ -36,7 +36,7 @@ func TestNewClient_returnsErrorWhenConfigIsNil(t *testing.T) {
 	require.Nil(t, client)
 	var validationErr *internalerrors.ValidationError
 	require.True(t, assert.ErrorAs(t, err, &validationErr), "expected error to be *errors.ValidationError")
-	assert.Equal(t, "config cannot be nil", validationErr.Message)
+	assert.Equal(t, "config cannot be empty", validationErr.Message)
 }
 
 func TestNewClient_returnsErrorWhenSecretsAreNil(t *testing.T) {
