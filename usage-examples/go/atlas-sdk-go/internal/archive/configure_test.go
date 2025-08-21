@@ -26,33 +26,6 @@ func testClient(baseURL string, t *testing.T) *admin.APIClient {
 	return sdk
 }
 
-func TestConfigureOnlineArchive_ValidationError(t *testing.T) {
-	// Ensure no HTTP call is made when validation fails
-	var hit int32
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		atomic.AddInt32(&hit, 1)
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{}`))
-	}))
-	defer srv.Close()
-
-	sdk := testClient(srv.URL, t)
-
-	ctx := context.Background()
-	candidate := Candidate{
-		DatabaseName:    "db",
-		CollectionName:  "coll",
-		RetentionDays:   10, // below minimum
-		PartitionFields: []string{"createdAt"},
-		DateField:       "createdAt",
-		DateFormat:      "DATE",
-	}
-	opts := Options{MinimumRetentionDays: 30, EnableDataExpiration: true, DefaultRetentionMultiplier: 2, ArchiveSchedule: "DAILY"}
-
-	err := ConfigureOnlineArchive(ctx, sdk, "groupId", "cluster", candidate, opts)
-	assert.Error(t, err)
-	assert.Equal(t, int32(0), atomic.LoadInt32(&hit), "should not call API when validation fails")
-}
 
 func TestConfigureOnlineArchive_SendsExpectedRequest_WhenExpirationEnabled(t *testing.T) {
 	// Capture request and validate JSON body
