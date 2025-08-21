@@ -49,7 +49,7 @@ func main() {
 
 	// Connect to each cluster and analyze collections for archiving
 	failedArchives := 0
-	skippedCandidates := 0
+	invalidCandidates := 0
 	totalCandidates := 0
 
 	// Create archive options with custom settings
@@ -64,7 +64,7 @@ func main() {
 		fmt.Printf("\n=== Analyzing cluster: %s ===", clusterName)
 
 		// Find collections suitable for archiving based on demo criteria.
-		// This simplified example first selects all collections with counts, and then filtering them.
+		// This simplified example first selects all collections with counts, and then filters them.
 		// NOTE: In a real implementation, you would analyze collections based on size, age,
 		// access patterns, and other factors to determine candidates for archiving.
 		stats := archive.ListCollectionsWithCounts(ctx, client, projectID, clusterName)

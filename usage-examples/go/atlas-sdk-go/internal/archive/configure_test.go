@@ -26,7 +26,6 @@ func testClient(baseURL string, t *testing.T) *admin.APIClient {
 	return sdk
 }
 
-
 func TestConfigureOnlineArchive_SendsExpectedRequest_WhenExpirationEnabled(t *testing.T) {
 	// Capture request and validate JSON body
 	var capturedMethod string

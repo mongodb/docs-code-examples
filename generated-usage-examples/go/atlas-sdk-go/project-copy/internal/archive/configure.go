@@ -10,16 +10,11 @@ import (
 )
 
 // ConfigureOnlineArchive configures online archive for a collection in a MongoDB Atlas cluster.
-// It validates the candidate, sets up partition fields, and creates the archive schedule.
-// If data expiration is enabled, it also configures the data expiration rule based on retention days
+// It assumes the candidate has been pre-validated by the caller.
+// It sets up partition fields and creates the archive request. If data expiration is enabled,
+// it also configures the data expiration rule based on retention days.
 func ConfigureOnlineArchive(ctx context.Context, sdk *admin.APIClient,
 	projectID, clusterName string, candidate Candidate, opts Options) error {
-
-	if err := ValidateCandidate(candidate, opts); err != nil {
-		return errors.FormatError("validate archive candidate",
-			fmt.Sprintf("%s.%s", candidate.DatabaseName, candidate.CollectionName),
-			err)
-	}
 
 	// Create partition fields configuration
 	var partitionFields []admin.PartitionField
