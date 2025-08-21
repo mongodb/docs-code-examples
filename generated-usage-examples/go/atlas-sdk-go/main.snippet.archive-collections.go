@@ -49,7 +49,7 @@ func main() {
 
 	// Connect to each cluster and analyze collections for archiving
 	failedArchives := 0
-	invalidCandidates := 0
+	skippedCandidates := 0
 	totalCandidates := 0
 
 	// Create archive options with custom settings
