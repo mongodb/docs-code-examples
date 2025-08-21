@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"atlas-sdk-go/internal/archive"
@@ -21,8 +20,7 @@ func main() {
 		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	configPath := os.Getenv("CONFIG_FILE")
-	secrets, cfg, err := config.LoadAll(configPath)
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
@@ -51,25 +49,62 @@ func main() {
 
 	// Connect to each cluster and analyze collections for archiving
 	failedArchives := 0
+	skippedCandidates := 0
 	totalCandidates := 0
+
+	// Create archive options with custom settings
+	opts := archive.DefaultOptions()
+	opts.DefaultRetentionMultiplier = 2
+	opts.MinimumRetentionDays = 30
+	opts.EnableDataExpiration = true
+	opts.ArchiveSchedule = "DAILY"
+
 	for _, cluster := range clusters.GetResults() {
 		clusterName := cluster.GetName()
 		fmt.Printf("\n=== Analyzing cluster: %s ===", clusterName)
 
-		// Find collections suitable for archiving based on specific criteria.
-		// NOTE: The actual implementation of this function would involve more complex logic
-		// to determine which collections are eligible for archiving.
-		candidates := archive.CollectionsForArchiving(ctx, client, projectID, clusterName)
+		// Find collections suitable for archiving based on demo criteria.
+		// This simplified example first selects all collections with counts, and then filtering them.
+		// NOTE: In a real implementation, you would analyze collections based on size, age,
+		// access patterns, and other factors to determine candidates for archiving.
+		stats := archive.ListCollectionsWithCounts(ctx, client, projectID, clusterName)
+		candidates := make([]archive.Candidate, 0)
+		const docThreshold = 100000
+		for _, s := range stats {
+			// Skip internal databases
+			if s.DatabaseName == "admin" || s.DatabaseName == "local" || s.DatabaseName == "config" {
+				continue
+			}
+			// Demo criterion: collections with >= 100k documents
+			if s.EstimatedCount >= docThreshold {
+				candidates = append(candidates, archive.Candidate{
+					DatabaseName:    s.DatabaseName,
+					CollectionName:  s.CollectionName,
+					DateField:       "createdAt",
+					DateFormat:      "DATE",
+					RetentionDays:   90,
+					PartitionFields: []string{"createdAt"},
+				})
+			}
+		}
 		totalCandidates += len(candidates)
 		fmt.Printf("\nFound %d collections eligible for archiving in cluster %s\n",
 			len(candidates), clusterName)
 
 		// Configure online archive for each candidate collection
 		for _, candidate := range candidates {
+			// Pre-validate candidate before attempting configuration
+			if err := archive.ValidateCandidate(candidate, opts); err != nil {
+				fmt.Printf("- Skipping %s.%s: invalid candidate: %v\n",
+					candidate.DatabaseName, candidate.CollectionName, err)
+				skippedCandidates++
+				continue
+			}
+
 			fmt.Printf("- Configuring archive for %s.%s\n",
 				candidate.DatabaseName, candidate.CollectionName)
 
-			configureErr := archive.ConfigureOnlineArchive(ctx, client, projectID, clusterName, candidate)
+			configureErr := archive.ConfigureOnlineArchive(ctx, client, projectID, clusterName, candidate, opts)
 			if configureErr != nil {
 				fmt.Printf("  Failed to configure archive: %v\n", configureErr)
 				failedArchives++
@@ -81,8 +116,11 @@ func main() {
 		}
 	}
 
+	if skippedCandidates > 0 {
+		fmt.Printf("\nINFO: Skipped %d of %d candidates due to validation errors\n", skippedCandidates, totalCandidates)
+	}
 	if failedArchives > 0 {
-		fmt.Printf("\nWARNING: %d of %d archive configurations failed\n", failedArchives, totalCandidates)
+		fmt.Printf("WARNING: %d of %d archive configurations failed (excluding skipped)\n", failedArchives, totalCandidates-skippedCandidates)
 	}
 
 	fmt.Println("Archive analysis and configuration completed.")

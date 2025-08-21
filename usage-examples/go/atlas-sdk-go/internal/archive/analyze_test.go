@@ -7,7 +7,7 @@ import (
 )
 
 func TestValidateCandidate_ReturnsError_WhenDatabaseOrCollectionNameMissing(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "",
 		CollectionName:  "coll",
@@ -29,7 +29,7 @@ func TestValidateCandidate_ReturnsError_WhenDatabaseOrCollectionNameMissing(t *t
 }
 
 func TestValidateCandidate_ReturnsError_WhenRetentionDaysTooLow(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "db",
 		CollectionName:  "coll",
@@ -42,7 +42,7 @@ func TestValidateCandidate_ReturnsError_WhenRetentionDaysTooLow(t *testing.T) {
 }
 
 func TestValidateCandidate_ReturnsError_WhenNoPartitionFields(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "db",
 		CollectionName:  "coll",
@@ -55,7 +55,7 @@ func TestValidateCandidate_ReturnsError_WhenNoPartitionFields(t *testing.T) {
 }
 
 func TestValidateCandidate_ReturnsError_WhenInvalidDateFormat(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "db",
 		CollectionName:  "coll",
@@ -68,7 +68,7 @@ func TestValidateCandidate_ReturnsError_WhenInvalidDateFormat(t *testing.T) {
 }
 
 func TestValidateCandidate_ReturnsError_WhenDateFieldNotInPartitionFields(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "db",
 		CollectionName:  "coll",
@@ -81,7 +81,7 @@ func TestValidateCandidate_ReturnsError_WhenDateFieldNotInPartitionFields(t *tes
 }
 
 func TestValidateCandidate_Succeeds_WithValidInput(t *testing.T) {
-	opts := DefaultOptions()
+	opts := Options{MinimumRetentionDays: 30}
 	err := ValidateCandidate(Candidate{
 		DatabaseName:    "db",
 		CollectionName:  "coll",
@@ -95,8 +95,8 @@ func TestValidateCandidate_Succeeds_WithValidInput(t *testing.T) {
 
 func TestDefaultOptions_ReturnsExpectedDefaults(t *testing.T) {
 	opts := DefaultOptions()
-	assert.Equal(t, 2, opts.DefaultRetentionMultiplier)
-	assert.Equal(t, 30, opts.MinimumRetentionDays)
-	assert.True(t, opts.EnableDataExpiration)
-	assert.Equal(t, "DAILY", opts.ArchiveSchedule)
+	assert.Equal(t, 0, opts.DefaultRetentionMultiplier)
+	assert.Equal(t, 0, opts.MinimumRetentionDays)
+	assert.False(t, opts.EnableDataExpiration)
+	assert.Equal(t, "", opts.ArchiveSchedule)
 }

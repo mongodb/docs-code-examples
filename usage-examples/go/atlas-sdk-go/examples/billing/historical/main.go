@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"atlas-sdk-go/internal/auth"
@@ -26,8 +25,7 @@ func main() {
 	if err := godotenv.Load(envFile); err != nil {
 		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
-	configPath := os.Getenv("CONFIG_PATH")
-	secrets, cfg, err := config.LoadAll(configPath)
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}

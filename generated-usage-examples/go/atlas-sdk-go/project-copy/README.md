@@ -64,7 +64,7 @@ and improvements to existing code.
    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
    ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
-   CONFIG_PATH="configs/config.development.json"
+   CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
    ```
    > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
    > instead of environment variables. 

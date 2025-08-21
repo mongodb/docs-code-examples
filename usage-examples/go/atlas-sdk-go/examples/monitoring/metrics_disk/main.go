@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
@@ -25,8 +24,7 @@ func main() {
 		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	configPath := os.Getenv("CONFIG_FILE")
-	secrets, cfg, err := config.LoadAll(configPath)
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}

@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
@@ -26,8 +25,7 @@ func main() {
 		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	configPath := os.Getenv("CONFIG_FILE")
-	secrets, cfg, err := config.LoadAll(configPath)
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to load configuration %v", err)
 	}
