@@ -135,8 +135,8 @@ func TestCollectLineItemBillingData_NoInvoices(t *testing.T) {
 	result, err := CollectLineItemBillingData(ctx, mockInvoiceSvc, mockOrgSvc, orgID, nil)
 
 	// Assertions
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "not found")
+	require.NoError(t, err) // Invoice lookup returning no results is not an error
+	require.Len(t, result, 0)
 	assert.Nil(t, result)
 }
 

@@ -12,28 +12,28 @@ import (
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
-	"atlas-sdk-go/internal/errors"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
+	envFile := ".env.production"
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
+		log.Fatalf("Failed to load configuration %v", err)
 	}
 
 	ctx := context.Background()
+	client, err := auth.NewClient(ctx, cfg, secrets)
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
+
 	p := &admin.ListInvoicesApiParams{
 		OrgId: cfg.OrgID,
 	}
@@ -42,7 +42,7 @@ func main() {
 
 	invoices, err := billing.GetCrossOrgBilling(ctx, client.InvoicesApi, p)
 	if err != nil {
-		errors.ExitWithError(fmt.Sprintf("Failed to retrieve cross-organization billing data for %s", p.OrgId), err)
+		log.Fatalf("Failed to retrieve cross-organization billing data for %s: %v", p.OrgId, err)
 	}
 
 	displayLinkedOrganizations(invoices, p.OrgId)

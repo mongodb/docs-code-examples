@@ -2,7 +2,6 @@ package errors
 
 import (
 	"fmt"
-	"log"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
@@ -39,10 +38,4 @@ type NotFoundError struct {
 // Error implements the error interface
 func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("resource not found: %s [%s]", e.Resource, e.ID)
-}
-
-// ExitWithError prints an error message with context and exits the program
-func ExitWithError(context string, err error) {
-	log.Fatalf("%s: %v", context, err)
-	// Note: log.Fatalf calls os.Exit(1)
 }

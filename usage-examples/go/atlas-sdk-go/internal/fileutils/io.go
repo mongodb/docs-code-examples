@@ -52,13 +52,10 @@ func SafeCopy(dst io.Writer, src io.Reader) error {
 // :remove-start:
 
 // SafeDelete removes files generated in the specified directory
-// NOTE: INTERNAL ONLY FUNCTION; before running `bluehawk.sh`, ensure this this and "path/filepath" import are marked for removal
+// NOTE: INTERNAL ONLY FUNCTION; before running `bluehawk.sh`, ensure that this and "path/filepath" import are marked for removal
 func SafeDelete(dir string) error {
 	// Check for global downloads directory
-	defaultDir := os.Getenv("ATLAS_DOWNLOADS_DIR")
-	if defaultDir != "" {
-		dir = filepath.Join(defaultDir, dir)
-	}
+	dir = ResolveWithDownloadsBase(dir)
 	// Check if directory exists before attempting to walk it
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return errors.WithContext(err, "directory does not exist")

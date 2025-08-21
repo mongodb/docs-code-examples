@@ -9,7 +9,6 @@ import (
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
-	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/metrics"
 
 	"github.com/joho/godotenv"
@@ -17,21 +16,21 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
+	envFile := ".env.development"
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
 
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
+		log.Fatalf("Failed to load configuration %v", err)
 	}
 
 	ctx := context.Background()
+	client, err := auth.NewClient(ctx, cfg, secrets)
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
 
 	// Fetch disk metrics with the provided parameters
 	p := &admin.GetDiskMeasurementsApiParams{
@@ -44,13 +43,13 @@ func main() {
 	}
 	view, err := metrics.FetchDiskMetrics(ctx, client.MonitoringAndLogsApi, p)
 	if err != nil {
-		errors.ExitWithError("Failed to fetch disk metrics", err)
+		log.Fatalf("Failed to fetch disk metrics: %v", err)
 	}
 
 	// Output metrics
 	out, err := json.MarshalIndent(view, "", "  ")
 	if err != nil {
-		errors.ExitWithError("Failed to format metrics data", err)
+		log.Fatalf("Failed to format metrics data: %v", err)
 	}
 	fmt.Println(string(out))
 }

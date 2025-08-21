@@ -3,24 +3,12 @@ package metrics
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/atlas-sdk/v20250219001/mockadmin"
 )
-
-// fixed timestamp for tests
-var fixedTS = "2025-01-01T12:00:00Z"
-
-// parseTS wraps time.Parse and flags error on test failure
-func parseTS(t *testing.T, ts string) time.Time {
-	t.Helper()
-	parsed, err := time.Parse(time.RFC3339, ts)
-	require.NoError(t, err)
-	return parsed
-}
 
 // -----------------------------------------------------------------------------
 // Integration tests against test HTTP server
