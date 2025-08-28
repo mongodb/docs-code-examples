@@ -12,5 +12,36 @@
         "target_repo" : "my-target-repo-name",
         "target_branch" : "v2.2",
         "target_directory" : "v2-examples"
-    }
+    },
+    {
+        "notes":"Example config for copying a subset of files to another repo and branch",
+        "source_directory" : "generated-examples/v2",
+        "target_repo" : "my-target-repo-name",
+        "target_branch" : "v2.2",
+        "target_directory" : "v2-examples"
+    },
+    {
+        "notes": "-> Atlas Architecture Center CLI artifact repo",
+        "source_directory": "generated-usage-examples",
+        "target_repo": "https://github.com/mongodb/atlas-architecture-cli",
+        "target_branch": "v1",
+        "target_directory": ".",
+        "recursive_copy": true,
+        "copier_commit_strategy": "direct",
+        "pr_title": "Copy example files",
+        "commit_message": "Copy files from docs-code-example",
+        "merge_without_review": true
+   },
+   {
+        "notes": "-> Atlas Architecture Center CLI artifact repo",
+        "source_directory": "generated-usage-examples",
+        "target_repo": "https://github.com/mongodb/atlas-architecture-cli",
+        "target_branch": "v2",
+        "target_directory": "v2",
+        "recursive_copy": false,
+        "copier_commit_strategy": "pr",
+        "pr_title": "Copy v2 example files",
+        "commit_message": "Copy v2 files from docs-code-example",
+        "merge_without_review": false
+   }
 ]
