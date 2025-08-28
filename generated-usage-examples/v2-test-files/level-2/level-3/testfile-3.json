@@ -1,7 +1,0 @@
-[
-    {
-        "test": "recursion",
-        "level": "three",
-        "recursive_copy_must_be": "true"
-    }
-]
