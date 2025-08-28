@@ -24,7 +24,7 @@
         "notes": "-> Atlas Architecture Center CLI artifact repo",
         "source_directory": "generated-usage-examples",
         "target_repo": "atlas-architecture-cli",
-        "target_branch": "v1",
+        "target_branch": "main",
         "target_directory": ".",
         "recursive_copy": true,
         "copier_commit_strategy": "direct",
