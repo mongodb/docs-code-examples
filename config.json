@@ -23,7 +23,7 @@
     {
         "notes": "-> Atlas Architecture Center CLI artifact repo",
         "source_directory": "generated-usage-examples",
-        "target_repo": "https://github.com/mongodb/atlas-architecture-cli",
+        "target_repo": "atlas-architecture-cli",
         "target_branch": "v1",
         "target_directory": ".",
         "recursive_copy": true,
@@ -35,7 +35,7 @@
    {
         "notes": "-> Atlas Architecture Center CLI artifact repo",
         "source_directory": "generated-usage-examples",
-        "target_repo": "https://github.com/mongodb/atlas-architecture-cli",
+        "target_repo": "atlas-architecture-cli",
         "target_branch": "v2",
         "target_directory": "v2",
         "recursive_copy": false,
