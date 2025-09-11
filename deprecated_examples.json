@@ -58,5 +58,65 @@
     "repo": "atlas-architecture-cli",
     "branch": "v2",
     "deleted_on": "2025-09-11T12:56:00Z"
+  },
+  {
+    "filename": "copier-test/test.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "v2/test-file-2.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "v2",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "test-file.md",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "v2/test-file.md",
+    "repo": "atlas-architecture-cli",
+    "branch": "v2",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "test-examples/subdir/nested.py",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "copier-test/level-2/level-3/test-3.json",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "test-file-2.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "test-file.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "v2/test-file.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "v2",
+    "deleted_on": "2025-09-11T12:57:33Z"
+  },
+  {
+    "filename": "test-examples/example.js",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T12:57:33Z"
   }
 ]
