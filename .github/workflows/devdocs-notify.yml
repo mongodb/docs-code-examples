@@ -2,7 +2,7 @@ name: DevDocs PR or Issue Creation Notifier
 on:  
   issues:
     types: [opened]
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 jobs:
@@ -18,6 +18,9 @@ jobs:
                       || context.payload.pull_request?.body 
                       || context.payload.review?.body 
                       || "";
+
+            const url = process.env.SLACK_WEBHOOK_URL;
+            console.log("Slack URL Length", url?.length);
 
             await fetch(process.env.SLACK_WEBHOOK_URL, {
               method: "POST",
