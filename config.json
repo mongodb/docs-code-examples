@@ -27,10 +27,8 @@
         "target_branch": "main",
         "target_directory": ".",
         "recursive_copy": true,
-        "copier_commit_strategy": "direct",
-        "pr_title": "Copy example files",
-        "commit_message": "Copy files from docs-code-example",
-        "merge_without_review": true
+        "commit_strategy": "direct",
+        "auto-merge-pr": false
    },
    {
         "notes": "-> Atlas Architecture Center CLI artifact repo",
@@ -39,9 +37,7 @@
         "target_branch": "v2",
         "target_directory": "v2",
         "recursive_copy": false,
-        "copier_commit_strategy": "pr",
-        "pr_title": "Copy v2 example files",
-        "commit_message": "Copy v2 files from docs-code-example",
-        "merge_without_review": false
+        "commit_strategy": "pr",
+        "auto-merge-pr": false
    }
 ]
