@@ -9,6 +9,11 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+     - name: Debug Slack URL
+        run: echo "Webhook=${SLACK_WEBHOOK_URL}"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
       - name: Check for new PR or issues
         uses: actions/github-script@v7
         with:
