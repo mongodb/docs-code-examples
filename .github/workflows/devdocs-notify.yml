@@ -19,6 +19,9 @@ jobs:
                       || context.payload.review?.body 
                       || "";
 
+            const url = process.env.SLACK_WEBHOOK_URL;
+            console.log("Slack URL Length", url?.length);
+
             await fetch(process.env.SLACK_WEBHOOK_URL, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
