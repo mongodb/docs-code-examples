@@ -190,5 +190,17 @@
     "repo": "atlas-architecture-cli",
     "branch": "main",
     "deleted_on": "2025-09-11T13:15:09Z"
+  },
+  {
+    "filename": "test-examples/subdir/test-file-2.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T15:00:40Z"
+  },
+  {
+    "filename": "test-examples/test-file.md",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-11T15:00:40Z"
   }
 ]
