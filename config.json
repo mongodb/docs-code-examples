@@ -12,5 +12,32 @@
         "target_repo" : "my-target-repo-name",
         "target_branch" : "v2.2",
         "target_directory" : "v2-examples"
-    }
+    },
+    {
+        "notes":"Example config for copying a subset of files to another repo and branch",
+        "source_directory" : "generated-examples/v2",
+        "target_repo" : "my-target-repo-name",
+        "target_branch" : "v2.2",
+        "target_directory" : "v2-examples"
+    },
+    {
+        "notes": "-> Atlas Architecture Center CLI artifact repo",
+        "source_directory": "generated-usage-examples",
+        "target_repo": "atlas-architecture-cli",
+        "target_branch": "main",
+        "target_directory": ".",
+        "recursive_copy": true,
+        "commit_strategy": "direct",
+        "auto-merge-pr": false
+   },
+   {
+        "notes": "-> Atlas Architecture Center CLI artifact repo",
+        "source_directory": "generated-usage-examples",
+        "target_repo": "atlas-architecture-cli",
+        "target_branch": "v2",
+        "target_directory": "v2",
+        "recursive_copy": false,
+        "commit_strategy": "pr",
+        "auto-merge-pr": false
+   }
 ]

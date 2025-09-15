@@ -16,8 +16,8 @@ Currently, the repository includes examples that demonstrate the following:
 - Download logs for a specific host
 - Pull and parse line-item-level billing data
 - Return all linked organizations from a specific billing organization
-- Get historical invoices for an organization 
-- Programmatically manage Atlas resources
+- Get historical invoices for an organization
+- Programmatically archive Atlas cluster data
 
 As the Architecture Center documentation evolves, this repository will be updated with new examples 
 and improvements to existing code. 
@@ -28,12 +28,15 @@ and improvements to existing code.
 .
 ├── examples             # Runnable examples by category
 │   ├── billing/
-│   └── monitoring/
+│   ├── monitoring/
+│   └── performance/
 ├── configs              # Atlas configuration template
-│   └── config.json
+│   └── config.example.json
 ├── internal             # Shared utilities and helpers
+│   ├── archive/
 │   ├── auth/
 │   ├── billing/
+│   ├── clusters/
 │   ├── config/
 │   ├── data/
 │   ├── errors/
@@ -56,16 +59,18 @@ and improvements to existing code.
 
 ## Setting Environment Variables
 
-1. Create a `.env` file in the root directory with your MongoDB Atlas service account credentials:
+1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, create a `.env.development` file for your dev environment: 
    ```dotenv
-   MONGODB_ATLAS_SERVICE_ACCOUNT_ID=your_service_account_id
-   MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=your_service_account_secret
+   MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
+   MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
+   ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
+   CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
    ```
    > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
    > instead of environment variables. 
    > See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
 
-2. Configure Atlas details in `configs/config.json`:
+2. Create a `config.<environment>.json` file in the `configs/` directory with your Atlas configuration details. For example, create a `configs/config.development.json` for your dev environment:
    ```json
    {
      "MONGODB_ATLAS_BASE_URL": "<optional-base-url>",
@@ -119,6 +124,13 @@ go run examples/monitoring/metrics_disk/main.go
 #### Get Cluster Metrics
 ```bash
 go run examples/monitoring/metrics_process/main.go
+```
+
+### Performance
+
+#### Archive Cluster Data
+```bash
+go run examples/performance/archiving/main.go
 ```
 
 ## Changelog

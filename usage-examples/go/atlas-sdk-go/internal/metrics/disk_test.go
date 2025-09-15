@@ -4,11 +4,23 @@ import (
 	"context"
 	"testing"
 
+	"time"
+
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/atlas-sdk/v20250219001/mockadmin"
 )
+
+// Fixed timestamp for testing
+const fixedTS = "2023-04-01T12:00:00Z"
+
+// parseTS parses a timestamp string into a time.Time object
+func parseTS(t *testing.T, ts string) time.Time {
+	parsed, err := time.Parse(time.RFC3339, ts)
+	require.NoError(t, err)
+	return parsed
+}
 
 // -----------------------------------------------------------------------------
 // Integration tests against test HTTP server

@@ -23,7 +23,7 @@ func TestToJSON(t *testing.T) {
 
 	t.Run("Successfully writes JSON to file", func(t *testing.T) {
 		tempDir := t.TempDir()
-		filePath := filepath.Join(tempDir, "test.json")
+		filePath := filepath.Join(tempDir, "config.test.json")
 		testData := TestStruct{ID: 1, Name: "Test", Value: 99.99}
 
 		err := ToJSON(testData, filePath)
@@ -42,7 +42,7 @@ func TestToJSON(t *testing.T) {
 	})
 
 	t.Run("Returns error for nil data", func(t *testing.T) {
-		err := ToJSON(nil, "test.json")
+		err := ToJSON(nil, "config.test.json")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "data cannot be nil")
 	})
@@ -56,7 +56,7 @@ func TestToJSON(t *testing.T) {
 	t.Run("Creates directory structure if needed", func(t *testing.T) {
 		tempDir := t.TempDir()
 		dirPath := filepath.Join(tempDir, "subdir1", "subdir2")
-		filePath := filepath.Join(dirPath, "test.json")
+		filePath := filepath.Join(dirPath, "config.test.json")
 		testData := TestStruct{ID: 1, Name: "Test", Value: 99.99}
 
 		err := ToJSON(testData, filePath)

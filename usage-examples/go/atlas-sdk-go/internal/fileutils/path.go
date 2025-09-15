@@ -13,10 +13,7 @@ import (
 // NOTE: You can define a default global directory for all generated files by setting the ATLAS_DOWNLOADS_DIR environment variable.
 func GenerateOutputPath(dir, prefix, extension string) (string, error) {
 	// If default download directory is set in .env, prepend it to the provided dir
-	defaultDir := os.Getenv("ATLAS_DOWNLOADS_DIR")
-	if defaultDir != "" {
-		dir = filepath.Join(defaultDir, dir)
-	}
+	dir = ResolveWithDownloadsBase(dir)
 
 	// Create directory if it doesn't exist
 	if err := os.MkdirAll(dir, 0755); err != nil {

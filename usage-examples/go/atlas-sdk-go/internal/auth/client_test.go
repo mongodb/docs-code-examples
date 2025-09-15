@@ -1,7 +1,7 @@
 package auth_test
 
 import (
-	"errors"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,13 +14,10 @@ import (
 
 func TestNewClient_Success(t *testing.T) {
 	t.Parallel()
-	cfg := &config.Config{BaseURL: "https://example.com"}
-	secrets := &config.Secrets{
-		ServiceAccountID:     "validID",
-		ServiceAccountSecret: "validSecret",
-	}
+	cfg := config.Config{BaseURL: "https://example.com"}
+	secrets := config.NewSecrets("validID", "validSecret")
 
-	client, err := auth.NewClient(cfg, secrets)
+	client, err := auth.NewClient(context.Background(), cfg, secrets)
 
 	require.NoError(t, err)
 	require.NotNil(t, client)
@@ -28,29 +25,32 @@ func TestNewClient_Success(t *testing.T) {
 
 func TestNewClient_returnsErrorWhenConfigIsNil(t *testing.T) {
 	t.Parallel()
-	secrets := &config.Secrets{
-		ServiceAccountID:     "validID",
-		ServiceAccountSecret: "validSecret",
-	}
+	secrets := config.NewSecrets("validID", "validSecret")
 
-	client, err := auth.NewClient(nil, secrets)
+	// Zero value config
+	var cfg config.Config
+
+	client, err := auth.NewClient(context.Background(), cfg, secrets)
 
 	require.Error(t, err)
 	require.Nil(t, client)
 	var validationErr *internalerrors.ValidationError
-	require.True(t, errors.As(err, &validationErr), "expected error to be *errors.ValidationError")
-	assert.Equal(t, "config cannot be nil", validationErr.Message)
+	require.True(t, assert.ErrorAs(t, err, &validationErr), "expected error to be *errors.ValidationError")
+	assert.Equal(t, "config cannot be empty", validationErr.Message)
 }
 
 func TestNewClient_returnsErrorWhenSecretsAreNil(t *testing.T) {
 	t.Parallel()
-	cfg := &config.Config{BaseURL: "https://example.com"}
+	cfg := config.Config{BaseURL: "https://example.com"}
 
-	client, err := auth.NewClient(cfg, nil)
+	// Zero value secrets
+	var secrets config.Secrets
+
+	client, err := auth.NewClient(context.Background(), cfg, secrets)
 
 	require.Error(t, err)
 	require.Nil(t, client)
 	var validationErr *internalerrors.ValidationError
-	require.True(t, errors.As(err, &validationErr), "expected error to be *errors.ValidationError")
+	require.True(t, assert.ErrorAs(t, err, &validationErr), "expected error to be *errors.ValidationError")
 	assert.Equal(t, "secrets cannot be nil", validationErr.Message)
 }

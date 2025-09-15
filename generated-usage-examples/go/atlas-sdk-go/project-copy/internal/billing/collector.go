@@ -37,7 +37,7 @@ type ProjectInfo struct {
 
 // CollectLineItemBillingData retrieves all pending invoices for the specified organization,
 // transforms them into detailed billing records, and filters out items processed before lastProcessedDate.
-// Returns a slice of billing Details or an error if no valid invoices or line items are found.
+// Returns a slice of billing Details if pending invoices exists or an error if the operation fails.
 func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgSdk admin.OrganizationsApi, orgID string, lastProcessedDate *time.Time) ([]Detail, error) {
 	req := sdk.ListPendingInvoices(ctx, orgID)
 	r, _, err := req.Execute()
@@ -46,10 +46,8 @@ func CollectLineItemBillingData(ctx context.Context, sdk admin.InvoicesApi, orgS
 		return nil, errors.FormatError("list pending invoices", orgID, err)
 	}
 	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
-		return nil, &errors.NotFoundError{Resource: "pending invoices", ID: orgID}
+		return nil, nil
 	}
-
-	fmt.Printf("Found %d pending invoice(s)\n", len(r.GetResults()))
 
 	// Get organization name
 	orgName, err := getOrganizationName(ctx, orgSdk, orgID)
@@ -112,7 +110,7 @@ func processInvoices(invoices []admin.BillingInvoice, orgID, orgName string, las
 	return billingDetails, nil
 }
 
-// getOrganizationName fetches organization name from API or returns orgID if not found
+// getOrganizationName fetches an organization's name for the given organization ID.
 func getOrganizationName(ctx context.Context, sdk admin.OrganizationsApi, orgID string) (string, error) {
 	req := sdk.GetOrganization(ctx, orgID)
 	org, _, err := req.Execute()

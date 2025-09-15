@@ -10,7 +10,6 @@ import (
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/data/export"
-	"atlas-sdk-go/internal/errors"
 	"atlas-sdk-go/internal/fileutils"
 
 	"github.com/joho/godotenv"
@@ -18,25 +17,24 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
+	envFile := ".env.production"
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("Warning: could not load %s file: %v", envFile, err)
 	}
-
-	secrets, cfg, err := config.LoadAll("configs/config.json")
+	secrets, cfg, err := config.LoadAllFromEnv()
 	if err != nil {
-		errors.ExitWithError("Failed to load configuration", err)
-	}
-
-	client, err := auth.NewClient(cfg, secrets)
-	if err != nil {
-		errors.ExitWithError("Failed to initialize authentication client", err)
+		log.Fatalf("Failed to load configuration %v", err)
 	}
 
 	ctx := context.Background()
+	client, err := auth.NewClient(ctx, cfg, secrets)
+	if err != nil {
+		log.Fatalf("Failed to initialize authentication client: %v", err)
+	}
+
 	p := &admin.ListInvoicesApiParams{
 		OrgId: cfg.OrgID,
 	}
-
 	fmt.Printf("Fetching historical invoices for organization: %s\n", p.OrgId)
 
 	// Fetch invoices from the previous six months with the provided options
@@ -45,7 +43,7 @@ func main() {
 		billing.WithIncludeCount(true),
 		billing.WithDateRange(time.Now().AddDate(0, -6, 0), time.Now()))
 	if err != nil {
-		errors.ExitWithError("Failed to retrieve invoices", err)
+		log.Fatalf("Failed to retrieve invoices: %v", err)
 	}
 
 	if invoices.GetTotalCount() > 0 {
@@ -59,25 +57,32 @@ func main() {
 	outDir := "invoices"
 	prefix := fmt.Sprintf("historical_%s", p.OrgId)
 
-	exportInvoicesToJSON(invoices, outDir, prefix)
-	exportInvoicesToCSV(invoices, outDir, prefix)
+	err = exportInvoicesToJSON(invoices, outDir, prefix)
+	if err != nil {
+		log.Fatalf("Failed to export invoices to JSON: %v", err)
+	}
+	err = exportInvoicesToCSV(invoices, outDir, prefix)
+	if err != nil {
+		log.Fatalf("Failed to export invoices to CSV: %v", err)
+	}
 }
 
-func exportInvoicesToJSON(invoices *admin.PaginatedApiInvoiceMetadata, outDir, prefix string) {
+func exportInvoicesToJSON(invoices *admin.PaginatedApiInvoiceMetadata, outDir, prefix string) error {
 	jsonPath, err := fileutils.GenerateOutputPath(outDir, prefix, "json")
 	if err != nil {
-		errors.ExitWithError("Failed to generate JSON output path", err)
+		return fmt.Errorf("failed to generate JSON output path: %v", err)
 	}
 	if err := export.ToJSON(invoices.GetResults(), jsonPath); err != nil {
-		errors.ExitWithError("Failed to write JSON file", err)
+		return fmt.Errorf("failed to write JSON file: %v", err)
 	}
 	fmt.Printf("Exported invoice data to %s\n", jsonPath)
+	return nil
 }
 
-func exportInvoicesToCSV(invoices *admin.PaginatedApiInvoiceMetadata, outDir, prefix string) {
+func exportInvoicesToCSV(invoices *admin.PaginatedApiInvoiceMetadata, outDir, prefix string) error {
 	csvPath, err := fileutils.GenerateOutputPath(outDir, prefix, "csv")
 	if err != nil {
-		errors.ExitWithError("Failed to generate CSV output path", err)
+		return fmt.Errorf("failed to generate CSV output path: %v", err)
 	}
 
 	// Set the headers and mapped rows for the CSV export
@@ -91,9 +96,10 @@ func exportInvoicesToCSV(invoices *admin.PaginatedApiInvoiceMetadata, outDir, pr
 		}
 	})
 	if err != nil {
-		errors.ExitWithError("Failed to write CSV file", err)
+		return fmt.Errorf("failed to write CSV file: %v", err)
 	}
 
 	fmt.Printf("Exported invoice data to %s\n", csvPath)
+	return nil
 }
 

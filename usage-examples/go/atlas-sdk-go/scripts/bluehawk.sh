@@ -23,6 +23,7 @@ STATE=""
 IGNORE_PATTERNS=(
   "internal_*.*" # for INTERNAL_README.md
   "scripts/"
+  "tmp/"
   ".idea"
   "*_test.go" # we're not including test files in artifact repo
   ".env"
@@ -124,6 +125,20 @@ if [[ "$CMD" == "copy" ]] && [[ ${#RENAME_PATTERNS[@]} -gt 0 ]]; then
     RENAME_ARGS+=(--rename="$rule")
   done
 fi
+
+# Before running Bluehawk, format the Go module to keep examples tidy
+# - goimports fixes imports and grouping (using local prefix atlas-sdk-go/)
+# - go fmt formats the code
+echo "Formatting Go code (goimports, go fmt) in $INPUT_DIR ..."
+(
+  cd "$INPUT_DIR"
+  if ! command -v goimports >/dev/null 2>&1; then
+    echo "Error: goimports is not installed. Install with: go install golang.org/x/tools/cmd/goimports@latest" >&2
+    exit 1
+  fi
+  goimports -w -local atlas-sdk-go/ .
+  go fmt ./...
+)
 
 # Check for errors first
 echo "Checking for Bluehawk parsing errors..."
