@@ -63,10 +63,17 @@ and improvements to existing code.
 
 1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, create a `.env.development` file for your dev environment: 
    ```dotenv
-   MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
-   MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
-   ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
-   CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
+    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
+    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
+    ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
+    CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
+
+   # Programmatic scaling settings 
+    SCALE_TO_TIER=M50
+    PRE_SCALE_EVENT=false
+    CPU_THRESHOLD=75.0
+    CPU_PERIOD_MINUTES=60
+    DRY_RUN=false
    ```
    > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
    > instead of environment variables. 
