@@ -1,7 +1,4 @@
-// :snippet-start: scale-cluster-programmatically-prod
-// :state-remove-start: copy
 // See entire project at https://github.com/mongodb/atlas-architecture-go-sdk
-// :state-remove-end: [copy]
 package main
 
 import (
@@ -181,19 +178,3 @@ func defaultIfBlank(v, d string) string {
 	return v
 }
 
-// :snippet-end: [scale-cluster-programmatically-prod]
-// :state-remove-start: copy
-// NOTE: INTERNAL
-// ** OUTPUT EXAMPLE **
-//
-//=== Scaling Operation Summary ===
-//Total clusters analyzed: 3
-//Scaling candidates identified: 2
-//Successful scaling operations: 2
-//Failed scaling operations: 0
-//Skipped clusters: 1
-//
-//Atlas will perform rolling resizes with zero-downtime semantics.
-//Monitor status in the Atlas UI or poll cluster states until STATE_NAME becomes IDLE.
-//Scaling analysis and operations completed.
-// :state-remove-end: [copy]

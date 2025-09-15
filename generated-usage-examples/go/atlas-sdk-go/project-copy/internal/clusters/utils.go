@@ -1,10 +1,11 @@
-package clusters
+package clusterutils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"atlas-sdk-go/internal/errors"
+	interr "atlas-sdk-go/internal/errors"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
@@ -14,7 +15,7 @@ func ListClusterNames(ctx context.Context, sdk admin.ClustersApi, p *admin.ListC
 	req := sdk.ListClusters(ctx, p.GroupId)
 	clusters, _, err := req.Execute()
 	if err != nil {
-		return nil, errors.FormatError("list clusters", p.GroupId, err)
+		return nil, interr.FormatError("list clusters", p.GroupId, err)
 	}
 
 	var names []string
@@ -35,7 +36,7 @@ func GetProcessIdForCluster(ctx context.Context, sdk admin.MonitoringAndLogsApi,
 	req := sdk.ListAtlasProcesses(ctx, p.GroupId)
 	r, _, err := req.Execute()
 	if err != nil {
-		return "", errors.FormatError("list atlas processes", p.GroupId, err)
+		return "", interr.FormatError("list atlas processes", p.GroupId, err)
 	}
 	if r == nil || !r.HasResults() || len(r.GetResults()) == 0 {
 		return "", nil
@@ -62,10 +63,30 @@ func GetClusterSRVConnectionString(ctx context.Context, client *admin.APIClient,
 	}
 	cluster, _, err := client.ClustersApi.GetCluster(ctx, projectID, clusterName).Execute()
 	if err != nil {
-		return "", errors.FormatError("get cluster", projectID, err)
+		return "", interr.FormatError("get cluster", projectID, err)
 	}
 	if cluster == nil || cluster.ConnectionStrings == nil || cluster.ConnectionStrings.StandardSrv == nil {
 		return "", fmt.Errorf("no standard SRV connection string found for cluster %s", clusterName)
 	}
 	return *cluster.ConnectionStrings.StandardSrv, nil
+}
+
+// ExtractInstanceSize retrieves the electable instance size from the first region config.
+func ExtractInstanceSize(cur *admin.ClusterDescription20240805) (string, error) {
+	if cur == nil || !cur.HasReplicationSpecs() {
+		return "", errors.New("cluster has no replication specs")
+	}
+	repl := cur.GetReplicationSpecs()
+	if len(repl) == 0 {
+		return "", errors.New("no replication specs entries")
+	}
+	rcs := repl[0].GetRegionConfigs()
+	if len(rcs) == 0 || !rcs[0].HasElectableSpecs() {
+		return "", errors.New("no region config electable specs")
+	}
+	es := rcs[0].GetElectableSpecs()
+	if !es.HasInstanceSize() {
+		return "", errors.New("electable specs missing instance size")
+	}
+	return es.GetInstanceSize(), nil
 }
