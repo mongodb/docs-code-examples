@@ -18,6 +18,7 @@ Currently, the repository includes examples that demonstrate the following:
 - Return all linked organizations from a specific billing organization
 - Get historical invoices for an organization
 - Programmatically archive Atlas cluster data
+- Perform disaster recovery operations (e.g. restore from snapshot)
 
 As the Architecture Center documentation evolves, this repository will be updated with new examples 
 and improvements to existing code. 
@@ -29,7 +30,8 @@ and improvements to existing code.
 ├── examples             # Runnable examples by category
 │   ├── billing/
 │   ├── monitoring/
-│   └── performance/
+│   ├── performance/
+│   └── recovery/
 ├── configs              # Atlas configuration template
 │   └── config.example.json
 ├── internal             # Shared utilities and helpers
@@ -42,7 +44,8 @@ and improvements to existing code.
 │   ├── errors/
 │   ├── fileutils/
 │   ├── logs/
-│   └── metrics/
+│   ├── metrics/
+│   └── typeutils/
 ├── go.mod
 ├── go.sum
 ├── CHANGELOG.md         # List of major changes to the project 
@@ -61,10 +64,10 @@ and improvements to existing code.
 
 1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, create a `.env.development` file for your dev environment: 
    ```dotenv
-   MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
-   MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
-   ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
-   CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
+    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
+    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
+    ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
+    CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
    ```
    > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
    > instead of environment variables. 
@@ -131,6 +134,13 @@ go run examples/monitoring/metrics_process/main.go
 #### Archive Cluster Data
 ```bash
 go run examples/performance/archiving/main.go
+```
+
+### Recovery
+
+#### Perform Disaster Recovery Operations
+```bash
+go run examples/performance/recovery/main.go
 ```
 
 ## Changelog
