@@ -214,5 +214,41 @@
     "repo": "atlas-architecture-cli",
     "branch": "main",
     "deleted_on": "2025-09-11T15:09:32Z"
+  },
+  {
+    "filename": "go/atlas-sdk-go/project-copy/internal/clusters/utils.go",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
+  },
+  {
+    "filename": "renamed-test-examples/example.js",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
+  },
+  {
+    "filename": "renamed-test-examples/subdir/renamed-nested.py",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
+  },
+  {
+    "filename": "copier-test/level-2/level-3/test-3.json",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
+  },
+  {
+    "filename": "copier-test/test.txt",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
+  },
+  {
+    "filename": "go/atlas-sdk-go/project-copy/.env.example",
+    "repo": "atlas-architecture-cli",
+    "branch": "main",
+    "deleted_on": "2025-09-18T16:36:25Z"
   }
 ]
