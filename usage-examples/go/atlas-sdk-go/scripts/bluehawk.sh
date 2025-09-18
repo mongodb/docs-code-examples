@@ -30,6 +30,7 @@ IGNORE_PATTERNS=(
   "*.gz"
   "*.log"
   "./logs" # for generated logs directory
+  "example-configs.json"
   # NOTE: DO NOT add pattern for ".gitignore"; we are including it in the artifact repo
 )
 RENAME_PATTERNS=()

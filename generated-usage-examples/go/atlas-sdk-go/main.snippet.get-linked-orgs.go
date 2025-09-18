@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 func main() {
@@ -55,4 +55,3 @@ func main() {
 		fmt.Printf("  %d. %v\n", i+1, org)
 	}
 }
-

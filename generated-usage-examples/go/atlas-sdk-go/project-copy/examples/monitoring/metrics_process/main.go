@@ -8,11 +8,10 @@ import (
 
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/config"
+	"atlas-sdk-go/internal/metrics"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
-	"atlas-sdk-go/internal/metrics"
 )
 
 func main() {

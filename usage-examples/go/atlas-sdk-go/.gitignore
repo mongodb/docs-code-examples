@@ -1,10 +1,11 @@
 # Secrets (keep example)
 .env
 !.env.example
-.env.production
+.env.*
 
 # Configs (keep example)
 configs/config.json
+configs/config.*.json
 !configs/config.example.json
 
 # temporary files

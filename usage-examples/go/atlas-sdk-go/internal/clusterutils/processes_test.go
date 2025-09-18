@@ -1,4 +1,4 @@
-package clusters
+package clusterutils
 
 import (
 	"context"
@@ -238,4 +238,30 @@ func TestGetClusterSRVConnectionString_ApiError(t *testing.T) {
 	require.Error(t, err)
 	assert.Empty(t, srv)
 	assert.Contains(t, err.Error(), "get cluster")
+}
+
+func TestGetPrimaryProcessID(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name      string
+		processes []ClusterProcess
+		expectID  string
+		found     bool
+	}{
+		{"primary_present", []ClusterProcess{{ID: "a", Role: "REPLICA_SECONDARY"}, {ID: "b", Role: "REPLICA_PRIMARY"}}, "b", true},
+		{"no_primary", []ClusterProcess{{ID: "a", Role: "REPLICA_SECONDARY"}}, "", false},
+		{"empty", []ClusterProcess{}, "", false},
+	}
+	for _, c := range cases {
+		c := c
+		t.Run(c.name, func(t *testing.T) {
+			id, ok := GetPrimaryProcessID(c.processes)
+			if ok != c.found {
+				t.Fatalf("expected found=%v got=%v", c.found, ok)
+			}
+			if id != c.expectID {
+				t.Fatalf("expected id=%s got=%s", c.expectID, id)
+			}
+		})
+	}
 }

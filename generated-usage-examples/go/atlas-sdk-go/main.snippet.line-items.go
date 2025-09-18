@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
 	"atlas-sdk-go/internal/auth"
 	"atlas-sdk-go/internal/billing"
 	"atlas-sdk-go/internal/config"
 	"atlas-sdk-go/internal/data/export"
 	"atlas-sdk-go/internal/fileutils"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 )
 
 func main() {

@@ -22,9 +22,10 @@ Files are copied
 .
 ├── examples/              # Self-contained, runnable examples by category
 │   ├── billing/
-│   └── monitoring/
+│   ├── monitoring/
+│   └── performance/
 ├── configs/               # Atlas details 
-├── internal               # Shared utilities and helpers (NOTE: ALL TEST FILES ARE INTERNAL ONLY - DON'T COPY TO ARTIFACT REPO)
+├── internal/              # Shared utilities and helpers (NOTE: ALL TEST FILES ARE INTERNAL ONLY - DON'T COPY TO ARTIFACT REPO)
 ├── go.mod
 ├── CHANGELOG.md           # User-facing list of major project changes
 │── README.md              # User-facing README for copied project

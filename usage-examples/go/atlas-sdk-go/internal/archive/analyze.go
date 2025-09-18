@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"atlas-sdk-go/internal/clusters"
+	"atlas-sdk-go/internal/clusterutils"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -101,7 +101,7 @@ func ListCollectionsWithCounts(ctx context.Context, sdk *admin.APIClient, projec
 	stats := make([]CollectionStat, 0)
 
 	// Get the SRV connection string for the cluster
-	srv, err := clusters.GetClusterSRVConnectionString(ctx, sdk, projectID, clusterName)
+	srv, err := clusterutils.GetClusterSRVConnectionString(ctx, sdk, projectID, clusterName)
 	if err != nil || srv == "" {
 		return stats
 	}
