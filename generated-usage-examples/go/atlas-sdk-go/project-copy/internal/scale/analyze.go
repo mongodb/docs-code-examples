@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
+	"atlas-sdk-go/internal/clusterutils"
+	"atlas-sdk-go/internal/metrics"
 
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
-
-	clusterutils "atlas-sdk-go/internal/clusterutils"
-	"atlas-sdk-go/internal/metrics"
 )
 
 // GetAverageProcessCPU fetches host CPU metrics and returns a simple average percentage over the lookback period.
@@ -161,4 +162,13 @@ func ExtractInstanceSize(cur *admin.ClusterDescription20240805) (string, error) 
 		return "", errors.New("electable specs missing instance size")
 	}
 	return es.GetInstanceSize(), nil
+}
+
+// IsSharedTier returns true if the tier is not a dedicated tier (M0, M2, M5) cluster.
+func IsSharedTier(tier string) bool {
+	if tier == "" {
+		return false
+	}
+	upper := strings.ToUpper(tier)
+	return upper == "M0" || upper == "M2" || upper == "M5"
 }

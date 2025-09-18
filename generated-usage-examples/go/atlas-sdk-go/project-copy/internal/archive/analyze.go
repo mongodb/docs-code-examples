@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"atlas-sdk-go/internal/clusterutils"
+
 	"go.mongodb.org/atlas-sdk/v20250219001/admin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-
-	clusterutils "atlas-sdk-go/internal/clusterutils"
 )
 
 // Candidate represents a collection eligible for archiving

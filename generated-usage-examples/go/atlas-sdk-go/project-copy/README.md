@@ -56,7 +56,7 @@ and improvements to existing code.
 
 - Go 1.24 or later
 - A MongoDB Atlas organization, project, and at least one cluster
-- Service account credentials with appropriate permissions. See
+- Service account credentials with appropriate permissions and IP access. See
   [Service Account Overview](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/)
 
 ## Environment Variables

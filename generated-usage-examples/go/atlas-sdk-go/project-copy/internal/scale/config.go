@@ -4,7 +4,7 @@ import (
 	"atlas-sdk-go/internal/config"
 )
 
-// Expose ScalingConfig within scale package for tests and callers while reusing config.ScalingConfig.
+// ScalingConfig exposes config within scale package for tests and callers while reusing config.ScalingConfig.
 type ScalingConfig = config.ScalingConfig
 
 const (
@@ -32,15 +32,4 @@ func LoadScalingConfig(cfg config.Config) config.ScalingConfig {
 	}
 
 	return sc
-}
-
-// DefaultScalingConfig returns ScalingConfig with sensible defaults aligned with Atlas auto-scaling guidance
-func DefaultScalingConfig() config.ScalingConfig {
-	return config.ScalingConfig{
-		TargetTier:    defaultTargetTier,
-		PreScale:      false,
-		CPUThreshold:  defaultCPUThreshold,
-		PeriodMinutes: defaultPeriodMinutes,
-		DryRun:        true, // Safe default
-	}
 }

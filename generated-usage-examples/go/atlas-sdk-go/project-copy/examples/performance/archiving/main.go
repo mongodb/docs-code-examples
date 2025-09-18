@@ -46,7 +46,6 @@ func main() {
 
 	fmt.Printf("\nFound %d clusters to analyze\n", len(clusters.GetResults()))
 
-	// Connect to each cluster and analyze collections for archiving
 	failedArchives := 0
 	skippedCandidates := 0
 	totalCandidates := 0

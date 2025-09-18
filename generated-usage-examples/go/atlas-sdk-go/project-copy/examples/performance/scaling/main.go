@@ -38,7 +38,6 @@ func main() {
 		log.Fatal("Failed to find Project ID in configuration")
 	}
 
-	// Map cluster -> detailed processes (roles) for primary detection & aggregation
 	procDetails, err := clusterutils.ListClusterProcessDetails(ctx, client, projectID)
 	if err != nil {
 		log.Printf("Warning: unable to map detailed processes to clusters: %v", err)
@@ -54,7 +53,6 @@ func main() {
 	fmt.Printf("Configuration - Target tier: %s, Pre-scale: %v, CPU threshold: %.1f%%, Period: %d min, Dry run: %v\n",
 		scaling.TargetTier, scaling.PreScale, scaling.CPUThreshold, scaling.PeriodMinutes, scaling.DryRun)
 
-	// Get all clusters in the project
 	clusterList, _, err := client.ClustersApi.ListClusters(ctx, projectID).Execute()
 	if err != nil {
 		log.Fatalf("Failed to list clusters: %v", err)
@@ -80,14 +78,12 @@ func main() {
 			continue
 		}
 
-		// Extract current tier
 		currentTier, err := scale.ExtractInstanceSize(&cluster)
 		if err != nil {
 			fmt.Printf("- Skipping cluster %s: failed to extract current tier: %v\n", clusterName, err)
 			skippedClusters++
 			continue
 		}
-
 		fmt.Printf("- Current tier: %s, Target tier: %s\n", currentTier, scaling.TargetTier)
 
 		// Skip if already at target tier
@@ -97,12 +93,12 @@ func main() {
 		}
 
 		// Shared tier handling: skip reactive CPU (metrics unavailable) unless pre-scale
-		if isSharedTier(currentTier) && !scaling.PreScale {
+		if scale.IsSharedTier(currentTier) && !scaling.PreScale {
 			fmt.Printf("- Shared tier (%s): reactive CPU metrics unavailable; skipping (enable PreScale to force scale)\n", currentTier)
 			continue
 		}
 
-		// Gather process info (for dedicated tiers)
+		// Gather process info for dedicated tiers
 		var processID string
 		var primaryID string
 		var processIDs []string
@@ -115,21 +111,20 @@ func main() {
 			}
 			processID = processIDs[0]
 		}
-		if len(processIDs) > 0 && !isSharedTier(currentTier) {
+		if len(processIDs) > 0 && !scale.IsSharedTier(currentTier) {
 			fmt.Printf("- Found %d processes (primary=%s)\n", len(processIDs), primaryID)
 		} else if processID != "" {
 			fmt.Printf("- Using process ID: %s for metrics\n", processID)
 		}
 
 		// Evaluate scaling decision based on configuration and metrics
-		// (prefer aggregated decision if multiple processes available)
 		var shouldScale bool
 		var reason string
-		if !isSharedTier(currentTier) && len(processIDs) > 0 { // dedicated tier with multiple processes
+		if !scale.IsSharedTier(currentTier) && len(processIDs) > 0 { // dedicated tier with multiple processes
 			shouldScale, reason = scale.EvaluateDecisionAggregated(ctx, client, projectID, clusterName, processIDs, primaryID, scaling)
-		} else if !isSharedTier(currentTier) && processID != "" { // fallback if no aggregation possible
+		} else if !scale.IsSharedTier(currentTier) && processID != "" { // fallback if no aggregation possible
 			shouldScale, reason = scale.EvaluateDecisionForProcess(ctx, client, projectID, clusterName, processID, scaling)
-		} else if !isSharedTier(currentTier) { // dedicated tier but no process info
+		} else if !scale.IsSharedTier(currentTier) { // dedicated tier but no process info
 			shouldScale, reason = scale.EvaluateDecision(ctx, client, projectID, clusterName, scaling)
 		} else { // shared tier (M0/M2/M5)
 			shouldScale = scaling.PreScale
@@ -154,19 +149,16 @@ func main() {
 			continue
 		}
 
-		// Execute scaling operation
 		if err := scale.ExecuteClusterScaling(ctx, client, projectID, clusterName, &cluster, scaling.TargetTier); err != nil {
 			fmt.Printf("- ERROR: Failed to scale cluster %s: %v\n", clusterName, err)
 			failedScales++
 			continue
 		}
-
 		fmt.Printf("- Successfully initiated scaling for cluster %s from %s to %s\n",
 			clusterName, currentTier, scaling.TargetTier)
 		successfulScales++
 	}
 
-	// Summary
 	fmt.Printf("\n=== Scaling Operation Summary ===\n")
 	fmt.Printf("Total clusters analyzed: %d\n", len(clusters))
 	fmt.Printf("Scaling candidates identified: %d\n", scalingCandidates)
@@ -182,15 +174,6 @@ func main() {
 		fmt.Println("\nAtlas will perform rolling resizes with zero-downtime semantics.")
 		fmt.Println("Monitor status in the Atlas UI or poll cluster states until STATE_NAME becomes IDLE.")
 	}
-
 	fmt.Println("Scaling analysis and operations completed.")
-}
-
-func isSharedTier(tier string) bool {
-	if tier == "" {
-		return false
-	}
-	upper := strings.ToUpper(tier)
-	return upper == "M0" || upper == "M2" || upper == "M5"
 }
 
