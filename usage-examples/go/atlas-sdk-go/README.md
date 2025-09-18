@@ -18,7 +18,7 @@ Currently, the repository includes examples that demonstrate the following:
 - Return all linked organizations from a specific billing organization
 - Get historical invoices for an organization
 - Programmatically archive Atlas cluster data
-- Pre-scale clusters based on specific criteria
+- Proactively or reactively scale clusters based on configuration
 
 As the Architecture Center documentation evolves, this repository will be updated with new examples 
 and improvements to existing code. 
@@ -31,13 +31,13 @@ and improvements to existing code.
 │   ├── billing/
 │   ├── monitoring/
 │   └── performance/
-├── configs              # Atlas configuration template
+├── configs              # Atlas configuration templates & environment-specific configs
 │   └── config.example.json
 ├── internal             # Shared utilities and helpers
 │   ├── archive/
 │   ├── auth/
 │   ├── billing/
-│   ├── clusters/
+│   ├── clusterutils/
 │   ├── config/
 │   ├── data/
 │   ├── errors/
@@ -54,102 +54,111 @@ and improvements to existing code.
 
 ## Prerequisites
 
-- Go 1.16 or later
-- A MongoDB Atlas project and cluster
+- Go 1.24 or later
+- A MongoDB Atlas organization, project, and at least one cluster
 - Service account credentials with appropriate permissions. See
-  [Service Account Overview](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/).
+  [Service Account Overview](https://www.mongodb.com/docs/atlas/api/service-accounts-overview/)
 
-## Setting Environment Variables
+## Environment Variables
 
-1. Create a `.env.<environment>` file in the root directory with your MongoDB Atlas service account credentials. For example, create a `.env.development` file for your dev environment: 
-   ```dotenv
-    MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
-    MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
-    ATLAS_DOWNLOADS_DIR="tmp/atlas_downloads" # optional download directory
-    CONFIG_PATH="configs/config.development.json" # optional path to Atlas config file
+Only a small set of environment variables are required. Programmatic scaling and DR settings are provided via the JSON config file — not separate env vars.
 
-   # Programmatic scaling settings 
-    SCALE_TO_TIER=M50
-    PRE_SCALE_EVENT=false
-    CPU_THRESHOLD=75.0
-    CPU_PERIOD_MINUTES=60
-    DRY_RUN=false
-   ```
-   > **NOTE:** For production, use a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) 
-   > instead of environment variables. 
-   > See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
+Create a `.env.<environment>` file (e.g. `.env.development`):
 
-2. Create a `config.<environment>.json` file in the `configs/` directory with your Atlas configuration details. For example, create a `configs/config.development.json` for your dev environment:
-   ```json
-   {
-     "MONGODB_ATLAS_BASE_URL": "<optional-base-url>",
-     "ATLAS_ORG_ID": "<your-organization-id>",
-     "ATLAS_PROJECT_ID": "<your-project-id>",
-     "ATLAS_CLUSTER_NAME": "<your-cluster-name>",
-     "ATLAS_PROCESS_ID": "<cluster-name-shard-00-00.hostsuffix.mongodb.net:port>"
-   }
-   ```
-   > **NOTE:** The base URL defaults to `https://cloud.mongodb.com` if not specified.
+```dotenv
+# Required service account credentials
+MONGODB_ATLAS_SERVICE_ACCOUNT_ID=<your_service_account_id>
+MONGODB_ATLAS_SERVICE_ACCOUNT_SECRET=<your_service_account_secret>
+
+# Optional: override default config path (defaults to configs/config.json if unset)
+CONFIG_PATH=configs/config.development.json
+
+# Optional: base directory for downloaded artifacts (logs, archives, invoices)
+ATLAS_DOWNLOADS_DIR=tmp/atlas_downloads
+```
+
+> NOTE: For production, store secrets in a secrets manager (e.g. HashiCorp Vault, AWS Secrets Manager) instead of plain environment variables. See [Secrets management](https://www.mongodb.com/docs/atlas/architecture/current/auth/#secrets-management).
+
+## Configuration File
+
+Create `configs/config.<environment>.json` (e.g. `configs/config.development.json`). If `CONFIG_PATH` is unset, the loader falls back to `configs/config.json`.
+
+Minimal example:
+```json
+{
+  "ATLAS_ORG_ID": "<your-org-id>",
+  "ATLAS_PROJECT_ID": "<your-project-id>",
+  "ATLAS_CLUSTER_NAME": "<a-cluster-name>",
+  "ATLAS_PROCESS_ID": "<cluster-hostname:port>",
+  "programmatic_scaling": {
+    "target_tier": "M50",
+    "pre_scale_event": false,
+    "cpu_threshold": 75.0,
+    "cpu_period_minutes": 60,
+    "dry_run": true
+  }
+}
+```
+
+Field notes:
+- `ATLAS_PROCESS_ID` is used for examples that operate directly on a single host (logs/metrics). Format: `hostname:port`.
+- `programmatic_scaling` (optional) controls proactive (pre_scale_event) and reactive (cpu_threshold over cpu_period_minutes) scaling.
+- `dry_run=true` ensures scaling logic logs intent without applying changes.
+- Omit `programmatic_scaling` entirely to skip scaling analysis.
+- Omit `disaster_recovery` if not exercising DR examples.
+
+Defaults applied when absent:
+- `programmatic_scaling.target_tier` → `M50`
+- `programmatic_scaling.cpu_threshold` → `75.0`
+- `programmatic_scaling.cpu_period_minutes` → `60`
+- `programmatic_scaling.dry_run` → `true`
 
 ## Running Examples
 
-Examples in this project are intended to be run as individual scripts. 
-You can also adjust them to suit your needs:
+Each example is an independent entrypoint. Ensure your `.env.<env>` and matching config file are in place, then:
 
-- Modify time ranges
-- Add filtering parameters
-- Change output formats
-
-### Billing
-#### Get Historical Invoices 
 ```bash
+# Example: run with development environment
+cp .env.example .env.development   # (or create manually)
+# edit .env.development and config file with real values
+
+# Billing - historical invoices
 go run examples/billing/historical/main.go
-```
-#### Get Line-Item-Level Billing Data
-```bash
+
+# Billing - line items
 go run examples/billing/line_items/main.go
-```
-#### Get All Linked Organizations
-```bash
+
+# Billing - linked organizations
 go run examples/billing/linked_orgs/main.go
-```
 
-### Logs
-Logs output to `./logs` as `.gz` and `.txt`.
-
-#### Fetch All Host Logs
-```bash
+# Logs - fetch host logs
 go run examples/monitoring/logs/main.go
-```
 
-### Metrics
-Metrics print to the console.
-
-#### Get Disk Measurements
-```bash
+# Metrics - disk measurements
 go run examples/monitoring/metrics_disk/main.go
-```
 
-#### Get Cluster Metrics
-```bash
+# Metrics - process CPU metrics
 go run examples/monitoring/metrics_process/main.go
-```
 
-### Performance
-
-#### Archive Cluster Data
-```bash
+# Performance - archive cluster data
 go run examples/performance/archiving/main.go
-```
 
-#### Scale Clusters 
-```bash
+# Performance - programmatic scaling (dry run by default)
 go run examples/performance/scaling/main.go
 ```
 
+### Programmatic Scaling Behavior
+
+The scaling example evaluates each cluster:
+1. Skips non-IDLE clusters.
+2. Applies `pre_scale_event` first (immediate scale intent).
+3. For dedicated tiers: collects per-process CPU, prioritizes primary; falls back to aggregated average across processes.
+4. For shared tiers (M0/M2/M5): skips reactive CPU (metrics limited); only pre-scale can trigger.
+5. When `dry_run=false`, executes a tier change to `target_tier`.
+
 ## Changelog
 
-For list of major changes to this project, see [CHANGELOG](CHANGELOG.md).
+For a list of major changes to this project, see [CHANGELOG](CHANGELOG.md).
 
 ## Reporting Issues
 

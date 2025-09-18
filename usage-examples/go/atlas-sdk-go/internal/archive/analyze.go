@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	clusterutils "atlas-sdk-go/internal/clusters"
+	clusterutils "atlas-sdk-go/internal/clusterutils"
 )
 
 // Candidate represents a collection eligible for archiving
