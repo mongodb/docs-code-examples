@@ -1,39 +1,24 @@
-source_repo: mongodb/docs-code-examples
-source_branch: test
+source_repo: "mongodb/docs-code-examples"
+source_branch: "main"
 
-copy_configs:
-  # Configuration for Go examples with pattern matching and transforms
-  generated-usage-examples/go:
-    pattern_config:
-      type: glob
-      include:
-        - "generated-usage-examples/go/**/*"
-      transforms:
-        - from: "generated-usage-examples/go/atlas-sdk-go/project-copy/${nameWithoutExt}.${ext}"
-          to: "code-samples/${dir}/${nameWithoutExt}.${ext}"
+copy_rules:
+  - name: "all-generated-examples"
+    source_pattern:
+      type: "glob"
+      pattern: "generated-usage-examples/**/*"
     targets:
-      - repo: mongodb/atlas-architecture-cli
-        branch: v2
-        target_path: examples/
-    commit_strategy:
-      type: pr
-      auto_merge: false
-      pr_title: "REVIEW REQUIRED: Critical examples updated"
-
-  # Configuration for all generated usage examples (simple copy)
-  generated-usage-examples:
-    targets:
-      - repo: mongodb/atlas-architecture-cli
-        branch: v2
-        target_path: examples-v2/
-
-default_commit_strategy:
-  type: direct
-  commit_message: "Automated update from source repo"
-
-default_committer:
-  name: "Examples Copier Bot"
-  email: "copier@example.com"
-
-recursive_copy: true
-dry_run: false
+      - repo: "mongodb/atlas-architecture-cli"
+        branch: "main"
+        path_transform: "${path}"
+        commit_strategy:
+          type: "pull_request"
+          pr_title: "Update code examples from docs-code-examples PR #${pr_number}"
+          pr_body: |
+            Automated update of code examples from docs-code-examples.
+            
+            Source PR: #${pr_number}
+            Commit: ${commit_sha}
+            
+            Files updated:
+            - See commits for details
+          commit_message: "Update code examples from PR #${pr_number}"
