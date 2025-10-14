@@ -1,5 +1,5 @@
 source_repo: "mongodb/docs-code-examples"
-source_branch: "test"
+source_branch: "main"
 
 copy_rules:
   - name: "all-generated-examples"
