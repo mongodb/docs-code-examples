@@ -1,5 +1,5 @@
 source_repo: "mongodb/docs-code-examples"
-source_branch: "main"
+source_branch: "test"
 
 copy_rules:
   - name: "all-generated-examples"
@@ -22,3 +22,40 @@ copy_rules:
             Files updated:
             - See commits for details
           commit_message: "Update code examples from PR #${pr_number}"
+  - name: "test-recursive-copy-commit"
+    source_pattern:
+      type: "prefix"
+      # Copies everything from test/ directory (including subdirectories)
+      pattern: "test/"
+    targets:
+      # Target: 10gen/docs-mongodb-internal repository
+      - repo: "10gen/docs-mongodb-internal"
+        branch: "cab-copier-test"
+        # Keep the same structure: test/ -> code-example-tests/test/
+        path_transform: "code-example-tests/commit/${path}"
+        commit_strategy:
+          # Using direct commit for faster testing
+          type: "direct"
+          commit_message: "Test: Recursive copy from ${source_repo} PR #${pr_number}"
+        deprecation_check:
+          enabled: false  # Disabled for testing
+  - name: "test-recursive-copy-pr"
+    source_pattern:
+      type: "prefix"
+      # Copies everything from test/ directory (including subdirectories)
+      pattern: "test/"
+    targets:
+      # Target: 10gen/docs-mongodb-internal repository
+      - repo: "10gen/docs-mongodb-internal"
+        branch: "cab-copier-test"
+        # Keep the same structure: test/ -> code-example-tests/test/
+        path_transform: "code-example-tests/${path}"
+        commit_strategy:
+          # Using direct commit for faster testing
+          type: "pull_request"
+          commit_message: "Test: Recursive copy from ${source_repo} PR #${pr_number}"
+          pr_title: "Test: Recursive copy from ${source_repo} PR #${pr_number}"
+          pr_body: "Automated update of code examples from ${source_repo} PR #${pr_number}"
+          auto_merge: false
+        deprecation_check:
+          enabled: true  # Disabled for testing
