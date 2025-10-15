@@ -2,36 +2,36 @@ source_repo: "mongodb/docs-code-examples"
 source_branch: "main"
 
 copy_rules:
-  - name: "all-generated-examples"
-    source_pattern:
-      type: "glob"
-      pattern: "generated-usage-examples/**/*"
-    targets:
-      - repo: "mongodb/atlas-architecture-cli"
-        branch: "main"
-        path_transform: "${path}"
-        commit_strategy:
-          type: "pull_request"
-          pr_title: "Update code examples from docs-code-examples PR #${pr_number}"
-          pr_body: |
-            Automated update of code examples from docs-code-examples.
+  # - name: "all-generated-examples"
+  #   source_pattern:
+  #     type: "glob"
+  #     pattern: "generated-usage-examples/**/*"
+  #   targets:
+  #     - repo: "mongodb/atlas-architecture-cli"
+  #       branch: "main"
+  #       path_transform: "${path}"
+  #       commit_strategy:
+  #         type: "pull_request"
+  #         pr_title: "Update code examples from docs-code-examples PR #${pr_number}"
+  #         pr_body: |
+  #           Automated update of code examples from docs-code-examples.
             
-            Source PR: #${pr_number}
-            Commit: ${commit_sha}
+  #           Source PR: #${pr_number}
+  #           Commit: ${commit_sha}
             
-            Files updated:
-            - See commits for details
-          commit_message: "Update code examples from PR #${pr_number}"
+  #           Files updated:
+  #           - See commits for details
+  #         commit_message: "Update code examples from PR #${pr_number}"
   - name: "test-recursive-copy-commit"
     source_pattern:
       type: "prefix"
       # Copies everything from test/ directory (including subdirectories)
       pattern: "test/"
     targets:
-      # Target: 10gen/docs-mongodb-internal repository
+      # Target: 10gen/docs-mongodb-internal repository (testing cross-org copying)
       - repo: "10gen/docs-mongodb-internal"
-        branch: "cab-copier-test"
-        # Keep the same structure: test/ -> code-example-tests/test/
+        branch: "cab-copier-test"  # Testing with a non-main branch in different org
+        # Keep the same structure: test/ -> code-example-tests/commit/test/
         path_transform: "code-example-tests/commit/${path}"
         commit_strategy:
           # Using direct commit for faster testing
@@ -45,9 +45,9 @@ copy_rules:
       # Copies everything from test/ directory (including subdirectories)
       pattern: "test/"
     targets:
-      # Target: 10gen/docs-mongodb-internal repository
+      # Target: 10gen/docs-mongodb-internal repository (testing cross-org copying)
       - repo: "10gen/docs-mongodb-internal"
-        branch: "cab-copier-test"
+        branch: "main"  # Testing with a main branch in different org
         # Keep the same structure: test/ -> code-example-tests/test/
         path_transform: "code-example-tests/${path}"
         commit_strategy:
