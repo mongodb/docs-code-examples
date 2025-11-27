@@ -23,7 +23,7 @@ jobs:
             --arg title "$ISSUE_TITLE" \
             --arg user "$ISSUE_USER" \
             --arg url "$ISSUE_URL" \
-            '*📢 @DevDocs a PR was opened or issue created  in  \($repo) 📢*')
+            '*📢 @DevDocs a PR was opened or issue created  in  \($repo) 📢')
 
           # Build Slack payload
           SLACK_PAYLOAD=$(jq -n \
