@@ -13,7 +13,7 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           # Make sure this secret name matches what is in your Repo Settings
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           # Build Slack payload safely using jq
           SLACK_PAYLOAD=$(jq -n \
