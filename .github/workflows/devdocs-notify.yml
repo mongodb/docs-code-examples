@@ -9,7 +9,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for new PR or issues
+      - name: Check for new PR or issues 
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_USER: ${{ github.event.issue.user.login }}
@@ -23,7 +23,7 @@ jobs:
             --arg title "$ISSUE_TITLE" \
             --arg user "$ISSUE_USER" \
             --arg url "$ISSUE_URL" \
-            '*📢 @DevDocs a PR was opened or issue created  in  \($repo) 📢*')
+            '*📢 @DevDocs a PR was opened or issue created  in  \($repo) 📢')
 
           # Build Slack payload
           SLACK_PAYLOAD=$(jq -n \
