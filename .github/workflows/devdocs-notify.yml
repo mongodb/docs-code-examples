@@ -11,28 +11,18 @@ jobs:
     steps:
       - name: Check for new PR or issues 
         env:
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_USER: ${{ github.event.issue.user.login }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
           REPO_NAME: ${{ github.repository }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # Make sure this secret name matches what is in your Repo Settings
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          # Build message text using jq to safely handle user input
-          MESSAGE_TEXT=$(jq -n \
-            --arg repo "$REPO_NAME" \
-            --arg title "$ISSUE_TITLE" \
-            --arg user "$ISSUE_USER" \
-            --arg url "$ISSUE_URL" \
-           '"📢 @DevDocs a PR was opened or issue created in \($repo)"'
-
-          # Build Slack payload
+          # Build Slack payload safely using jq
           SLACK_PAYLOAD=$(jq -n \
-            --arg text "$MESSAGE_TEXT" \
+            --arg repo "$REPO_NAME" \
             '{
               "channel": "#docs-devdocs-notifications",
               "username": "Issue Notifier",
               "icon_emoji": ":mega:",
-              "text": $text
+              "text": "📢 @DevDocs a PR was opened or issue created in \($repo)"
             }')
 
           # Send to Slack
